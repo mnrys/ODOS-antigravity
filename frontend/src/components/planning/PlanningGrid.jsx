@@ -10,9 +10,12 @@ import {
   Euro,
   Info,
   Plus,
-  GripVertical
+  GripVertical,
+  Calendar,
+  ArrowRightLeft
 } from 'lucide-react';
 import { getPhotoUrl } from '../../utils/imageUtils';
+import MoveSlotModal from './MoveSlotModal';
 
 const START_MINUTES = 420;  // 07:00
 const END_MINUTES = 1380;   // 23:00
@@ -50,6 +53,8 @@ export default function PlanningGrid({
   const [hoveredSlot, setHoveredSlot] = useState(null);
   const [hoverPos, setHoverPos] = useState({ x: 0, y: 0 });
   const [dragOverDay, setDragOverDay] = useState(null);
+  const [dragOverMinutes, setDragOverMinutes] = useState(null);
+  const [slotToMove, setSlotToMove] = useState(null);
   const gridContainerRef = useRef(null);
 
   // Zoom via Ctrl + Molette sur la grille (US-13)
@@ -111,25 +116,28 @@ export default function PlanningGrid({
   // Gestion du Drop sur une colonne de jour
   const handleColumnDrop = (e, jour) => {
     e.preventDefault();
+    e.stopPropagation();
     setDragOverDay(null);
+    setDragOverMinutes(null);
 
     const rawData = e.dataTransfer.getData('text/plain');
     if (!rawData) return;
 
     try {
       const payload = JSON.parse(rawData);
-      const rect = e.currentTarget.getBoundingClientRect();
+      const colElement = e.currentTarget.closest('[data-planning-column-day]') || e.currentTarget;
+      const rect = colElement.getBoundingClientRect();
       const clickY = e.clientY - rect.top;
       const minutesFromStart = (clickY / hourHeight) * 60;
 
-      // Aimantation selon granularité
+      // Aimantation selon granularité (15 ou 30 min)
       const snapMinutes = granularity === '1/2' ? 30 : 15;
       const snappedMinutes = Math.floor(minutesFromStart / snapMinutes) * snapMinutes;
       const calculatedStart = Math.min(Math.max(START_MINUTES + snappedMinutes, START_MINUTES), END_MINUTES - 15);
 
       if (payload.type === 'slot_move') {
         // Déplacement d'un créneau existant
-        const duration = payload.heure_fin - payload.heure_debut;
+        const duration = (payload.heure_fin - payload.heure_debut) || 60;
         const calculatedEnd = Math.min(calculatedStart + duration, END_MINUTES);
         if (onMoveSlot) {
           onMoveSlot(payload.slot_id, jour, calculatedStart, calculatedEnd);
@@ -261,15 +269,25 @@ export default function PlanningGrid({
             return (
               <div
                 key={jour}
+                data-planning-column-day={jour}
                 onClick={(e) => handleGridCellClick(e, jour)}
                 onDoubleClick={(e) => handleGridCellDoubleClick(e, jour)}
                 onDragOver={(e) => {
                   e.preventDefault();
-                  e.dataTransfer.dropEffect = 'copy';
+                  e.dataTransfer.dropEffect = 'move';
                   if (dragOverDay !== jour) setDragOverDay(jour);
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const clickY = e.clientY - rect.top;
+                  const mins = Math.floor(((clickY / hourHeight) * 60) / 15) * 15 + START_MINUTES;
+                  setDragOverMinutes(Math.min(Math.max(mins, START_MINUTES), END_MINUTES - 15));
                 }}
-                onDragLeave={() => {
-                  if (dragOverDay === jour) setDragOverDay(null);
+                onDragLeave={(e) => {
+                  if (!e.currentTarget.contains(e.relatedTarget)) {
+                    if (dragOverDay === jour) {
+                      setDragOverDay(null);
+                      setDragOverMinutes(null);
+                    }
+                  }
                 }}
                 onDrop={(e) => handleColumnDrop(e, jour)}
                 className={`relative border-r border-[#E6E4DF] last:border-r-0 transition-colors cursor-pointer ${
@@ -304,6 +322,20 @@ export default function PlanningGrid({
                   </div>
                 ))}
 
+                {/* Indicateur de survol lors du glisser-déposer */}
+                {isDragTarget && dragOverMinutes !== null && (
+                  <div
+                    className="absolute left-1 right-1 border-2 border-dashed border-[#3F7A55] bg-[#3F7A55]/20 rounded-xl pointer-events-none z-30 flex items-center justify-between px-3 text-[10px] font-extrabold text-[#3F7A55] shadow-sm animate-pulse"
+                    style={{
+                      top: `${((dragOverMinutes - START_MINUTES) / 60) * hourHeight}px`,
+                      height: `${hourHeight}px`
+                    }}
+                  >
+                    <span>Déposer ici</span>
+                    <span>{minsToTimeString(dragOverMinutes)}</span>
+                  </div>
+                )}
+
                 {/* Créneaux du jour */}
                 {daySlots.map((slot) => {
                   const top = ((slot.heure_debut - START_MINUTES) / 60) * hourHeight;
@@ -327,7 +359,11 @@ export default function PlanningGrid({
                             jour: slot.jour
                           })
                         );
-                        e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.effectAllowed = 'all';
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
                       }}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -351,19 +387,20 @@ export default function PlanningGrid({
                     >
                       {/* En vue 1 Jour spacieuse vs 3 Jours / Semaine */}
                       {visibleDays.length === 1 && height >= 60 ? (
-                        /* Vue 1 Jour : Format étendu avec photo proéminente (occupant ~70% de la largeur du bloc photo/info) */
-                        <div className="flex items-stretch gap-3 min-w-0 h-full">
+                        /* Vue 1 Jour : Format étendu avec photo proéminente */
+                        <div className="flex items-stretch gap-3 min-w-0 h-full pointer-events-none">
                           {(slot.photo_url || slot.photo_principale) && (
                             <div className="w-1/3 sm:w-2/5 max-w-[200px] h-full rounded-lg overflow-hidden shrink-0 border border-black/10 shadow-2xs">
                               <img
                                 src={getPhotoUrl(slot.photo_url || slot.photo_principale)}
                                 alt={slot.titre}
+                                draggable={false}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                               />
                             </div>
                           )}
 
-                          <div className="min-w-0 flex-1 flex flex-col justify-between py-0.5">
+                          <div className="min-w-0 flex-1 flex flex-col justify-between py-0.5 pointer-events-auto">
                             <div>
                               <div className="flex items-center justify-between gap-1">
                                 <div className="flex items-center gap-1.5 min-w-0">
@@ -375,6 +412,19 @@ export default function PlanningGrid({
 
                                 {/* Actions rapides */}
                                 <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  {!isLocked && (
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSlotToMove(slot);
+                                      }}
+                                      title="Déplacer / Changer d'horaire"
+                                      className="p-1 rounded-md bg-white/90 hover:bg-[#3F7A55] text-[#55565A] hover:text-white shadow-2xs transition-colors"
+                                    >
+                                      <Calendar className="w-3 h-3" />
+                                    </button>
+                                  )}
                                   <button
                                     type="button"
                                     onClick={(e) => {
@@ -436,7 +486,8 @@ export default function PlanningGrid({
                               <img
                                 src={getPhotoUrl(slot.photo_url || slot.photo_principale)}
                                 alt={slot.titre}
-                                className="w-9 h-9 md:w-10 md:h-10 rounded-lg object-cover shrink-0 border border-black/10 shadow-2xs"
+                                draggable={false}
+                                className="w-9 h-9 md:w-10 md:h-10 rounded-lg object-cover shrink-0 border border-black/10 shadow-2xs pointer-events-none"
                               />
                             )}
 
@@ -462,6 +513,19 @@ export default function PlanningGrid({
 
                             {/* Boutons d'action rapides */}
                             <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                              {!isLocked && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSlotToMove(slot);
+                                  }}
+                                  title="Déplacer / Changer d'horaire"
+                                  className="p-1 rounded-md bg-white/90 hover:bg-[#3F7A55] text-[#55565A] hover:text-white shadow-2xs transition-colors"
+                                >
+                                  <Calendar className="w-3 h-3" />
+                                </button>
+                              )}
                               <button
                                 type="button"
                                 onClick={(e) => {
@@ -563,6 +627,19 @@ export default function PlanningGrid({
           )}
         </div>
       )}
+      {/* Modale de déplacement rapide de créneau */}
+      <MoveSlotModal
+        isOpen={!!slotToMove}
+        onClose={() => setSlotToMove(null)}
+        slot={slotToMove}
+        nbJours={visibleDays.length > 0 ? Math.max(...visibleDays, 7) : 7}
+        tripStartDate={tripStartDate}
+        onSave={async (slotId, newJour, newStart, newEnd) => {
+          if (onMoveSlot) {
+            await onMoveSlot(slotId, newJour, newStart, newEnd);
+          }
+        }}
+      />
     </div>
   );
 }

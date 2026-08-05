@@ -15,6 +15,7 @@ import {
   LayoutGrid,
   Columns
 } from 'lucide-react';
+import MoveSlotModal from '../planning/MoveSlotModal';
 
 const START_MINUTES = 420; // 07:00
 const END_MINUTES = 1380;  // 23:00
@@ -43,6 +44,7 @@ export default function PlanningSidebarDrawer({
   const [error, setError] = useState(null);
   const [toast, setToast] = useState(null);
   const [dragOverTarget, setDragOverTarget] = useState(null); // { day, hourMinutes }
+  const [slotToMove, setSlotToMove] = useState(null);
 
   const fetchPlanning = useCallback(async () => {
     try {
@@ -417,7 +419,7 @@ export default function PlanningSidebarDrawer({
                           }}
                           onDragOver={(e) => {
                             e.preventDefault();
-                            e.dataTransfer.dropEffect = 'copy';
+                            e.dataTransfer.dropEffect = 'move';
                             if (dragOverTarget?.day !== dayNum || dragOverTarget?.hourMinutes !== hourMinutes) {
                               setDragOverTarget({ day: dayNum, hourMinutes });
                             }
@@ -469,7 +471,11 @@ export default function PlanningSidebarDrawer({
                               heure_fin: slot.heure_fin,
                               jour: slot.jour
                             }));
-                            e.dataTransfer.effectAllowed = 'move';
+                            e.dataTransfer.effectAllowed = 'all';
+                          }}
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            e.dataTransfer.dropEffect = 'move';
                           }}
                           className={`absolute inset-x-1 rounded-lg p-1.5 shadow-xs border flex items-center justify-between overflow-hidden group hover:z-20 transition-all ${
                             slot.verrouille ? 'cursor-not-allowed opacity-90' : 'cursor-grab active:cursor-grabbing hover:shadow-md'
@@ -492,17 +498,32 @@ export default function PlanningSidebarDrawer({
                             </span>
                           </div>
 
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteSlot(slot.id);
-                            }}
-                            title="Retirer du planning"
-                            className="p-1 rounded bg-white/90 text-[#55565A] hover:text-[#C95D4E] opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </button>
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                            {!slot.verrouille && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSlotToMove(slot);
+                                }}
+                                title="Déplacer l'activité"
+                                className="p-1 rounded bg-white/90 hover:bg-[#3F7A55] text-[#55565A] hover:text-white transition-colors"
+                              >
+                                <Calendar className="w-3 h-3" />
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteSlot(slot.id);
+                              }}
+                              title="Retirer du planning"
+                              className="p-1 rounded bg-white/90 text-[#55565A] hover:text-[#C95D4E] transition-colors"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
                         </div>
                       );
                     })}
@@ -513,6 +534,18 @@ export default function PlanningSidebarDrawer({
           </div>
         </div>
       )}
+
+      {/* Modale de déplacement rapide */}
+      <MoveSlotModal
+        isOpen={!!slotToMove}
+        onClose={() => setSlotToMove(null)}
+        slot={slotToMove}
+        nbJours={nbJours}
+        tripStartDate={planningData?.trip?.date_debut}
+        onSave={async (slotId, targetDay, startHour, endHour) => {
+          await handleMoveSlot(slotId, targetDay, startHour, endHour);
+        }}
+      />
     </>
   );
 }
