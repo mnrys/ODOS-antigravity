@@ -321,6 +321,10 @@ export default function PlanningPage({ tripId = 1 }) {
             onDeleteSlot={handleDeleteSlot}
             onOpenSlotDetail={handleOpenSlotDetail}
             onEmptySlotClick={handleEmptySlotClick}
+            onCloseDrawers={() => {
+              setIsDetailDrawerOpen(false);
+              setIsUnplacedOpen(false);
+            }}
             onDropActivity={handleQuickPlace}
             onMoveSlot={handleMoveSlot}
           />

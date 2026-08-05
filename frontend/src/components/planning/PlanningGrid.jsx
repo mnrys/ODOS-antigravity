@@ -36,6 +36,7 @@ export default function PlanningGrid({
   onDeleteSlot,
   onOpenSlotDetail,
   onEmptySlotClick,
+  onCloseDrawers,
   onDropActivity,
   onMoveSlot
 }) {
@@ -49,10 +50,8 @@ export default function PlanningGrid({
     const handleWheel = (e) => {
       if (e.ctrlKey) {
         e.preventDefault();
-        const delta = e.deltaY < 0 ? 5 : -5;
-        if (setHourHeight) {
-          setHourHeight((prev) => Math.min(Math.max(prev + delta, 50), 140));
-        }
+        const delta = e.deltaY < 0 ? 6 : -6;
+        setHourHeight((prev) => Math.min(Math.max(prev + delta, 40), 160));
       }
     };
 
@@ -63,23 +62,31 @@ export default function PlanningGrid({
     }
   }, [setHourHeight]);
 
-  // Formattage de date pour l'en-tête du jour (ex: "Samedi 10 Octobre")
-  const formatDayDate = (dayNumber) => {
+  // Formatage de la date en français pour le jour donné
+  const formatDayDate = (jourIndex) => {
     if (!tripStartDate) return null;
-    const d = new Date(tripStartDate);
-    d.setDate(d.getDate() + (dayNumber - 1));
-    return d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+    try {
+      const d = new Date(tripStartDate);
+      d.setDate(d.getDate() + (jourIndex - 1));
+      return d.toLocaleDateString('fr-FR', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short'
+      });
+    } catch {
+      return null;
+    }
   };
 
-  // Convertit des minutes en chaîne HH:MM
-  const minsToTimeString = (mins) => {
-    const h = Math.floor(mins / 60);
-    const m = mins % 60;
-    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-  };
-
-  // Clic sur une case vide pour créer rapidement un créneau (US-16)
+  // Simple clic sur une case vide : ferme le volet latéral et désélectionne
   const handleGridCellClick = (e, jour) => {
+    if (onCloseDrawers) {
+      onCloseDrawers();
+    }
+  };
+
+  // Double-clic sur une case vide : ouvre la modale d'ajout de bloc libre (US-16)
+  const handleGridCellDoubleClick = (e, jour) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const clickY = e.clientY - rect.top;
     const minutesFromStart = (clickY / hourHeight) * 60;
@@ -248,6 +255,7 @@ export default function PlanningGrid({
               <div
                 key={jour}
                 onClick={(e) => handleGridCellClick(e, jour)}
+                onDoubleClick={(e) => handleGridCellDoubleClick(e, jour)}
                 onDragOver={(e) => {
                   e.preventDefault();
                   e.dataTransfer.dropEffect = 'copy';
@@ -316,7 +324,6 @@ export default function PlanningGrid({
                       }}
                       onClick={(e) => {
                         e.stopPropagation();
-                        onOpenSlotDetail && onOpenSlotDetail(slot);
                       }}
                       onDoubleClick={(e) => {
                         e.stopPropagation();

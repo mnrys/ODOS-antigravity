@@ -95,13 +95,13 @@ function ActivityCardNode({ data, selected }) {
       onDragStart={handleDragStart}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
-      className={`w-[300px] rounded-2xl bg-white border transition-all duration-200 select-none cursor-grab active:cursor-grabbing relative overflow-hidden transform hover:-translate-y-1 hover:shadow-xl active:-rotate-[1deg] ${
+      className={`w-[320px] rounded-2xl bg-white border transition-all duration-200 select-none cursor-grab active:cursor-grabbing relative overflow-hidden transform hover:-translate-y-1 hover:shadow-xl active:-rotate-[1deg] ${
         isHighlighted
           ? 'ring-2 ring-[#3F7A55] border-[#3F7A55] shadow-xl shadow-[#3F7A55]/10'
           : 'border-[#E6E4DF] shadow-xs hover:border-[#8E8F92]'
       } ${
         est_placée
-          ? 'opacity-75 bg-[#FAF9F7] border-dashed border-[#8E8F92]/60'
+          ? 'opacity-50 hover:opacity-85 bg-[#FAF9F7] border-dashed border-[#8E8F92]/70 shadow-none'
           : ''
       }`}
     >
@@ -153,15 +153,15 @@ function ActivityCardNode({ data, selected }) {
         </div>
       </div>
 
-      {/* 2. Corps de la carte avec miniature et extrait de description */}
-      <div className="p-3 space-y-2">
-        <div className="flex gap-2.5">
-          {/* Miniature photo */}
+      {/* 2. Corps de la carte avec miniature agrandie (112x112px) et extrait */}
+      <div className="p-3 space-y-2.5">
+        <div className="flex gap-3">
+          {/* Miniature photo agrandie (au moins le double : 112x112 px) */}
           {imageUrl ? (
             <img
               src={imageUrl}
               alt=""
-              className="w-14 h-14 rounded-xl object-cover border border-[#E6E4DF] shrink-0 cursor-pointer"
+              className="w-28 h-28 rounded-xl object-cover border border-[#E6E4DF] shrink-0 cursor-pointer shadow-2xs hover:brightness-105 transition-all"
               onClick={handlePreviewClick}
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
@@ -169,7 +169,7 @@ function ActivityCardNode({ data, selected }) {
             />
           ) : (
             <div
-              className="w-14 h-14 rounded-xl shrink-0 flex items-center justify-center text-white text-xs font-extrabold cursor-pointer"
+              className="w-28 h-28 rounded-xl shrink-0 flex items-center justify-center text-white text-lg font-extrabold cursor-pointer shadow-2xs"
               style={{ backgroundColor: categorie_couleur }}
               onClick={handlePreviewClick}
             >
@@ -177,34 +177,36 @@ function ActivityCardNode({ data, selected }) {
             </div>
           )}
 
-          <div className="min-w-0 flex-1">
-            {/* Titre cliquable pour voir les détails */}
-            <h4
-              onClick={handlePreviewClick}
-              className="text-xs font-extrabold text-[#17181A] line-clamp-2 leading-tight tracking-tight hover:text-[#3F7A55] cursor-pointer"
-              title="Cliquer pour voir la fiche détaillée"
-            >
-              {titre}
-            </h4>
+          <div className="min-w-0 flex-1 flex flex-col justify-between">
+            <div>
+              {/* Titre cliquable pour voir les détails */}
+              <h4
+                onClick={handlePreviewClick}
+                className="text-xs font-extrabold text-[#17181A] line-clamp-2 leading-tight tracking-tight hover:text-[#3F7A55] cursor-pointer"
+                title="Cliquer pour voir la fiche détaillée"
+              >
+                {titre}
+              </h4>
 
-            {zone_geo && (
-              <span className="inline-block text-[9px] font-extrabold text-[#3F7A55] mt-1 bg-[#EBF5EE] border border-[#CDE5D4] px-1.5 py-0.2 rounded uppercase">
-                Zone {zone_geo}
-              </span>
+              {zone_geo && (
+                <span className="inline-block text-[9px] font-extrabold text-[#3F7A55] mt-1 bg-[#EBF5EE] border border-[#CDE5D4] px-1.5 py-0.5 rounded uppercase">
+                  Zone {zone_geo}
+                </span>
+              )}
+            </div>
+
+            {/* Extrait concis de description ou remarques */}
+            {(description || remarques) && (
+              <p className="text-[10px] text-[#55565A] line-clamp-2 leading-snug italic bg-[#F7F6F3] p-1.5 rounded-lg border border-[#E6E4DF]/60 mt-1">
+                {description || remarques}
+              </p>
             )}
           </div>
         </div>
 
-        {/* Extrait concis de description ou remarques */}
-        {(description || remarques) && (
-          <p className="text-[11px] text-[#55565A] line-clamp-2 leading-relaxed italic bg-[#F7F6F3] p-1.5 rounded-lg border border-[#E6E4DF]/60">
-            {description || remarques}
-          </p>
-        )}
-
         {/* Tags badges légers */}
         {tags && tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 pt-0.5">
+          <div className="flex flex-wrap gap-1">
             {tags.slice(0, 3).map((t) => (
               <span
                 key={t.id || t.nom}
@@ -246,9 +248,9 @@ function ActivityCardNode({ data, selected }) {
         {/* 4. Barre inférieure : Statut Placé & Bouton Détails */}
         <div className="pt-1 flex items-center justify-between gap-2">
           {est_placée ? (
-            <div className="flex-1 flex items-center justify-center gap-1 py-1 bg-[#EBF5EE] text-[#3F7A55] border border-[#CDE5D4] rounded-lg text-[10px] font-extrabold uppercase">
-              <CalendarCheck className="w-3 h-3" />
-              <span>Placée</span>
+            <div className="flex-1 flex items-center justify-center gap-1.5 py-1 bg-[#EBF5EE] text-[#3F7A55] border border-[#CDE5D4] rounded-lg text-[10px] font-extrabold uppercase tracking-wide">
+              <CalendarCheck className="w-3.5 h-3.5" />
+              <span>Placée dans le planning</span>
             </div>
           ) : (
             <div className="flex-1" />
@@ -257,7 +259,7 @@ function ActivityCardNode({ data, selected }) {
           <button
             type="button"
             onClick={handlePreviewClick}
-            className="px-2.5 py-1 rounded-lg bg-[#F7F6F3] hover:bg-[#17181A] text-[#55565A] hover:text-white text-[10px] font-extrabold flex items-center gap-1 transition-all"
+            className="px-2.5 py-1 rounded-lg bg-[#F7F6F3] hover:bg-[#17181A] text-[#55565A] hover:text-white text-[10px] font-extrabold flex items-center gap-1 transition-all shrink-0"
             title="Consulter les détails de l'activité"
           >
             <Eye className="w-3 h-3" />

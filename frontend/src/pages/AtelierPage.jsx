@@ -344,13 +344,71 @@ function AtelierCanvas({ tripId = 1, initialDestinationId = null, onNavigateTab 
     }, 600);
   }, [activeDestinationId, layoutNom]);
 
-  // 7. Callback quand un nœud est déplacé
+  // 7. Placement direct d'une activité sur un créneau précis
+  const handlePlaceActivityOnSlot = useCallback(async (activityObj, targetDay, startHourMinutes) => {
+    if (!activityObj || !tripId) return;
+    const actId = activityObj.id || activityObj.activity_id;
+    const duration = activityObj.duree_min || 60;
+    const roundedDuration = Math.ceil(duration / 15) * 15;
+
+    try {
+      const res = await fetch(`/api/trips/${tripId}/slots`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          activity_id: actId,
+          jour: targetDay,
+          heure_debut: startHourMinutes,
+          heure_fin: startHourMinutes + roundedDuration
+        })
+      });
+
+      if (res.ok) {
+        loadWorkshopData();
+        setActiveActivityId(null);
+      }
+    } catch (err) {
+      console.error("Erreur placement activité dans le planning:", err);
+    }
+  }, [tripId, loadWorkshopData]);
+
+  // Détection du glissement d'une carte vers la bordure droite pour ouvrir automatiquement le planning (US-15)
+  const handleNodeDrag = useCallback((event, node) => {
+    if (event && event.clientX && event.clientX >= window.innerWidth - 380) {
+      setIsPlanningDrawerOpen((prev) => {
+        if (!prev) return true;
+        return prev;
+      });
+    }
+  }, []);
+
+  // Callback quand un nœud est relâché après déplacement
   const handleNodeDragStop = useCallback((event, node) => {
+    if (node.type === 'activityCard' && event) {
+      const clientX = event.clientX;
+      const clientY = event.clientY;
+
+      if (clientX && clientY) {
+        const dropTarget = document.elementFromPoint(clientX, clientY)?.closest('[data-slot-droptarget="true"]');
+        if (dropTarget) {
+          const targetDay = parseInt(dropTarget.dataset.day, 10);
+          const targetHour = parseInt(dropTarget.dataset.hour, 10);
+          const actId = parseInt(node.id.replace('activity-', ''), 10);
+          const actObj = rawActivities.find((a) => a.id === actId);
+
+          if (actObj && !isNaN(targetDay) && !isNaN(targetHour)) {
+            handlePlaceActivityOnSlot(actObj, targetDay, targetHour);
+            return;
+          }
+        }
+      }
+    }
+
     setNodes((nds) => {
       triggerAutoSave(nds);
       return nds;
     });
-  }, [setNodes, triggerAutoSave]);
+  }, [rawActivities, handlePlaceActivityOnSlot, triggerAutoSave, setNodes]);
 
   // 8. Application du groupement et positionnement en colonnes fluides
   const applyGroupingLayout = useCallback((groups, groupMeta) => {
@@ -929,7 +987,12 @@ function AtelierCanvas({ tripId = 1, initialDestinationId = null, onNavigateTab 
               setActiveActivityId(actId);
             }
           }}
+          onNodeDrag={handleNodeDrag}
           onNodeDragStop={handleNodeDragStop}
+          onPaneClick={() => {
+            setIsDetailDrawerOpen(false);
+            setActiveActivityId(null);
+          }}
           minZoom={0.2}
           maxZoom={1.5}
           defaultViewport={{ x: 20, y: 20, zoom: 0.85 }}

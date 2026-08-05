@@ -390,6 +390,9 @@ export default function PlanningSidebarDrawer({
                       return (
                         <div
                           key={hIdx}
+                          data-slot-droptarget="true"
+                          data-day={dayNum}
+                          data-hour={hourMinutes}
                           onClick={() => placeActivityOnSlot(activeActivity, dayNum, hourMinutes)}
                           onDragOver={(e) => {
                             e.preventDefault();
