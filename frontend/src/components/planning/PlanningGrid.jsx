@@ -18,6 +18,13 @@ const START_MINUTES = 420;  // 07:00
 const END_MINUTES = 1380;   // 23:00
 const TOTAL_HOURS = (END_MINUTES - START_MINUTES) / 60; // 16 heures
 
+// Convertit un nombre de minutes depuis minuit en chaîne "HH:MM"
+const minsToTimeString = (mins) => {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+};
+
 /**
  * Grille temporelle dynamique du Planning (Écran 3).
  * Intègre le glisser-déposer (HTML5 Drag & Drop), le zoom continu,

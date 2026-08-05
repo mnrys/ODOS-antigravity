@@ -32,6 +32,7 @@ export default function PlanningSidebarDrawer({
   onToggleOpen,
   tripId = 1,
   activeActivity = null,
+  refreshKey = 0,
   onSlotCreated,
   onOpenFullScreenPlanning
 }) {
@@ -63,7 +64,7 @@ export default function PlanningSidebarDrawer({
     if (isOpen) {
       fetchPlanning();
     }
-  }, [isOpen, fetchPlanning]);
+  }, [isOpen, refreshKey, fetchPlanning]);
 
   const showToast = (text, isError = false) => {
     setToast({ text, isError });
@@ -92,6 +93,32 @@ export default function PlanningSidebarDrawer({
   const visibleDays = viewMode === '1day'
     ? [selectedDay]
     : [selectedDay, selectedDay + 1, selectedDay + 2].filter((d) => d <= nbJours);
+
+  // Déplacement d'un créneau existant dans le mini-planning
+  const handleMoveSlot = async (slotId, targetDay, startHour, endHour) => {
+    try {
+      const res = await fetch(`/api/slots/${slotId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jour: targetDay,
+          heure_debut: startHour,
+          heure_fin: endHour
+        })
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || "Impossible de déplacer cette activité (créneau occupé ou verrouillé).");
+      }
+
+      showToast("Activité déplacée avec succès !");
+      await fetchPlanning();
+      if (onSlotCreated) onSlotCreated();
+    } catch (err) {
+      showToast(err.message, true);
+    }
+  };
 
   // Placement d'une activité sur un créneau précis
   const placeActivityOnSlot = async (activityObj, targetDay, startHourMinutes) => {
@@ -129,22 +156,29 @@ export default function PlanningSidebarDrawer({
     }
   };
 
-  // Gestion du drop HTML5 sur une case horaire
+  // Gestion du drop HTML5 sur une case horaire ou colonne
   const handleDropOnHour = async (e, targetDay, hourMinutes) => {
     e.preventDefault();
+    e.stopPropagation();
     setDragOverTarget(null);
     try {
       const dataStr = e.dataTransfer.getData('text/plain');
-      let act = activeActivity;
       if (dataStr) {
         try {
           const parsed = JSON.parse(dataStr);
-          if (parsed && (parsed.activity_id || parsed.id)) {
-            act = parsed;
+          if (parsed?.type === 'slot_move') {
+            const duration = (parsed.heure_fin - parsed.heure_debut) || 60;
+            await handleMoveSlot(parsed.slot_id, targetDay, hourMinutes, hourMinutes + duration);
+            return;
+          } else if (parsed && (parsed.activity_id || parsed.id)) {
+            await placeActivityOnSlot(parsed, targetDay, hourMinutes);
+            return;
           }
         } catch {}
       }
-      await placeActivityOnSlot(act, targetDay, hourMinutes);
+      if (activeActivity) {
+        await placeActivityOnSlot(activeActivity, targetDay, hourMinutes);
+      }
     } catch (err) {
       showToast(err.message, true);
     }
@@ -178,164 +212,134 @@ export default function PlanningSidebarDrawer({
         <button
           onClick={onToggleOpen}
           className="fixed right-0 top-1/2 -translate-y-1/2 z-40 bg-[#17181A] text-white px-3 py-4 rounded-l-2xl shadow-2xl flex flex-col items-center gap-2 border-y border-l border-[#55565A] hover:bg-[#3F7A55] transition-all group animate-fade-in"
-          title="Ouvrir le volet express Planning"
+          title="Ouvrir le Planning Express"
         >
-          <Calendar className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
-          <span
-            className="text-[11px] font-extrabold uppercase tracking-widest text-white"
-            style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
-          >
+          <Calendar className="w-5 h-5 text-[#D6F84C] group-hover:scale-110 transition-transform" />
+          <span className="text-[11px] font-bold tracking-wider [writing-mode:vertical-lr] rotate-180 text-[#FAF9F7]">
             Planning
           </span>
         </button>
       )}
 
-      {/* Volet Latéral Rétractable (z-50 pour être toujours au premier plan) */}
+      {/* Panneau latéral rétractable */}
       {isOpen && (
-        <div className={`fixed inset-y-0 right-0 z-50 bg-white border-l border-[#E6E4DF] shadow-2xl flex flex-col animate-slide-in transition-all duration-300 ${
-          viewMode === '3days' ? 'w-full max-w-2xl md:max-w-3xl' : 'w-full max-w-md'
-        }`}>
-          {/* Header */}
-          <div className="p-3.5 border-b border-[#E6E4DF] bg-[#F7F6F3] flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#17181A] text-[#D6F84C] flex items-center justify-center font-bold">
-                <Calendar className="w-4 h-4" />
+        <div className="fixed right-0 top-0 bottom-0 w-[380px] md:w-[480px] z-40 bg-[#FAF9F7] shadow-2xl border-l border-[#E6E4DF] flex flex-col animate-slide-in-right">
+          {/* En-tête du volet */}
+          <div className="p-3.5 bg-white border-b border-[#E6E4DF] flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-[#3F7A55]/10 rounded-xl text-[#3F7A55]">
+                <Calendar className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-sm font-extrabold text-[#17181A]">Planning express</h3>
-                <p className="text-[11px] text-[#55565A]">Glissez ou cliquez directement pour planifier</p>
+                <h3 className="text-sm font-extrabold text-[#17181A]">Planning Express</h3>
+                <p className="text-[11px] text-[#55565A]">
+                  Glissez une fiche ou déplacez un créneau
+                </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              {/* Bascule vue 1 jour / 3 jours */}
-              <div className="flex items-center bg-[#E6E4DF]/70 p-0.5 rounded-xl">
+            <div className="flex items-center gap-1.5">
+              {/* Bascule Vue 1 Jour / 3 Jours */}
+              <div className="bg-[#F1F0ED] p-0.5 rounded-lg flex items-center border border-[#E6E4DF]">
                 <button
                   type="button"
                   onClick={() => setViewMode('1day')}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                  className={`px-2 py-1 rounded-md text-xs font-bold transition-all flex items-center gap-1 ${
                     viewMode === '1day'
                       ? 'bg-white text-[#17181A] shadow-xs'
                       : 'text-[#55565A] hover:text-[#17181A]'
                   }`}
-                  title="Vue 1 jour détaillé"
+                  title="Vue 1 Jour"
                 >
-                  1 jour
+                  <Columns className="w-3.5 h-3.5" /> 1j
                 </button>
                 <button
                   type="button"
                   onClick={() => setViewMode('3days')}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                  className={`px-2 py-1 rounded-md text-xs font-bold transition-all flex items-center gap-1 ${
                     viewMode === '3days'
                       ? 'bg-white text-[#17181A] shadow-xs'
                       : 'text-[#55565A] hover:text-[#17181A]'
                   }`}
-                  title="Vue 3 jours simultanés"
+                  title="Vue 3 Jours"
                 >
-                  3 jours
+                  <LayoutGrid className="w-3.5 h-3.5" /> 3j
                 </button>
               </div>
 
-              {onOpenFullScreenPlanning && (
-                <button
-                  type="button"
-                  onClick={onOpenFullScreenPlanning}
-                  title="Ouvrir le grand écran Planning"
-                  className="p-1.5 rounded-lg text-[#55565A] hover:text-[#17181A] hover:bg-[#E6E4DF] transition-colors"
-                >
-                  <Maximize2 className="w-4 h-4" />
-                </button>
-              )}
+              {/* Bouton Grand écran */}
+              <button
+                type="button"
+                onClick={onOpenFullScreenPlanning}
+                className="p-1.5 text-[#55565A] hover:text-[#17181A] hover:bg-[#F1F0ED] rounded-lg transition-all"
+                title="Ouvrir le Planning complet"
+              >
+                <Maximize2 className="w-4 h-4" />
+              </button>
+
+              {/* Bouton Fermer */}
               <button
                 type="button"
                 onClick={onToggleOpen}
-                className="p-1.5 rounded-lg text-[#55565A] hover:text-[#17181A] hover:bg-[#E6E4DF] transition-colors"
+                className="p-1.5 text-[#55565A] hover:text-[#17181A] hover:bg-[#F1F0ED] rounded-lg transition-all"
+                title="Fermer le volet"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          {/* Toast de notification / feedback */}
+          {/* Toast de notification dans le volet */}
           {toast && (
             <div
-              className={`p-2.5 text-xs font-bold flex items-center gap-2 border-b animate-fade-in ${
+              className={`mx-3 mt-2 p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 border animate-fade-in shrink-0 ${
                 toast.isError
-                  ? 'bg-[#FAF0EE] text-[#C95D4E] border-[#E8C5BE]'
-                  : 'bg-[#17181A] text-[#D6F84C] border-black'
+                  ? 'bg-[#C95D4E]/10 border-[#C95D4E]/30 text-[#C95D4E]'
+                  : 'bg-[#3F7A55]/10 border-[#3F7A55]/30 text-[#3F7A55]'
               }`}
             >
-              {toast.isError ? <AlertCircle className="w-4 h-4 shrink-0" /> : <CheckCircle2 className="w-4 h-4 text-[#D6F84C] shrink-0" />}
-              <span>{toast.text}</span>
+              {toast.isError ? <AlertCircle className="w-4 h-4 shrink-0" /> : <CheckCircle2 className="w-4 h-4 shrink-0" />}
+              <span className="flex-1">{toast.text}</span>
             </div>
           )}
 
-          {/* Sélecteur de jour & Date réelle & Budget */}
-          <div className="p-3 bg-[#FAF9F7] border-b border-[#E6E4DF] flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => setSelectedDay((d) => Math.max(d - (viewMode === '3days' ? 3 : 1), 1))}
-                disabled={selectedDay <= 1}
-                className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#E6E4DF] bg-white text-[#17181A] disabled:opacity-30 transition-colors cursor-pointer"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-              </button>
+          {/* Sélecteur de jour rapide */}
+          <div className="px-3 py-2 bg-white border-b border-[#E6E4DF] flex items-center justify-between shrink-0">
+            <button
+              type="button"
+              disabled={selectedDay <= 1}
+              onClick={() => setSelectedDay((d) => Math.max(1, d - 1))}
+              className="p-1 rounded-lg text-[#55565A] hover:bg-[#F1F0ED] disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
 
-              <div className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg border border-[#E6E4DF] shadow-2xs">
-                <span className="text-xs font-extrabold text-[#17181A]">
-                  {viewMode === '3days'
-                    ? `Jours ${visibleDays.join(', ')} / ${nbJours}`
-                    : `Jour ${selectedDay} / ${nbJours}`}
-                </span>
-                {getDayFormattedDate(selectedDay) && (
-                  <span className="text-[11px] font-semibold text-[#55565A] border-l border-[#E6E4DF] pl-2 capitalize">
-                    {getDayFormattedDate(selectedDay)}
-                  </span>
-                )}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setSelectedDay((d) => Math.min(d + (viewMode === '3days' ? 3 : 1), nbJours))}
-                disabled={selectedDay >= nbJours || (viewMode === '3days' && selectedDay + 2 >= nbJours)}
-                className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#E6E4DF] bg-white text-[#17181A] disabled:opacity-30 transition-colors cursor-pointer"
-              >
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
+            <div className="flex items-center gap-1 overflow-x-auto py-0.5 no-scrollbar max-w-[300px]">
+              {Array.from({ length: nbJours }, (_, i) => i + 1).map((dayNum) => (
+                <button
+                  key={dayNum}
+                  type="button"
+                  onClick={() => setSelectedDay(dayNum)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all shrink-0 ${
+                    visibleDays.includes(dayNum)
+                      ? 'bg-[#3F7A55] text-white shadow-xs'
+                      : 'bg-[#F1F0ED] text-[#55565A] hover:bg-[#E6E4DF]'
+                  }`}
+                >
+                  J{dayNum}
+                </button>
+              ))}
             </div>
 
-            {viewMode === '1day' && (
-              <div className="flex items-center gap-1 text-xs font-bold text-[#17181A] bg-white px-2.5 py-1 rounded-lg border border-[#E6E4DF]">
-                <Euro className="w-3 h-3 text-[#B9862F]" />
-                <span>{Math.round(planningData?.daily_budgets?.[selectedDay] || 0)} €</span>
-              </div>
-            )}
+            <button
+              type="button"
+              disabled={selectedDay >= nbJours}
+              onClick={() => setSelectedDay((d) => Math.min(nbJours, d + 1))}
+              className="p-1 rounded-lg text-[#55565A] hover:bg-[#F1F0ED] disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
-
-          {/* Activité active sélectionnée ou indication */}
-          {activeActivity ? (
-            <div className="p-2.5 bg-[#FAF3E7] border-b border-[#E8D4B0] flex items-center justify-between gap-2 animate-fade-in">
-              <div className="min-w-0 flex-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#B9862F] block">
-                  Activité sélectionnée
-                </span>
-                <p className="text-xs font-extrabold text-[#17181A] truncate">
-                  {activeActivity.titre}
-                </p>
-                <span className="text-[10px] text-[#55565A]">
-                  Durée : {activeActivity.duree_min || 60} min
-                </span>
-              </div>
-              <span className="text-[10px] font-bold text-[#B9862F] bg-white px-2 py-1 rounded-md border border-[#E8D4B0] shrink-0 shadow-xs">
-                Cliquez sur une case ou glissez
-              </span>
-            </div>
-          ) : (
-            <div className="p-2 bg-[#FAF9F7] border-b border-[#E6E4DF] text-center text-[11px] text-[#8E8F92]">
-              💡 Glissez une carte d'activité ou cliquez sur une heure
-            </div>
-          )}
 
           {/* En-tête des colonnes de jours en mode 3 jours */}
           {viewMode === '3days' && (
@@ -346,7 +350,7 @@ export default function PlanningSidebarDrawer({
                     Jour {d}
                   </span>
                   <span className="text-[10px] font-semibold text-[#55565A] capitalize block truncate">
-                    {getDayFormattedDate(d) || `Journée ${d}`}
+                    {getDayFormattedDate(d) || `J${d}`}
                   </span>
                 </div>
               ))}
@@ -379,7 +383,19 @@ export default function PlanningSidebarDrawer({
                 return (
                   <div
                     key={dayNum}
+                    data-planning-sidebar-day={dayNum}
                     className="flex-1 relative border-r border-[#E6E4DF] last:border-r-0"
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = 'move';
+                    }}
+                    onDrop={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const clickY = e.clientY - rect.top;
+                      const hourIdx = Math.floor(clickY / COMPACT_HOUR_HEIGHT);
+                      const calcHour = Math.min(Math.max(START_MINUTES + hourIdx * 60, START_MINUTES), END_MINUTES - 15);
+                      handleDropOnHour(e, dayNum, calcHour);
+                    }}
                   >
                     {/* Cases horaires interactives */}
                     {Array.from({ length: TOTAL_HOURS }).map((_, hIdx) => {
@@ -393,7 +409,12 @@ export default function PlanningSidebarDrawer({
                           data-slot-droptarget="true"
                           data-day={dayNum}
                           data-hour={hourMinutes}
-                          onClick={() => placeActivityOnSlot(activeActivity, dayNum, hourMinutes)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (activeActivity) {
+                              placeActivityOnSlot(activeActivity, dayNum, hourMinutes);
+                            }
+                          }}
                           onDragOver={(e) => {
                             e.preventDefault();
                             e.dataTransfer.dropEffect = 'copy';
@@ -406,7 +427,6 @@ export default function PlanningSidebarDrawer({
                               setDragOverTarget(null);
                             }
                           }}
-                          onDrop={(e) => handleDropOnHour(e, dayNum, hourMinutes)}
                           className={`absolute left-0 right-0 border-t border-[#E6E4DF] transition-all cursor-pointer group flex items-center justify-end pr-2 ${
                             isDragOver
                               ? 'bg-[#3F7A55]/20 ring-2 ring-inset ring-[#3F7A55]'
@@ -430,7 +450,7 @@ export default function PlanningSidebarDrawer({
                       );
                     })}
 
-                    {/* Créneaux planifiés de ce jour */}
+                    {/* Créneaux planifiés de ce jour (Draggable) */}
                     {daySlots.map((slot) => {
                       const top = ((slot.heure_debut - START_MINUTES) / 60) * COMPACT_HOUR_HEIGHT;
                       const height = ((slot.heure_fin - slot.heure_debut) / 60) * COMPACT_HOUR_HEIGHT;
@@ -439,17 +459,32 @@ export default function PlanningSidebarDrawer({
                       return (
                         <div
                           key={slot.id}
-                          className="absolute inset-x-1 rounded-lg p-1.5 shadow-xs border flex items-center justify-between overflow-hidden group hover:z-10 animate-fade-in"
+                          draggable={!slot.verrouille}
+                          onDragStart={(e) => {
+                            e.stopPropagation();
+                            e.dataTransfer.setData('text/plain', JSON.stringify({
+                              type: 'slot_move',
+                              slot_id: slot.id,
+                              heure_debut: slot.heure_debut,
+                              heure_fin: slot.heure_fin,
+                              jour: slot.jour
+                            }));
+                            e.dataTransfer.effectAllowed = 'move';
+                          }}
+                          className={`absolute inset-x-1 rounded-lg p-1.5 shadow-xs border flex items-center justify-between overflow-hidden group hover:z-20 transition-all ${
+                            slot.verrouille ? 'cursor-not-allowed opacity-90' : 'cursor-grab active:cursor-grabbing hover:shadow-md'
+                          }`}
                           style={{
                             top: `${top}px`,
                             height: `${Math.max(height, 24)}px`,
-                            backgroundColor: `${categoryColor}20`,
+                            backgroundColor: `${categoryColor}25`,
                             borderColor: categoryColor,
                             borderLeftWidth: '4px'
                           }}
                         >
-                          <div className="min-w-0 flex-1 pr-1">
-                            <p className="text-[10px] font-extrabold text-[#17181A] truncate">
+                          <div className="min-w-0 flex-1 pr-1 pointer-events-none">
+                            <p className="text-[10px] font-extrabold text-[#17181A] truncate flex items-center gap-1">
+                              {slot.verrouille && <Lock className="w-2.5 h-2.5 text-[#B9862F] shrink-0" />}
                               {slot.titre}
                             </p>
                             <span className="text-[9px] text-[#55565A] block font-semibold">
@@ -464,7 +499,7 @@ export default function PlanningSidebarDrawer({
                               handleDeleteSlot(slot.id);
                             }}
                             title="Retirer du planning"
-                            className="p-1 rounded bg-white/90 text-[#55565A] hover:text-[#C95D4E] opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="p-1 rounded bg-white/90 text-[#55565A] hover:text-[#C95D4E] opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
                           >
                             <Trash2 className="w-3 h-3" />
                           </button>

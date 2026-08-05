@@ -56,6 +56,8 @@ function AtelierCanvas({ tripId = 1, initialDestinationId = null, onNavigateTab 
   const [detailActivity, setDetailActivity] = useState(null);
   const [isDetailDrawerOpen, setIsDetailDrawerOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [planningRefreshKey, setPlanningRefreshKey] = useState(0);
+  const [toastMessage, setToastMessage] = useState(null);
 
   // Menus déroulants
   const [isLayoutMenuOpen, setIsLayoutMenuOpen] = useState(false);
@@ -344,6 +346,17 @@ function AtelierCanvas({ tripId = 1, initialDestinationId = null, onNavigateTab 
     }, 600);
   }, [activeDestinationId, layoutNom]);
 
+  const showToast = useCallback((text, isError = false) => {
+    setToastMessage({ text, isError });
+    setTimeout(() => setToastMessage(null), 3500);
+  }, []);
+
+  const minsToTimeString = (mins) => {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  };
+
   // 7. Placement direct d'une activité sur un créneau précis
   const handlePlaceActivityOnSlot = useCallback(async (activityObj, targetDay, startHourMinutes) => {
     if (!activityObj || !tripId) return;
@@ -363,40 +376,76 @@ function AtelierCanvas({ tripId = 1, initialDestinationId = null, onNavigateTab 
         })
       });
 
-      if (res.ok) {
-        loadWorkshopData();
-        setActiveActivityId(null);
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || "Impossible de placer l'activité (créneau occupé ou verrouillé).");
       }
+
+      showToast(`« ${activityObj.titre || 'Activité'} » positionnée sur Jour ${targetDay} à ${minsToTimeString(startHourMinutes)} !`);
+      setPlanningRefreshKey((k) => k + 1);
+      loadWorkshopData();
+      setActiveActivityId(null);
     } catch (err) {
-      console.error("Erreur placement activité dans le planning:", err);
+      showToast(err.message, true);
     }
-  }, [tripId, loadWorkshopData]);
+  }, [tripId, loadWorkshopData, showToast]);
 
   // Détection du glissement d'une carte vers la bordure droite pour ouvrir automatiquement le planning (US-15)
   const handleNodeDrag = useCallback((event, node) => {
-    if (event && event.clientX && event.clientX >= window.innerWidth - 380) {
-      setIsPlanningDrawerOpen((prev) => {
-        if (!prev) return true;
-        return prev;
-      });
+    const clientX = event?.clientX ?? (event?.touches && event.touches[0]?.clientX);
+    if (clientX && clientX >= window.innerWidth - 380) {
+      setIsPlanningDrawerOpen(true);
     }
   }, []);
 
   // Callback quand un nœud est relâché après déplacement
   const handleNodeDragStop = useCallback((event, node) => {
     if (node.type === 'activityCard' && event) {
-      const clientX = event.clientX;
-      const clientY = event.clientY;
+      const clientX = event.clientX ?? event.pageX ?? (event.changedTouches && event.changedTouches[0]?.clientX);
+      const clientY = event.clientY ?? event.pageY ?? (event.changedTouches && event.changedTouches[0]?.clientY);
 
-      if (clientX && clientY) {
-        const dropTarget = document.elementFromPoint(clientX, clientY)?.closest('[data-slot-droptarget="true"]');
-        if (dropTarget) {
-          const targetDay = parseInt(dropTarget.dataset.day, 10);
-          const targetHour = parseInt(dropTarget.dataset.hour, 10);
+      if (clientX !== undefined && clientY !== undefined) {
+        let targetDay = null;
+        let targetHour = null;
+
+        // 1. Recherche par éléments DOM sous le curseur
+        const elements = document.elementsFromPoint ? document.elementsFromPoint(clientX, clientY) : [];
+        for (const el of elements) {
+          const slotTarget = el?.closest('[data-slot-droptarget="true"]');
+          if (slotTarget) {
+            targetDay = parseInt(slotTarget.dataset.day, 10);
+            targetHour = parseInt(slotTarget.dataset.hour, 10);
+            break;
+          }
+        }
+
+        // 2. Recherche géométrique sur les colonnes du mini-planning si pas trouvé
+        if (targetDay === null) {
+          const sidebarColumns = document.querySelectorAll('[data-planning-sidebar-day]');
+          for (const col of sidebarColumns) {
+            const rect = col.getBoundingClientRect();
+            if (
+              clientX >= rect.left &&
+              clientX <= rect.right &&
+              clientY >= rect.top &&
+              clientY <= rect.bottom
+            ) {
+              targetDay = parseInt(col.dataset.planningSidebarDay, 10);
+              const scrollParent = col.closest('.overflow-y-auto');
+              const scrollTop = scrollParent ? scrollParent.scrollTop : 0;
+              const relativeY = (clientY - rect.top) + scrollTop;
+              const hourIdx = Math.floor(relativeY / 46); // COMPACT_HOUR_HEIGHT = 46
+              targetHour = Math.min(Math.max(420 + hourIdx * 60, 420), 1380 - 15);
+              break;
+            }
+          }
+        }
+
+        // 3. Placement si cible valide trouvée
+        if (targetDay !== null && targetHour !== null && !isNaN(targetDay) && !isNaN(targetHour)) {
           const actId = parseInt(node.id.replace('activity-', ''), 10);
           const actObj = rawActivities.find((a) => a.id === actId);
-
-          if (actObj && !isNaN(targetDay) && !isNaN(targetHour)) {
+          if (actObj) {
             handlePlaceActivityOnSlot(actObj, targetDay, targetHour);
             return;
           }
@@ -1092,12 +1141,27 @@ function AtelierCanvas({ tripId = 1, initialDestinationId = null, onNavigateTab 
         onToggleOpen={() => setIsPlanningDrawerOpen(!isPlanningDrawerOpen)}
         tripId={tripId}
         activeActivity={activeActivity}
+        refreshKey={planningRefreshKey}
         onSlotCreated={() => {
           loadWorkshopData();
           setActiveActivityId(null);
         }}
         onOpenFullScreenPlanning={() => onNavigateTab && onNavigateTab('planning')}
       />
+
+      {/* Toast global Atelier */}
+      {toastMessage && (
+        <div
+          className={`fixed bottom-6 right-20 z-50 px-4 py-3 rounded-2xl text-xs font-bold shadow-2xl flex items-center gap-2 border animate-fade-in ${
+            toastMessage.isError
+              ? 'bg-[#C95D4E] text-white border-[#A8483B]'
+              : 'bg-[#17181A] text-[#D6F84C] border-[#3F7A55]'
+          }`}
+        >
+          {toastMessage.isError ? <AlertCircle size={16} /> : <CheckCircle2 size={16} />}
+          <span>{toastMessage.text}</span>
+        </div>
+      )}
     </div>
   );
 }
