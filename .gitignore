@@ -1,0 +1,32 @@
+# Dépendances Node (Frontend)
+frontend/node_modules/
+node_modules/
+
+# Fichiers de build
+frontend/dist/
+dist/
+
+# Cache Python et tests
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+backend/.pytest_cache/
+
+# Base de données SQLite locale et fichiers uploadés
+backend/odos.db
+*.db
+*.sqlite3
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Fichiers d'environnement et secrets
+.env
+.env.local
+*.env
+
+# Fichiers système et éditeurs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
