@@ -12,6 +12,7 @@ import ActivityFormModal from '../components/activities/ActivityFormModal';
 import FocusModeModal from '../components/activities/FocusModeModal';
 import TrashDrawer from '../components/activities/TrashDrawer';
 import ScrapingModal from '../components/activities/ScrapingModal';
+import { getPhotoUrl } from '../utils/imageUtils';
 
 export default function CreationPage({ tripId = 1, onPendingCountChange, onNavigateTab }) {
   const [activities, setActivities] = useState([]);
@@ -316,8 +317,12 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {filteredActivities.map((act) => {
-            const photoPrincipale = act.documents?.find((d) => d.est_principale && d.type_fichier === 'photo')
-              || act.documents?.find((d) => d.type_fichier === 'photo');
+            const photoUrl = getPhotoUrl(
+              act.photo_principale ||
+              act.photo_url ||
+              act.documents?.find((d) => d.est_principale && d.type_fichier === 'photo')?.chemin_fichier ||
+              act.documents?.find((d) => d.type_fichier === 'photo')?.chemin_fichier
+            );
 
             return (
               <div
@@ -325,20 +330,36 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
                 onDoubleClick={() => handleOpenEdit(act)}
                 className="group bg-white rounded-[24px] border border-[#E6E4DF] overflow-hidden hover:border-[#17181A] hover:shadow-xl transition-all flex flex-col cursor-pointer"
               >
-                {/* Header Visuel / Photo */}
-                <div className="relative h-44 bg-[#F7F6F3] overflow-hidden">
-                  {photoPrincipale ? (
+                {/* Header Visuel / Photo miniature occupant tout l'espace */}
+                <div className="relative h-48 sm:h-52 bg-[#F7F6F3] overflow-hidden w-full">
+                  {photoUrl ? (
                     <img
-                      src={`/${photoPrincipale.chemin_fichier}`}
+                      src={photoUrl}
                       alt={act.titre}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        const fallback = e.currentTarget.parentElement?.querySelector('.photo-fallback');
+                        if (fallback) fallback.classList.remove('hidden');
+                      }}
                     />
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center text-[#8E8F92] gap-1 bg-gradient-to-br from-[#EDEBE6] to-[#FAF3E7]">
-                      <ImageOff size={28} className="opacity-40" />
-                      <span className="text-[11px] font-medium opacity-60">Aucune photo</span>
-                    </div>
-                  )}
+                  ) : null}
+
+                  {/* Fallback élégant en pleine surface avec couleur de la catégorie */}
+                  <div
+                    className={`photo-fallback w-full h-full flex flex-col items-center justify-center text-white p-4 ${photoUrl ? 'hidden' : 'flex'}`}
+                    style={{ backgroundColor: act.categorie_couleur || '#3F7A55' }}
+                  >
+                    <span className="text-3xl font-black tracking-wider opacity-90 drop-shadow-xs">
+                      {act.titre ? act.titre.substring(0, 2).toUpperCase() : 'OD'}
+                    </span>
+                    <span className="text-[11px] font-bold mt-1 opacity-80 uppercase tracking-wider">
+                      {act.categorie_nom || "Activité"}
+                    </span>
+                  </div>
+
+                  {/* Gradient sombre inférieur pour assurer un contraste parfait sur les textes du bas */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent pointer-events-none" />
 
                   {/* Badge de catégorie en haut à gauche */}
                   {act.categorie_nom && (
