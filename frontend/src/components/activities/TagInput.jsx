@@ -11,12 +11,19 @@ export default function TagInput({ tripId, selectedTags = [], onChange }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
+  // Normalisation des tags sélectionnés pour toujours manipuler des objets { id, nom }
+  const normalizedSelectedTags = (Array.isArray(selectedTags) ? selectedTags : []).map((t, idx) => {
+    if (typeof t === 'string') return { id: `tag-str-${idx}-${t}`, nom: t };
+    if (t && typeof t === 'object') return { id: t.id || `tag-${idx}`, nom: t.nom || '' };
+    return { id: `tag-${idx}`, nom: String(t || '') };
+  }).filter((t) => Boolean(t.nom));
+
   // Chargement des tags existants du voyage pour l'autocomplétion
   useEffect(() => {
     if (!tripId) return;
     fetch(`/api/trips/${tripId}/tags`)
       .then((res) => (res.ok ? res.json() : []))
-      .then((data) => setAllTripTags(data))
+      .then((data) => setAllTripTags(Array.isArray(data) ? data : []))
       .catch((err) => console.error("Erreur de chargement des tags:", err));
   }, [tripId]);
 
@@ -32,18 +39,18 @@ export default function TagInput({ tripId, selectedTags = [], onChange }) {
   }, []);
 
   const handleAddTag = async (tagName) => {
-    const trimmed = tagName.trim();
+    const trimmed = (tagName || '').trim();
     if (!trimmed) return;
 
     // Vérifie si déjà sélectionné
-    if (selectedTags.some((t) => t.nom.toLowerCase() === trimmed.toLowerCase())) {
+    if (normalizedSelectedTags.some((t) => (t.nom || '').toLowerCase() === trimmed.toLowerCase())) {
       setInputValue('');
       setIsDropdownOpen(false);
       return;
     }
 
     // Cherche si le tag existe déjà dans le voyage
-    let tagObj = allTripTags.find((t) => t.nom.toLowerCase() === trimmed.toLowerCase());
+    let tagObj = allTripTags.find((t) => (t.nom || '').toLowerCase() === trimmed.toLowerCase());
 
     if (!tagObj) {
       // Création du nouveau tag côté backend
@@ -64,13 +71,17 @@ export default function TagInput({ tripId, selectedTags = [], onChange }) {
       }
     }
 
-    onChange([...selectedTags, tagObj]);
+    if (onChange) {
+      onChange([...normalizedSelectedTags, tagObj]);
+    }
     setInputValue('');
     setIsDropdownOpen(false);
   };
 
   const handleRemoveTag = (tagIdToRemove) => {
-    onChange(selectedTags.filter((t) => t.id !== tagIdToRemove));
+    if (onChange) {
+      onChange(normalizedSelectedTags.filter((t) => t.id !== tagIdToRemove));
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -83,15 +94,16 @@ export default function TagInput({ tripId, selectedTags = [], onChange }) {
   // Suggestions filtrées
   const filteredSuggestions = allTripTags.filter(
     (t) =>
+      t?.nom &&
       t.nom.toLowerCase().includes(inputValue.toLowerCase()) &&
-      !selectedTags.some((st) => st.id === t.id)
+      !normalizedSelectedTags.some((st) => st.id === t.id || st.nom.toLowerCase() === t.nom.toLowerCase())
   );
 
   return (
     <div className="relative w-full" ref={dropdownRef}>
       {/* Zone des pastilles sélectionnées + champ de saisie */}
       <div className="flex flex-wrap items-center gap-1.5 p-2 min-h-[44px] bg-[#F7F6F3] rounded-[12px] border border-transparent focus-within:border-[#17181A] focus-within:ring-2 focus-within:ring-[#D6F84C]/60 transition-all">
-        {selectedTags.map((tag) => (
+        {normalizedSelectedTags.map((tag) => (
           <span
             key={tag.id}
             className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#EDEBE6] hover:bg-[#E6E4DF] text-[#17181A] text-[13px] font-medium rounded-full transition-colors"

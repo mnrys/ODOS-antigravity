@@ -97,6 +97,58 @@ async def upload_activity_document(
     return doc
 
 
+from pydantic import BaseModel
+
+class AddImageUrlPayload(BaseModel):
+    url: str
+    libelle: Optional[str] = None
+    est_principale: Optional[bool] = False
+
+
+@router.post("/api/activities/{activity_id}/documents/from-url", response_model=DocumentBase, status_code=status.HTTP_201_CREATED)
+def add_document_from_url(
+    activity_id: int,
+    payload: AddImageUrlPayload,
+    db: Session = Depends(get_db)
+):
+    """
+    Associe directement une URL d'image web (ex: GetYourGuide, Unsplash) comme photo à l'activité.
+    """
+    activity = db.query(Activity).filter(Activity.id == activity_id).first()
+    if not activity:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Activité {activity_id} introuvable"
+        )
+
+    nb_photos = db.query(Document).filter(
+        Document.activity_id == activity_id,
+        Document.type_fichier == "photo"
+    ).count()
+
+    is_main = 1 if (payload.est_principale or nb_photos == 0) else 0
+
+    if is_main == 1:
+        db.query(Document).filter(
+            Document.activity_id == activity_id,
+            Document.type_fichier == "photo"
+        ).update({"est_principale": 0})
+
+    doc = Document(
+        activity_id=activity_id,
+        type_fichier="photo",
+        chemin_fichier=payload.url.strip(),
+        type_source="scraping_auto",
+        libelle=payload.libelle or "Photo web",
+        est_principale=is_main
+    )
+    db.add(doc)
+    db.commit()
+    db.refresh(doc)
+    return doc
+
+
+
 @router.delete("/api/documents/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_document(document_id: int, db: Session = Depends(get_db)):
     """

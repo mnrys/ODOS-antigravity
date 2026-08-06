@@ -35,11 +35,13 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
   const [isTrashOpen, setIsTrashOpen] = useState(false);
   const [isScrapingOpen, setIsScrapingOpen] = useState(false);
 
-  const loadData = async () => {
+  const loadData = async (isSilent = false) => {
     try {
-      setLoading(true);
+      if (!isSilent && activities.length === 0) {
+        setLoading(true);
+      }
       const [actRes, destRes, catRes, dashRes, pendingRes, trashRes] = await Promise.all([
-        fetch(`/api/trips/${tripId}/activities`),
+        fetch(`/api/trips/${tripId}/activities?statut_validation=validee`),
         fetch(`/api/trips/${tripId}/destinations`),
         fetch(`/api/trips/${tripId}/categories`),
         fetch(`/api/trips/${tripId}/dashboard`),
@@ -72,7 +74,7 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
 
   useEffect(() => {
     if (tripId) {
-      loadData();
+      loadData(false);
     }
   }, [tripId]);
 
@@ -92,7 +94,7 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
       try {
         const res = await fetch(`/api/activities/${actId}`, { method: 'DELETE' });
         if (res.ok) {
-          loadData();
+          loadData(true);
         }
       } catch (err) {
         console.error("Erreur de suppression:", err);
@@ -485,7 +487,7 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
         activityToEdit={activityToEdit}
         destinations={destinations}
         categories={categories}
-        onSaved={loadData}
+        onSaved={() => loadData(true)}
       />
 
       {/* Modal / Mode Focus séquentiel */}
@@ -496,7 +498,7 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
         nbPersonnes={tripInfo.nb_personnes}
         destinations={destinations}
         categories={categories}
-        onProcessed={loadData}
+        onProcessed={() => loadData(true)}
       />
 
       {/* Tiroir / Corbeille avec période de grâce */}
@@ -504,7 +506,7 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
         isOpen={isTrashOpen}
         onClose={() => setIsTrashOpen(false)}
         tripId={tripId}
-        onRestored={loadData}
+        onRestored={() => loadData(true)}
       />
 
       {/* Modal / Déclenchement Scraping externe */}
@@ -512,7 +514,7 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
         isOpen={isScrapingOpen}
         onClose={() => setIsScrapingOpen(false)}
         tripId={tripId}
-        onScrapingComplete={loadData}
+        onScrapingComplete={() => loadData(true)}
         onOpenFocusMode={() => setIsFocusModeOpen(true)}
       />
     </div>

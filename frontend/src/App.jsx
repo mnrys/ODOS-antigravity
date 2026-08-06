@@ -75,6 +75,7 @@ export default function App() {
         {activeTab === 'quick-capture' && (
           <QuickCapturePage
             tripId={tripId}
+            onPendingCountChange={setPendingValidationCount}
             onNavigateTab={handleNavigateTab}
           />
         )}

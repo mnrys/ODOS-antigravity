@@ -254,3 +254,67 @@ def test_purge_activity_permanently(client_with_db):
     # Vérification physique en base
     assert db.query(Activity).filter(Activity.id == act.id).first() is None
     assert db.query(Document).filter(Document.activity_id == act.id).first() is None
+
+
+def test_activities_filter_statut_validation_validee(client_with_db):
+    """
+    Règle d'or US-2 / US-4 (PRD_ecran1_creation.md) :
+    Le catalogue principal ne doit afficher STRICTEMENT que les fiches ayant statut_validation == 'validee'.
+    Les fiches en attente (scraping ou capture) ne doivent jamais s'y trouver avant validation.
+    """
+    client, db, trip, _, _, activities, _ = client_with_db
+    
+    # Requête avec filtre statut_validation=validee
+    res = client.get(f"/api/trips/{trip.id}/activities?statut_validation=validee")
+    assert res.status_code == 200
+    validated_acts = res.json()
+
+    # Seule la Fiche 3 ("Musée Naval Barco de la Virgen") est validée
+    assert len(validated_acts) == 1
+    assert validated_acts[0]["titre"] == "Musée Naval Barco de la Virgen"
+    assert validated_acts[0]["statut_validation"] == "validee"
+
+    # Vérifie que les fiches 'a_valider' (Fiche 1 et Fiche 2) ne sont PAS dans le catalogue
+    validated_ids = [a["id"] for a in validated_acts]
+    assert activities[0].id not in validated_ids # Randonnée Volcan
+    assert activities[1].id not in validated_ids # Bateau Dauphins
+
+
+def test_validation_workflow_transitions_from_pending_to_catalogue(client_with_db):
+    """
+    Validation du workflow complet Mode Focus -> Catalogue :
+    Une fiche en attente validée rejoint immédiatement le catalogue et quitte le SAS.
+    """
+    client, db, trip, dest1, _, activities, tag_vue = client_with_db
+    pending_act = activities[0] # Fiche 1 (Randonnée Volcan)
+
+    # 1. Vérification initiale : présente dans le SAS d'attente
+    pending_before = client.get(f"/api/trips/{trip.id}/pending-validation").json()
+    assert any(a["id"] == pending_act.id for a in pending_before)
+
+    # 2. Validation via l'API (simulant le clic 'Valider & Suivant' du Mode Focus)
+    val_payload = {
+        "titre": "Randonnée Volcan San Antonio & Teneguía (Validée)",
+        "destination_id": dest1.id,
+        "cout_par_personne": 18.0,
+        "duree_min": 180,
+        "note_interet": 5,
+        "description": "Superbe randonnée au milieu des champs de lave.",
+        "remarques": "Prévoir de bonnes chaussures.",
+        "tag_ids": [tag_vue.id]
+    }
+    val_res = client.post(f"/api/activities/{pending_act.id}/validate", json=val_payload)
+    assert val_res.status_code == 200
+
+    # 3. Quitte le SAS d'attente
+    pending_after = client.get(f"/api/trips/{trip.id}/pending-validation").json()
+    assert all(a["id"] != pending_act.id for a in pending_after)
+
+    # 4. Rejoint le catalogue officiel
+    catalogue_res = client.get(f"/api/trips/{trip.id}/activities?statut_validation=validee").json()
+    validated_item = next((a for a in catalogue_res if a["id"] == pending_act.id), None)
+    assert validated_item is not None
+    assert validated_item["titre"] == "Randonnée Volcan San Antonio & Teneguía (Validée)"
+    assert validated_item["cout_par_personne"] == 18.0
+    assert validated_item["statut_validation"] == "validee"
+

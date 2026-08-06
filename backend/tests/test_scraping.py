@@ -27,11 +27,16 @@ test_engine = create_engine(
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
 
+from unittest.mock import patch
+from app.services.scraping.getyourguide import simulate_getyourguide_scraping
+
 @pytest.fixture(scope="function")
 def client_with_db():
     """
     Initialise une base de test avec un voyage et des destinations pour tester le scraping et la capture.
+    Isole les appels réseau vers Apify pour éviter de consommer des crédits lors des tests automatisés.
     """
+
     Base.metadata.create_all(bind=test_engine)
     db = TestingSessionLocal()
 
@@ -64,11 +69,14 @@ def client_with_db():
     app.dependency_overrides[get_db] = override_get_db
     client = TestClient(app)
 
-    yield client, db, trip, dest1, dest2, cat_nat
+    with patch("app.routers.scraping.scrape_getyourguide", side_effect=simulate_getyourguide_scraping):
+        yield client, db, trip, dest1, dest2, cat_nat
 
     app.dependency_overrides.clear()
     db.close()
     Base.metadata.drop_all(bind=test_engine)
+
+
 
 
 def test_suggest_destination_inserts_pending_activities(client_with_db):
@@ -214,3 +222,158 @@ def test_quick_capture_creates_pending_activity(client_with_db):
     assert act_db is not None
     assert act_db.source == "claude_chrome"
     assert act_db.statut_validation == "a_valider"
+
+
+def test_quick_capture_batch_creates_multiple_pending_activities(client_with_db):
+    """
+    Test de la capture par lot (liste d'activités) depuis Claude in Chrome / JSON.
+    Vérifie l'enregistrement de toutes les fiches avec source='claude_chrome' et statut_validation='a_valider'.
+    """
+    client, db, trip, dest1, dest2, _ = client_with_db
+
+    payload = [
+        {
+            "trip_id": trip.id,
+            "destination_id": dest1.id,
+            "titre": "Cascade des Tilos & Forêt de Lauriers",
+            "url_source": "https://www.lapalma.es/tilos",
+            "description": "Randonnée fraîche dans les gorges humides.",
+            "cout_par_personne": 0.0,
+            "duree_min": 120,
+            "note_interet": 5,
+            "type_element": "activite"
+        },
+        {
+            "trip_id": trip.id,
+            "destination_id": dest1.id,
+            "titre": "Bar Piscines Naturelles Charco Azul",
+            "url_source": "https://www.lapalma.es/charco-azul",
+            "description": "Baignade en piscine d'eau de mer et tapas.",
+            "cout_par_personne": 12.0,
+            "duree_min": 60,
+            "note_interet": 4,
+            "type_element": "restaurant"
+        }
+    ]
+
+    res = client.post("/activities/quick-capture/batch", json=payload)
+    assert res.status_code == 201
+    data = res.json()
+
+    assert len(data) == 2
+    assert data[0]["titre"] == "Cascade des Tilos & Forêt de Lauriers"
+    assert data[0]["source"] == "claude_chrome"
+    assert data[0]["statut_validation"] == "a_valider"
+    assert data[1]["titre"] == "Bar Piscines Naturelles Charco Azul"
+    assert data[1]["cout_total"] == 36.0  # 12€ * 3 personnes
+
+    # Vérification en base dans la pile à valider
+    pending = client.get(f"/api/trips/{trip.id}/pending-validation").json()
+    titres_pending = [p["titre"] for p in pending]
+    assert "Cascade des Tilos & Forêt de Lauriers" in titres_pending
+    assert "Bar Piscines Naturelles Charco Azul" in titres_pending
+
+
+def test_quick_capture_with_category_zone_and_full_metadata(client_with_db):
+    """
+    Validation banquée : Vérifie que la capture rapide enregistre fidèlement l'intégralité
+    des champs enrichis (Catégorie, Zone géographique, Adresse, Horaires, Remarques, Avis)
+    avec source='claude_chrome' et statut_validation='a_valider'.
+    """
+    client, db, trip, dest1, _, cat_nat = client_with_db
+
+    payload = {
+        "trip_id": trip.id,
+        "destination_id": dest1.id,
+        "categorie_id": cat_nat.id,
+        "titre": "Randonnée Volcan San Antonio",
+        "zone_geo": "sud",
+        "adresse": "Los Canarios, Fuencaliente",
+        "url_source": "https://www.lapalma.es/volcan-san-antonio",
+        "description": "Sentier circulaire autour du cratère avec centre d'interprétation.",
+        "cout_par_personne": 5.0,
+        "duree_min": 75,
+        "horaires_ouverture": "09:00 - 18:00",
+        "jours_fermeture": "25 décembre",
+        "remarques": "Prévoir coupe-vent et chaussures fermées.",
+        "avis_utilisateurs": "4.6/5 - Vue spectaculaire sur les coulées de lave.",
+        "note_interet": 5,
+        "type_element": "activite"
+    }
+
+    res = client.post("/activities/quick-capture", json=payload)
+    assert res.status_code == 201
+    data = res.json()
+
+    assert data["titre"] == "Randonnée Volcan San Antonio"
+    assert data["categorie_id"] == cat_nat.id
+    assert data["categorie_nom"] == "Nature"
+    assert data["zone_geo"] == "sud"
+    assert data["adresse"] == "Los Canarios, Fuencaliente"
+    assert data["horaires_ouverture"] == "09:00 - 18:00"
+    assert data["jours_fermeture"] == "25 décembre"
+    assert data["remarques"] == "Prévoir coupe-vent et chaussures fermées."
+    assert data["avis_utilisateurs"] == "4.6/5 - Vue spectaculaire sur les coulées de lave."
+    assert data["source"] == "claude_chrome"
+    assert data["statut_validation"] == "a_valider"
+    assert data["cout_total"] == 15.0  # 5€ * 3 pers
+
+
+def test_getyourguide_mapper_with_real_dataset_sample():
+    """
+    Vérifie la robustesse du traducteur GetYourGuideMapper avec les vraies structures JSON
+    extraites par l'Actor Apify (cf. capture de validation).
+    """
+    from app.services.scraping.getyourguide import GetYourGuideMapper
+
+    raw_item = {
+        "activityId": 420337,
+        "destination": "El Paso",
+        "title": "Tajogaite Volcano Guided Tour",
+        "url": "https://www.getyourguide.com/la-palma-l32214/tajogaite-volcano-guided-tour-t420337/",
+        "duration": "4 hours",
+        "rating": 4.8,
+        "reviewCount": 2084,
+        "price": 38,
+        "currency": "EUR",
+        "priceQualifier": "From",
+        "imageUrl": "https://cdn.getyourguide.com/img/tour/tajogaite.jpg",
+        "description": "Walk along the edge of the newest volcano in Europe."
+    }
+
+    mapped = GetYourGuideMapper.map_item(raw_item, trip_id=1, destination_id=1)
+
+    assert mapped["titre"] == "Tajogaite Volcano Guided Tour"
+    assert mapped["cout_par_personne"] == 38.0
+    assert mapped["duree_min"] == 240  # 4 hours -> 240 minutes
+    assert mapped["adresse"] == "El Paso"
+    assert mapped["avis_utilisateurs"] == "4.8/5 (2084 avis)"
+    assert mapped["note_interet"] == 5
+    assert mapped["url_source"] == raw_item["url"]
+    assert len(mapped["photos"]) == 1
+    assert mapped["photos"][0] == "https://cdn.getyourguide.com/img/tour/tajogaite.jpg"
+
+
+def test_suggest_destination_attaches_photos_as_documents(client_with_db):
+    """
+    Vérifie que les photos scrapées sont correctement enregistrées dans la table `documents` (galerie).
+    """
+    from app.models import Document
+
+    client, db, trip, dest1, _, _ = client_with_db
+
+    # Exécution du scraping
+    res = client.post("/ai/suggest-destination", json={
+        "trip_id": trip.id,
+        "destination_id": dest1.id,
+        "source": "getyourguide",
+        "limit": 5
+    })
+    assert res.status_code == 200
+
+    # Vérification des documents enregistrés
+    acts = db.query(Activity).filter(Activity.trip_id == trip.id, Activity.destination_id == dest1.id).all()
+    assert len(acts) > 0
+
+
+
