@@ -273,52 +273,42 @@ def scrape_tripadvisor_destination(
         except Exception as e:
             logger.warning(f"Impossible de lire l'archive locale TripAdvisor : {e}")
 
-    # 2. Si non présent dans l'archive locale, appel API Firecrawl en direct
+    # 2. Si non présent dans l'archive locale complète, tentative d'extraction dynamique des URLs depuis l'archive ou configuration de secours
     api_key = _get_firecrawl_api_key()
     if not api_key:
         logger.warning("Scraping TripAdvisor ignoré : clé API Firecrawl non configurée.")
         return []
 
-    # Mapping précis des URLs TripAdvisor d'attractions phares par destination
-    destination_attractions_map = {
-        "la palma": [
-            "https://www.tripadvisor.com/Attraction_Review-g187475-d1800798-Reviews-Instituto_de_Astrofisica_de_Canarias-La_Palma_Canary_Islands.html",
-            "https://www.tripadvisor.fr/Attraction_Review-g187475-d2279268-Reviews-Parque_Nacional_de_la_Caldera_de_Taburiente-La_Palma_Canary_Islands.html",
-            "https://www.tripadvisor.fr/Attraction_Review-g187475-d546252-Reviews-Roque_de_los_Muchachos-La_Palma_Canary_Islands.html",
-            "https://www.tripadvisor.fr/Attraction_Review-g187475-d1876774-Reviews-Bosque_de_Los_Tilos-La_Palma_Canary_Islands.html",
-            "https://www.tripadvisor.fr/Attraction_Review-g187475-d24996529-Reviews-Tajogaite_Volcano-La_Palma_Canary_Islands.html",
-            "https://www.tripadvisor.fr/Attraction_Review-g187475-d8837153-Reviews-Poris_de_Candelaria-La_Palma_Canary_Islands.html",
-            "https://www.tripadvisor.fr/Attraction_Review-g187475-d1876779-Reviews-Piscinas_Naturales_Charco_Azul-La_Palma_Canary_Islands.html",
-            "https://www.tripadvisor.fr/Attraction_Review-g187475-d1876785-Reviews-Salinas_Marinas_de_Fuencaliente-La_Palma_Canary_Islands.html",
-            "https://www.tripadvisor.fr/Attraction_Review-g187475-d2279277-Reviews-Playa_de_Nogales-La_Palma_Canary_Islands.html"
-        ],
-        "tenerife": [
-            "https://www.tripadvisor.fr/Attraction_Review-g187479-d197608-Reviews-Teide_National_Park-Tenerife_Canary_Islands.html",
-            "https://www.tripadvisor.fr/Attraction_Review-g187479-d2279262-Reviews-Anaga_Rural_Park-Tenerife_Canary_Islands.html",
-            "https://www.tripadvisor.fr/Attraction_Review-g187479-d197607-Reviews-Masca_Valley-Tenerife_Canary_Islands.html",
-            "https://www.tripadvisor.fr/Attraction_Review-g187479-d2279264-Reviews-Acantilados_de_Los_Gigantes-Tenerife_Canary_Islands.html",
-            "https://www.tripadvisor.fr/Attraction_Review-g187479-d197609-Reviews-Historic_Center_of_La_Laguna-Tenerife_Canary_Islands.html",
-            "https://www.tripadvisor.fr/Attraction_Review-g187479-d2279266-Reviews-Piscinas_Naturales_El_Caleton-Tenerife_Canary_Islands.html",
-            "https://www.tripadvisor.fr/Attraction_Review-g187479-d33366592-Reviews-Teide_Stargazing_Experience-Tenerife_Canary_Islands.html",
-            "https://www.tripadvisor.fr/Attraction_Review-g187479-d197606-Reviews-Jardin_Botanico-Tenerife_Canary_Islands.html"
-        ],
-        "rome": [
-            "https://www.tripadvisor.fr/Attraction_Review-g187791-d192285-Reviews-Colosseum-Rome_Lazio.html",
-            "https://www.tripadvisor.fr/Attraction_Review-g187791-d197700-Reviews-Pantheon-Rome_Lazio.html",
-            "https://www.tripadvisor.fr/Attraction_Review-g187791-d190130-Reviews-Trevi_Fountain-Rome_Lazio.html"
-        ],
-        "paris": [
-            "https://www.tripadvisor.fr/Attraction_Review-g187147-d188151-Reviews-Eiffel_Tower-Paris_Ile_de_France.html",
-            "https://www.tripadvisor.fr/Attraction_Review-g187147-d188757-Reviews-Louvre_Museum-Paris_Ile_de_France.html"
-        ]
-    }
-
-    # Recherche souple dans la map (ex: "Tenerife (Étape 2)" -> "tenerife")
+    # Extraction des URLs depuis l'archive si disponible
     target_urls = []
-    for key, urls in destination_attractions_map.items():
-        if key in dest_clean:
-            target_urls = urls
-            break
+    if archive_path.exists():
+        try:
+            with open(archive_path, "r", encoding="utf-8") as f:
+                archive_data = json.load(f)
+            for dest in archive_data.get("destinations", []):
+                if dest.get("code", "") in dest_clean or dest.get("nom", "").lower() in dest_clean:
+                    target_urls = [act.get("url_tripadvisor") for act in dest.get("activites", []) if act.get("url_tripadvisor")]
+                    break
+        except Exception as e:
+            logger.warning(f"Erreur lors de l'extraction des URLs depuis l'archive : {e}")
+
+    # Fallbacks pour destinations internationales sans archive locale (ex: Rome, Paris)
+    if not target_urls:
+        generic_destinations_map = {
+            "rome": [
+                "https://www.tripadvisor.fr/Attraction_Review-g187791-d192285-Reviews-Colosseum-Rome_Lazio.html",
+                "https://www.tripadvisor.fr/Attraction_Review-g187791-d197700-Reviews-Pantheon-Rome_Lazio.html",
+                "https://www.tripadvisor.fr/Attraction_Review-g187791-d190130-Reviews-Trevi_Fountain-Rome_Lazio.html"
+            ],
+            "paris": [
+                "https://www.tripadvisor.fr/Attraction_Review-g187147-d188151-Reviews-Eiffel_Tower-Paris_Ile_de_France.html",
+                "https://www.tripadvisor.fr/Attraction_Review-g187147-d188757-Reviews-Louvre_Museum-Paris_Ile_de_France.html"
+            ]
+        }
+        for key, urls in generic_destinations_map.items():
+            if key in dest_clean:
+                target_urls = urls
+                break
 
     # Si aucune URL pré-référencée
     if not target_urls:

@@ -35,7 +35,6 @@ class GetYourGuideMapper:
 
         text = str(duration_raw).lower().strip()
 
-        # Heures (ex: '3 hours', '2.5 heures', '1.5 hours', '1h30')
         hour_match = re.search(r'(\d+(?:[.,]\d+)?)\s*(?:hours?|heures?|h)', text)
         min_match = re.search(r'(\d+)\s*(?:minutes?|mins?|m)', text)
 
@@ -54,7 +53,7 @@ class GetYourGuideMapper:
         if 'day' in text or 'jour' in text:
             day_match = re.search(r'(\d+)\s*(?:days?|jours?)', text)
             days = int(day_match.group(1)) if day_match else 1
-            total_minutes += days * 8 * 60  # Journée type ~8h
+            total_minutes += days * 8 * 60
             found = True
 
         return total_minutes if found and total_minutes > 0 else None
@@ -75,25 +74,6 @@ class GetYourGuideMapper:
             except ValueError:
                 return 0.0
         return 0.0
-
-    @classmethod
-    def map_item(cls, raw_item: Dict[str, Any], trip_id: int, destination_id: int) -> Dict[str, Any]:
-        """
-        Transforme une fiche brute GetYourGuide en dictionnaire compatible avec le modèle Activity d'ODOS.
-        """
-        titre = (
-            raw_item.get('title') or
-            raw_item.get('name') or
-            raw_item.get('activityTitle') or
-            'Activité GetYourGuide'
-        )
-
-        url_source = (
-            raw_item.get('url') or
-            raw_item.get('activityUrl') or
-            raw_item.get('canonicalUrl') or
-            ''
-        )
 
     @classmethod
     def generate_rich_description(

@@ -180,19 +180,19 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
   return (
     <div className="space-y-6">
       {/* 1. Header de l'Écran 1 */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-[#EDEBE6] p-6 rounded-[24px] border border-[#E6E4DF]">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-brand-fond-warm p-6 rounded-[24px] border border-brand-border">
         <div>
-          <div className="flex items-center gap-2 text-[12px] font-semibold uppercase tracking-wider text-[#55565A] mb-1">
+          <div className="flex items-center gap-2 text-[12px] font-semibold uppercase tracking-wider text-brand-secondary mb-1">
             <span>Écran 1</span>
             <span>·</span>
             <span>Catalogue & Création</span>
           </div>
-          <h1 className="text-[26px] font-extrabold text-[#17181A] tracking-tight">
+          <h1 className="text-[26px] font-extrabold text-brand-encre tracking-tight">
             Fiches d'activités & Logistique
           </h1>
-          <p className="text-[14px] text-[#55565A] mt-0.5">
+          <p className="text-[14px] text-brand-secondary mt-0.5">
             {activities.length} fiches validées dans le catalogue · Double-cliquez pour{' '}
-            <span className="font-bold text-[#17181A]">
+            <span className="font-bold text-brand-encre">
               {viewMode === 'consultation' ? 'consulter la fiche' : 'modifier directement'}
             </span>
           </p>
@@ -204,10 +204,10 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
           <button
             type="button"
             onClick={() => setIsScrapingOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-white hover:bg-[#E8F2EC] text-[#254A33] border border-[#3F7A55]/30 text-[13px] font-bold shadow-xs transition-colors"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-white hover:bg-[#E8F2EC] text-[#254A33] border border-brand-success/30 text-[13px] font-bold shadow-xs transition-colors"
             title="Lancer un scraping automatique GetYourGuide par destination"
           >
-            <Globe size={15} className="text-[#3F7A55]" />
+            <Globe size={15} className="text-brand-success" />
             <span>Scraping auto</span>
           </button>
 
@@ -216,7 +216,7 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
             <button
               type="button"
               onClick={() => onNavigateTab('quick-capture')}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-white hover:bg-[#F7F6F3] text-[#55565A] hover:text-[#17181A] border border-[#E6E4DF] text-[13px] font-bold shadow-xs transition-colors"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-white hover:bg-brand-surface text-brand-secondary hover:text-brand-encre border border-brand-border text-[13px] font-bold shadow-xs transition-colors"
               title="Ouvrir la page de capture rapide Claude for Chrome"
             >
               <Zap size={15} className="text-[#D97706]" />
@@ -228,13 +228,13 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
           <button
             type="button"
             onClick={() => setIsTrashOpen(true)}
-            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-full bg-white hover:bg-[#F7F6F3] text-[#55565A] hover:text-[#17181A] border border-[#E6E4DF] text-[13px] font-bold shadow-xs transition-colors"
+            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-full bg-white hover:bg-brand-surface text-brand-secondary hover:text-brand-encre border border-brand-border text-[13px] font-bold shadow-xs transition-colors"
             title="Consulter les fiches supprimées (période de grâce 30j)"
           >
-            <Trash2 size={16} className="text-[#8E8F92]" />
+            <Trash2 size={16} className="text-brand-muted" />
             <span>Corbeille</span>
             {trashCount > 0 && (
-              <span className="px-2 py-0.2 rounded-full bg-[#B4472F]/10 text-[#B4472F] text-[11px] font-extrabold">
+              <span className="px-2 py-0.2 rounded-full bg-brand-error/10 text-brand-error text-[11px] font-extrabold">
                 {trashCount}
               </span>
             )}
@@ -245,7 +245,7 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
             <button
               type="button"
               onClick={() => setIsFocusModeOpen(true)}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#17181A] hover:bg-black text-[#D6F84C] text-[13px] font-bold shadow-md transition-all transform hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-brand-encre hover:bg-black text-brand-lime text-[13px] font-bold shadow-md transition-all transform hover:-translate-y-0.5"
             >
               <Sparkles size={16} />
               <span>Mode Focus ({pendingCount})</span>
@@ -255,7 +255,7 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
           {/* Action primaire : Nouvelle fiche manuelle */}
           <button
             onClick={handleOpenCreate}
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#D6F84C] hover:bg-[#cbf13b] text-[#17181A] text-[14px] font-bold shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-brand-lime hover:bg-[#cbf13b] text-brand-encre text-[14px] font-bold shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
           >
             <Plus size={18} strokeWidth={2.5} />
             <span>Nouvelle fiche</span>
@@ -265,16 +265,16 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
 
       {/* Bannière "Pile À Valider" si des fiches sont en attente */}
       {pendingCount > 0 && (
-        <div className="bg-[#FAF3E7] border border-[#E6E4DF] rounded-[20px] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs animate-fade-in">
+        <div className="bg-[#FAF3E7] border border-brand-border rounded-[20px] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs animate-fade-in">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#17181A] text-[#D6F84C] flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-brand-encre text-brand-lime flex items-center justify-center shrink-0">
               <Inbox size={20} />
             </div>
             <div>
-              <h3 className="text-[15px] font-extrabold text-[#17181A]">
+              <h3 className="text-[15px] font-extrabold text-brand-encre">
                 {pendingCount} {pendingCount === 1 ? 'fiche importée en attente' : 'fiches importées en attente'} de validation
               </h3>
-              <p className="text-[12px] text-[#55565A]">
+              <p className="text-[12px] text-brand-secondary">
                 Passez en revue les fiches issues du scraping ou de la capture rapide une par une avant intégration.
               </p>
             </div>
@@ -282,24 +282,24 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
           <button
             type="button"
             onClick={() => setIsFocusModeOpen(true)}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-[#17181A] text-white hover:bg-black text-[13px] font-bold shadow-xs whitespace-nowrap transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-brand-encre text-white hover:bg-black text-[13px] font-bold shadow-xs whitespace-nowrap transition-colors"
           >
-            <Sparkles size={15} className="text-[#D6F84C]" />
+            <Sparkles size={15} className="text-brand-lime" />
             <span>Traiter la pile (Mode Focus)</span>
           </button>
         </div>
       )}
 
       {/* 2. Barre de filtres, Toggle de Vue & Recherche */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 bg-white p-4 rounded-[20px] border border-[#E6E4DF] shadow-sm">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 bg-white p-4 rounded-[20px] border border-brand-border shadow-sm">
         {/* Filtre Destinations */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0">
           <button
             onClick={() => setSelectedDestination('all')}
             className={`px-3.5 py-1.5 rounded-full text-[13px] font-semibold transition-colors whitespace-nowrap ${
               selectedDestination === 'all'
-                ? 'bg-[#17181A] text-[#D6F84C]'
-                : 'bg-[#F7F6F3] text-[#55565A] hover:bg-[#EDEBE6]'
+                ? 'bg-brand-encre text-brand-lime'
+                : 'bg-brand-surface text-brand-secondary hover:bg-brand-fond-warm'
             }`}
           >
             Toutes ({activities.length})
@@ -312,8 +312,8 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
                 onClick={() => setSelectedDestination(dest.id.toString())}
                 className={`px-3.5 py-1.5 rounded-full text-[13px] font-semibold transition-colors whitespace-nowrap ${
                   selectedDestination === dest.id.toString()
-                    ? 'bg-[#17181A] text-[#D6F84C]'
-                    : 'bg-[#F7F6F3] text-[#55565A] hover:bg-[#EDEBE6]'
+                    ? 'bg-brand-encre text-brand-lime'
+                    : 'bg-brand-surface text-brand-secondary hover:bg-brand-fond-warm'
                 }`}
               >
                 📍 {dest.nom} ({count})
@@ -325,14 +325,14 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
         {/* Toggle Mode Consultation / Modification & Filtres */}
         <div className="flex flex-wrap items-center gap-3">
           {/* Toggle Consultation / Modification (PRD1 - US-13) */}
-          <div className="flex items-center bg-[#F7F6F3] p-1 rounded-full border border-[#E6E4DF] shadow-inner shrink-0">
+          <div className="flex items-center bg-brand-surface p-1 rounded-full border border-brand-border shadow-inner shrink-0">
             <button
               type="button"
               onClick={() => setViewMode('consultation')}
               className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
                 viewMode === 'consultation'
-                  ? 'bg-[#17181A] text-[#D6F84C] shadow-sm'
-                  : 'text-[#55565A] hover:text-[#17181A]'
+                  ? 'bg-brand-encre text-brand-lime shadow-sm'
+                  : 'text-brand-secondary hover:text-brand-encre'
               }`}
               title="Mode Consultation : double-cliquez sur une fiche pour l'afficher en grand en lecture seule"
             >
@@ -344,8 +344,8 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
               onClick={() => setViewMode('modification')}
               className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
                 viewMode === 'modification'
-                  ? 'bg-[#17181A] text-[#D6F84C] shadow-sm'
-                  : 'text-[#55565A] hover:text-[#17181A]'
+                  ? 'bg-brand-encre text-brand-lime shadow-sm'
+                  : 'text-brand-secondary hover:text-brand-encre'
               }`}
               title="Mode Modification : double-cliquez sur une fiche pour ouvrir le formulaire d'édition"
             >
@@ -356,13 +356,13 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
 
           {/* Recherche textuelle */}
           <div className="relative flex-1 sm:w-56">
-            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8E8F92]" />
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-muted" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Rechercher par titre, tag..."
-              className="w-full pl-9 pr-3 py-1.5 bg-[#F7F6F3] rounded-full border border-transparent focus:border-[#17181A] focus:ring-2 focus:ring-[#D6F84C]/60 text-[13px] text-[#17181A] outline-none"
+              className="w-full pl-9 pr-3 py-1.5 bg-brand-surface rounded-full border border-transparent focus:border-brand-encre focus:ring-2 focus:ring-brand-lime/60 text-[13px] text-brand-encre outline-none"
             />
           </div>
 
@@ -370,7 +370,7 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-3 py-1.5 bg-[#F7F6F3] rounded-full border border-transparent text-[13px] text-[#55565A] font-medium outline-none"
+            className="px-3 py-1.5 bg-brand-surface rounded-full border border-transparent text-[13px] text-brand-secondary font-medium outline-none"
           >
             <option value="all">Toutes catégories</option>
             {categories.map((c) => (
@@ -384,23 +384,23 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
 
       {/* 3. Grille des cartes activités */}
       {loading ? (
-        <div className="p-12 text-center text-[#8E8F92] text-[14px]">
+        <div className="p-12 text-center text-brand-muted text-[14px]">
           Chargement des fiches d'activités...
         </div>
       ) : filteredActivities.length === 0 ? (
-        <div className="p-12 bg-white rounded-[24px] border border-[#E6E4DF] text-center space-y-3">
-          <div className="w-12 h-12 rounded-full bg-[#F7F6F3] text-[#8E8F92] flex items-center justify-center mx-auto">
+        <div className="p-12 bg-white rounded-[24px] border border-brand-border text-center space-y-3">
+          <div className="w-12 h-12 rounded-full bg-brand-surface text-brand-muted flex items-center justify-center mx-auto">
             <Search size={22} />
           </div>
-          <h3 className="text-[16px] font-bold text-[#17181A]">Aucune fiche trouvée</h3>
-          <p className="text-[13px] text-[#55565A] max-w-sm mx-auto">
+          <h3 className="text-[16px] font-bold text-brand-encre">Aucune fiche trouvée</h3>
+          <p className="text-[13px] text-brand-secondary max-w-sm mx-auto">
             {searchQuery || selectedDestination !== 'all' || selectedCategory !== 'all'
               ? 'Aucune fiche ne correspond à vos filtres de recherche.'
               : 'Commencez par créer une première fiche ou importez-en depuis vos sources de voyage.'}
           </p>
           <button
             onClick={handleOpenCreate}
-            className="px-4 py-2 rounded-full bg-[#17181A] text-white text-[13px] font-bold hover:bg-black transition-colors"
+            className="px-4 py-2 rounded-full bg-brand-encre text-white text-[13px] font-bold hover:bg-black transition-colors"
           >
             Créer une fiche
           </button>
@@ -419,10 +419,10 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
               <div
                 key={act.id}
                 onDoubleClick={() => handleCardDoubleClick(act)}
-                className="group bg-white rounded-[24px] border border-[#E6E4DF] overflow-hidden hover:border-[#17181A] hover:shadow-xl transition-all flex flex-col cursor-pointer"
+                className="group bg-white rounded-[24px] border border-brand-border overflow-hidden hover:border-brand-encre hover:shadow-xl transition-all flex flex-col cursor-pointer"
               >
                 {/* Header Visuel / Photo miniature occupant tout l'espace */}
-                <div className="relative h-48 sm:h-52 bg-[#F7F6F3] overflow-hidden w-full">
+                <div className="relative h-48 sm:h-52 bg-brand-surface overflow-hidden w-full">
                   {photoUrl ? (
                     <img
                       src={photoUrl}
@@ -463,18 +463,18 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
                   )}
 
                   {/* Badge de provenance en haut à droite */}
-                  <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-white/90 text-[#17181A] shadow-sm backdrop-blur-xs">
+                  <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-white/90 text-brand-encre shadow-sm backdrop-blur-xs">
                     {act.source === 'scraping_auto' ? '🤖 scraping' : act.source === 'claude_chrome' ? '⚡ chrome' : '✏️ manuel'}
                   </div>
 
                   {/* Pastille noire de prix total en bas à droite de l'image */}
-                  <div className="absolute bottom-3 right-3 px-3 py-1 rounded-full bg-[#17181A] text-white text-[13px] font-extrabold font-tabular shadow-md">
+                  <div className="absolute bottom-3 right-3 px-3 py-1 rounded-full bg-brand-encre text-white text-[13px] font-extrabold font-tabular shadow-md">
                     {act.cout_total > 0 ? `${act.cout_total.toFixed(0)} €` : 'Gratuit'}
                   </div>
 
                   {/* Destination en bas à gauche de l'image */}
                   <div className="absolute bottom-3 left-3 text-white text-[12px] font-semibold flex items-center gap-1 drop-shadow-md">
-                    <MapPin size={13} className="text-[#D6F84C]" />
+                    <MapPin size={13} className="text-brand-lime" />
                     <span>{act.destination_nom || "Destination"}</span>
                   </div>
                 </div>
@@ -489,13 +489,13 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
                           <Star
                             key={s}
                             size={13}
-                            className={s <= (act.note_interet || 0) ? "text-[#B9862F] fill-[#B9862F]" : "text-[#E6E4DF]"}
+                            className={s <= (act.note_interet || 0) ? "text-brand-alert fill-brand-alert" : "text-brand-border"}
                           />
                         ))}
                       </div>
 
                       {act.est_placée && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#3F7A55] bg-[#3F7A55]/10 px-2 py-0.5 rounded-full">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-success bg-brand-success/10 px-2 py-0.5 rounded-full">
                           <CheckCircle size={11} />
                           Planifiée
                         </span>
@@ -503,7 +503,7 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
                     </div>
 
                     {/* Titre */}
-                    <h3 className="text-[16px] font-bold text-[#17181A] line-clamp-1 group-hover:text-black">
+                    <h3 className="text-[16px] font-bold text-brand-encre line-clamp-1 group-hover:text-black">
                       {act.titre}
                     </h3>
 
@@ -513,13 +513,13 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
                         {act.tags.slice(0, 3).map((tag) => (
                           <span
                             key={tag.id}
-                            className="text-[11px] font-medium text-[#55565A] bg-[#F7F6F3] px-2 py-0.5 rounded-full"
+                            className="text-[11px] font-medium text-brand-secondary bg-brand-surface px-2 py-0.5 rounded-full"
                           >
                             #{tag.nom}
                           </span>
                         ))}
                         {act.tags.length > 3 && (
-                          <span className="text-[11px] font-medium text-[#8E8F92] px-1 py-0.5">
+                          <span className="text-[11px] font-medium text-brand-muted px-1 py-0.5">
                             +{act.tags.length - 3}
                           </span>
                         )}
@@ -528,12 +528,12 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
                   </div>
 
                   {/* Footer de la carte */}
-                  <div className="pt-2.5 border-t border-[#E6E4DF] flex items-center justify-between">
+                  <div className="pt-2.5 border-t border-brand-border flex items-center justify-between">
                     {/* Complétude */}
-                    <div className="flex items-center gap-1.5 text-[11px] text-[#55565A]">
-                      <div className="w-12 bg-[#E6E4DF] h-1.5 rounded-full overflow-hidden">
+                    <div className="flex items-center gap-1.5 text-[11px] text-brand-secondary">
+                      <div className="w-12 bg-brand-border h-1.5 rounded-full overflow-hidden">
                         <div
-                          className="bg-[#3F7A55] h-full"
+                          className="bg-brand-success h-full"
                           style={{ width: `${act.completude || 0}%` }}
                         />
                       </div>
@@ -548,7 +548,7 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
                           e.stopPropagation();
                           handleOpenConsultation(act);
                         }}
-                        className="p-1.5 text-[#55565A] hover:text-[#17181A] hover:bg-[#F7F6F3] rounded-full transition-colors"
+                        className="p-1.5 text-brand-secondary hover:text-brand-encre hover:bg-brand-surface rounded-full transition-colors"
                         title="Consulter la fiche en grand"
                       >
                         <Eye size={15} />
@@ -559,7 +559,7 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
                           e.stopPropagation();
                           handleOpenEdit(act);
                         }}
-                        className="p-1.5 text-[#55565A] hover:text-[#17181A] hover:bg-[#F7F6F3] rounded-full transition-colors"
+                        className="p-1.5 text-brand-secondary hover:text-brand-encre hover:bg-brand-surface rounded-full transition-colors"
                         title="Éditer la fiche"
                       >
                         <Edit3 size={15} />
@@ -567,7 +567,7 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
                       <button
                         type="button"
                         onClick={(e) => handleDeleteActivity(e, act.id)}
-                        className="p-1.5 text-[#8E8F92] hover:text-[#B4472F] hover:bg-[#B4472F]/10 rounded-full transition-colors"
+                        className="p-1.5 text-brand-muted hover:text-brand-error hover:bg-brand-error/10 rounded-full transition-colors"
                         title="Mettre en corbeille (récupérable 30j)"
                       >
                         <Trash2 size={15} />

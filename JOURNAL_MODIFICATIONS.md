@@ -158,3 +158,17 @@
      - Enregistrement du ticket d'anomalie prioritaire sur le scraper GYG Tenerife.
   3. **`PLAN.md`** :
      - Validation des critères d'acceptation de la Phase 12 (Pipeline TripAdvisor, archive pérenne JSON, guide HTML interactif et guide PDF).
+
+---
+
+### 12. Découplage Architectural du Service Planning & Consolidation URLs TripAdvisor (8 août - 23h25)
+- **Objectifs & Règles d'or appliquées** :
+  - *Règle 7.2 (Séparation des couches)* : Découpler la logique métier du routeur `planning.py` vers un service dédié `app.services.planning`.
+  - *Règle 5.1 & 5.7 (Données découplées)* : Découpler les URLs TripAdvisor codées en dur pour utiliser dynamiquement `data/tripadvisor_canaries_archive.json`.
+  - *Règle 4 (Banquage de validation)* : Couvrir les méthodes métier du service par de nouveaux tests unitaires automatisés.
+- **Actions réalisées** :
+  1. **Nouveau service métier `backend/app/services/planning.py`** : Centralise la gestion des créneaux, détection des chevauchements/conflits (`check_slot_overlap`), duplication autonome de créneaux/blocs libres (`duplicate_planning_slot`), gestion des blocs spéciaux et calculs budgétaires consolidés.
+  2. **Allègement du routeur `backend/app/routers/planning.py`** : Rôle restreint à la réception des requêtes HTTP, validation Pydantic et mapping des statuts (`409 Conflict`, `404`, `400`).
+  3. **Consolidation `tripadvisor_firecrawl.py`** : Chargement dynamique des URLs depuis l'archive JSON unique `data/tripadvisor_canaries_archive.json`.
+  4. **Validation de tests (47/47)** : 47 tests `pytest` passés avec succès (dont nouveaux tests directs du service planning).
+  5. **Validation compilation frontend** : Build Vite (`npm run build`) validé avec succès (0 erreur).

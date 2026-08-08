@@ -363,3 +363,76 @@ def test_duplicate_slot_conflict_rejected(client, setup_planning_data):
     assert res_dup.status_code == 409
     assert "Créneau cible occupé" in res_dup.json()["detail"]
 
+
+def test_direct_planning_service_methods(db_session, setup_planning_data):
+    """
+    Règle 7.2 : Teste directement les méthodes métier du service app.services.planning
+    pour garantir l'indépendance de la couche service par rapport au framework HTTP.
+    """
+    from app.services.planning import (
+        create_planning_slot,
+        update_planning_slot,
+        toggle_planning_slot_lock,
+        delete_planning_slot,
+        duplicate_planning_slot,
+        create_special_block_service,
+        get_trip_planning_data
+    )
+
+    # 1. Création directe via service
+    slot = create_planning_slot(
+        db=db_session,
+        trip_id=1,
+        jour=1,
+        heure_debut=540,
+        heure_fin=660,
+        activity_id=1
+    )
+    assert slot.id is not None
+    assert slot.jour == 1
+
+    # 2. Verrouillage via service
+    locked_slot = toggle_planning_slot_lock(db_session, slot.id)
+    assert locked_slot.verrouille == 1
+
+    # 3. Déverrouillage et déplacement
+    unlocked_slot = toggle_planning_slot_lock(db_session, slot.id)
+    assert unlocked_slot.verrouille == 0
+    updated_slot = update_planning_slot(
+        db=db_session,
+        slot_id=slot.id,
+        heure_debut=600,
+        heure_fin=720
+    )
+    assert updated_slot.heure_debut == 600
+
+    # 4. Duplication via service
+    dup = duplicate_planning_slot(
+        db=db_session,
+        slot_id=slot.id,
+        target_jour=3,
+        target_start=600,
+        target_end=720
+    )
+    assert dup.jour == 3
+
+    # 5. Création bloc spécial via service
+    block, b_slot = create_special_block_service(
+        db=db_session,
+        trip_id=1,
+        label="Pause Goûter",
+        block_type="pause",
+        cout=20.0,
+        jour=1,
+        heure_debut=960
+    )
+    assert block.id is not None
+    assert b_slot is not None
+    assert b_slot.special_block_id == block.id
+
+    # 6. Données consolidées planning
+    data = get_trip_planning_data(db_session, 1)
+    assert len(data["slots"]) >= 3
+    assert data["daily_budgets"][1] > 0
+
+
