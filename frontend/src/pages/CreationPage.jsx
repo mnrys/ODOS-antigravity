@@ -2,13 +2,14 @@
  * Écran 1 : Création & Catalogue des activités.
  * Conforme à PRD_ecran1_creation.md (US-4, US-6, US-7, US-8, US-10, US-11) et docs/DESIGN.md.
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Plus, Search, Filter, MapPin, Clock, Calendar, Star,
   Tag as TagIcon, Edit3, Trash2, ExternalLink, ImageOff, CheckCircle,
-  Sparkles, Inbox, RefreshCw, Globe, Zap
+  Sparkles, Inbox, RefreshCw, Globe, Zap, Eye
 } from 'lucide-react';
 import ActivityFormModal from '../components/activities/ActivityFormModal';
+import ActivityDetailModal from '../components/activities/ActivityDetailModal';
 import FocusModeModal from '../components/activities/FocusModeModal';
 import TrashDrawer from '../components/activities/TrashDrawer';
 import ScrapingModal from '../components/activities/ScrapingModal';
@@ -23,6 +24,9 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
   const [trashCount, setTrashCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
+  // Mode d'affichage de l'Écran 1 : 'consultation' (par défaut) ou 'modification' (cf. PRD1 - US-13)
+  const [viewMode, setViewMode] = useState('consultation');
+
   // Filtres
   const [selectedDestination, setSelectedDestination] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -31,9 +35,30 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
   // Modals & Drawers
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activityToEdit, setActivityToEdit] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedDetailActivity, setSelectedDetailActivity] = useState(null);
   const [isFocusModeOpen, setIsFocusModeOpen] = useState(false);
   const [isTrashOpen, setIsTrashOpen] = useState(false);
   const [isScrapingOpen, setIsScrapingOpen] = useState(false);
+
+  // Mémorisation de la position de défilement (Scroll) pour éviter toute réinitialisation (cf. US-15)
+  const savedScrollYRef = useRef(0);
+
+  const captureScrollPosition = () => {
+    const mainEl = document.querySelector('main');
+    savedScrollYRef.current = mainEl ? mainEl.scrollTop : window.scrollY;
+  };
+
+  const restoreScrollPosition = () => {
+    requestAnimationFrame(() => {
+      const mainEl = document.querySelector('main');
+      if (mainEl) {
+        mainEl.scrollTop = savedScrollYRef.current;
+      } else {
+        window.scrollTo(0, savedScrollYRef.current);
+      }
+    });
+  };
 
   const loadData = async (isSilent = false) => {
     try {
@@ -69,6 +94,9 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
       console.error("Erreur de chargement des données de l'écran 1:", err);
     } finally {
       setLoading(false);
+      if (isSilent) {
+        restoreScrollPosition();
+      }
     }
   };
 
@@ -79,11 +107,37 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
   }, [tripId]);
 
   const handleOpenCreate = () => {
+    captureScrollPosition();
     setActivityToEdit(null);
     setIsModalOpen(true);
   };
 
+  const handleCardDoubleClick = (act) => {
+    captureScrollPosition();
+    if (viewMode === 'consultation') {
+      setSelectedDetailActivity(act);
+      setIsDetailModalOpen(true);
+    } else {
+      setActivityToEdit(act);
+      setIsModalOpen(true);
+    }
+  };
+
   const handleOpenEdit = (act) => {
+    captureScrollPosition();
+    setActivityToEdit(act);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenConsultation = (act) => {
+    captureScrollPosition();
+    setSelectedDetailActivity(act);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleDirectEditFromDetail = (act) => {
+    captureScrollPosition();
+    setIsDetailModalOpen(false);
     setActivityToEdit(act);
     setIsModalOpen(true);
   };
@@ -137,7 +191,10 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
             Fiches d'activités & Logistique
           </h1>
           <p className="text-[14px] text-[#55565A] mt-0.5">
-            {activities.length} fiches validées dans le catalogue · Double-cliquez pour ouvrir
+            {activities.length} fiches validées dans le catalogue · Double-cliquez pour{' '}
+            <span className="font-bold text-[#17181A]">
+              {viewMode === 'consultation' ? 'consulter la fiche' : 'modifier directement'}
+            </span>
           </p>
         </div>
 
@@ -233,10 +290,10 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
         </div>
       )}
 
-      {/* 2. Barre de filtres & recherche */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white p-4 rounded-[20px] border border-[#E6E4DF] shadow-sm">
+      {/* 2. Barre de filtres, Toggle de Vue & Recherche */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 bg-white p-4 rounded-[20px] border border-[#E6E4DF] shadow-sm">
         {/* Filtre Destinations */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0">
           <button
             onClick={() => setSelectedDestination('all')}
             className={`px-3.5 py-1.5 rounded-full text-[13px] font-semibold transition-colors whitespace-nowrap ${
@@ -265,9 +322,40 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
           })}
         </div>
 
-        {/* Recherche et Catégories */}
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1 md:w-64">
+        {/* Toggle Mode Consultation / Modification & Filtres */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Toggle Consultation / Modification (PRD1 - US-13) */}
+          <div className="flex items-center bg-[#F7F6F3] p-1 rounded-full border border-[#E6E4DF] shadow-inner shrink-0">
+            <button
+              type="button"
+              onClick={() => setViewMode('consultation')}
+              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
+                viewMode === 'consultation'
+                  ? 'bg-[#17181A] text-[#D6F84C] shadow-sm'
+                  : 'text-[#55565A] hover:text-[#17181A]'
+              }`}
+              title="Mode Consultation : double-cliquez sur une fiche pour l'afficher en grand en lecture seule"
+            >
+              <Eye size={14} />
+              <span>Consultation</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('modification')}
+              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
+                viewMode === 'modification'
+                  ? 'bg-[#17181A] text-[#D6F84C] shadow-sm'
+                  : 'text-[#55565A] hover:text-[#17181A]'
+              }`}
+              title="Mode Modification : double-cliquez sur une fiche pour ouvrir le formulaire d'édition"
+            >
+              <Edit3 size={14} />
+              <span>Modification</span>
+            </button>
+          </div>
+
+          {/* Recherche textuelle */}
+          <div className="relative flex-1 sm:w-56">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8E8F92]" />
             <input
               type="text"
@@ -278,6 +366,7 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
             />
           </div>
 
+          {/* Filtre Catégorie */}
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
@@ -329,7 +418,7 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
             return (
               <div
                 key={act.id}
-                onDoubleClick={() => handleOpenEdit(act)}
+                onDoubleClick={() => handleCardDoubleClick(act)}
                 className="group bg-white rounded-[24px] border border-[#E6E4DF] overflow-hidden hover:border-[#17181A] hover:shadow-xl transition-all flex flex-col cursor-pointer"
               >
                 {/* Header Visuel / Photo miniature occupant tout l'espace */}
@@ -455,9 +544,23 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
                     <div className="flex items-center gap-1">
                       <button
                         type="button"
-                        onClick={() => handleOpenEdit(act)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenConsultation(act);
+                        }}
                         className="p-1.5 text-[#55565A] hover:text-[#17181A] hover:bg-[#F7F6F3] rounded-full transition-colors"
-                        title="Éditer la fiche (ou double-cliquer)"
+                        title="Consulter la fiche en grand"
+                      >
+                        <Eye size={15} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenEdit(act);
+                        }}
+                        className="p-1.5 text-[#55565A] hover:text-[#17181A] hover:bg-[#F7F6F3] rounded-full transition-colors"
+                        title="Éditer la fiche"
                       >
                         <Edit3 size={15} />
                       </button>
@@ -478,45 +581,83 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
         </div>
       )}
 
+      {/* Modal / Consultation centrée d'une fiche (Phase 11) */}
+      <ActivityDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => {
+          setIsDetailModalOpen(false);
+          restoreScrollPosition();
+        }}
+        activityId={selectedDetailActivity?.id}
+        activityData={selectedDetailActivity}
+        nbPersonnes={tripInfo.nb_personnes}
+        onEdit={handleDirectEditFromDetail}
+      />
+
       {/* Modal / Panneau complet d'édition */}
       <ActivityFormModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          restoreScrollPosition();
+        }}
         tripId={tripId}
         nbPersonnes={tripInfo.nb_personnes}
         activityToEdit={activityToEdit}
         destinations={destinations}
         categories={categories}
-        onSaved={() => loadData(true)}
+        onSaved={() => {
+          loadData(true);
+          restoreScrollPosition();
+        }}
       />
 
       {/* Modal / Mode Focus séquentiel */}
       <FocusModeModal
         isOpen={isFocusModeOpen}
-        onClose={() => setIsFocusModeOpen(false)}
+        onClose={() => {
+          setIsFocusModeOpen(false);
+          restoreScrollPosition();
+        }}
         tripId={tripId}
         nbPersonnes={tripInfo.nb_personnes}
         destinations={destinations}
         categories={categories}
-        onProcessed={() => loadData(true)}
+        onProcessed={() => {
+          loadData(true);
+          restoreScrollPosition();
+        }}
       />
 
       {/* Tiroir / Corbeille avec période de grâce */}
       <TrashDrawer
         isOpen={isTrashOpen}
-        onClose={() => setIsTrashOpen(false)}
+        onClose={() => {
+          setIsTrashOpen(false);
+          restoreScrollPosition();
+        }}
         tripId={tripId}
-        onRestored={() => loadData(true)}
+        onRestored={() => {
+          loadData(true);
+          restoreScrollPosition();
+        }}
       />
 
       {/* Modal / Déclenchement Scraping externe */}
       <ScrapingModal
         isOpen={isScrapingOpen}
-        onClose={() => setIsScrapingOpen(false)}
+        onClose={() => {
+          setIsScrapingOpen(false);
+          restoreScrollPosition();
+        }}
         tripId={tripId}
-        onScrapingComplete={() => loadData(true)}
+        onScrapingComplete={() => {
+          loadData(true);
+          restoreScrollPosition();
+        }}
         onOpenFocusMode={() => setIsFocusModeOpen(true)}
       />
     </div>
   );
 }
+

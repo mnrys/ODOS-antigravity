@@ -43,6 +43,13 @@ class SlotUpdate(BaseModel):
     couleur_override: Optional[str] = None
 
 
+class SlotDuplicate(BaseModel):
+    jour: Optional[int] = Field(None, ge=1, description="Numéro du jour cible (1-indexé)")
+    heure_debut: Optional[int] = Field(None, ge=0, le=1440, description="Heure de début cible en minutes")
+    heure_fin: Optional[int] = Field(None, ge=0, le=1440, description="Heure de fin cible en minutes")
+
+
+
 class SpecialBlockCreate(BaseModel):
     label: str = Field(..., min_length=1, max_length=100)
     type: str = Field(..., description="'repas'|'trajet'|'pause'|'personnalise'")
@@ -487,6 +494,148 @@ def delete_slot(slot_id: int, db: Session = Depends(get_db)):
         "activity_id": activity_id,
         "special_block_id": special_block_id
     }
+
+
+@router.post("/api/trips/{trip_id}/slots/{slot_id}/duplicate", status_code=status.HTTP_201_CREATED)
+@router.post("/trips/{trip_id}/slots/{slot_id}/duplicate", status_code=status.HTTP_201_CREATED)
+@router.post("/api/slots/{slot_id}/duplicate", status_code=status.HTTP_201_CREATED)
+@router.post("/slots/{slot_id}/duplicate", status_code=status.HTTP_201_CREATED)
+def duplicate_slot(
+    slot_id: int,
+    payload: Optional[SlotDuplicate] = None,
+    trip_id: Optional[int] = None,
+    db: Session = Depends(get_db)
+):
+    """
+    Duplique un créneau existant (activité ou bloc libre) sur un nouveau jour/horaire (US-21, US-22).
+    Crée un clone autonome afin que la nouvelle instance puisse avoir ses propres annotations,
+    frais réels et documents/photos sans altérer l'original.
+    """
+    slot = db.query(ScheduledSlot).filter(ScheduledSlot.id == slot_id).first()
+    if not slot:
+        raise HTTPException(status_code=404, detail="Créneau source non trouvé")
+
+    actual_trip_id = trip_id or slot.trip_id
+    trip = db.query(Trip).filter(Trip.id == actual_trip_id).first()
+    if not trip:
+        raise HTTPException(status_code=404, detail="Voyage non trouvé")
+
+    # Calcul des horaires cibles (par défaut : même créneau que la source)
+    duration = (slot.heure_fin - slot.heure_debut) if (slot.heure_fin and slot.heure_debut) else 60
+    target_jour = payload.jour if (payload and payload.jour is not None) else slot.jour
+    target_start = payload.heure_debut if (payload and payload.heure_debut is not None) else slot.heure_debut
+    target_end = payload.heure_fin if (payload and payload.heure_fin is not None) else (target_start + duration)
+
+    # 1. Validation de l'alignement sur 15 minutes (Règle 5.5)
+    if target_start % 15 != 0:
+        raise HTTPException(
+            status_code=400,
+            detail=f"L'heure de début ({minutes_to_time_str(target_start)}) doit être un multiple de 15 minutes."
+        )
+    if target_end % 15 != 0:
+        raise HTTPException(
+            status_code=400,
+            detail=f"L'heure de fin ({minutes_to_time_str(target_end)}) doit être un multiple de 15 minutes."
+        )
+    if target_end <= target_start:
+        raise HTTPException(
+            status_code=400,
+            detail="L'heure de fin doit être strictement supérieure à l'heure de début."
+        )
+
+    # 2. Validation du numéro de jour
+    if target_jour < 1 or target_jour > trip.nb_jours:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Le jour {target_jour} est invalide pour ce voyage ({trip.nb_jours} jours prévus)."
+        )
+
+    # 3. Vérification de conflit sur le créneau cible (US-10)
+    conflict = check_slot_overlap(
+        db=db,
+        trip_id=actual_trip_id,
+        jour=target_jour,
+        heure_debut=target_start,
+        heure_fin=target_end
+    )
+    if conflict:
+        title = conflict.activity.titre if conflict.activity else (conflict.special_block.label if conflict.special_block else "une activité")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Créneau cible occupé par « {title} » de {minutes_to_time_str(conflict.heure_debut)} à {minutes_to_time_str(conflict.heure_fin)}."
+        )
+
+    new_activity_id = None
+    new_special_block_id = None
+
+    # 4. Duplication de l'entité sous-jacente
+    if slot.activity_id:
+        orig_act = db.query(Activity).filter(Activity.id == slot.activity_id).first()
+        new_act = Activity(
+            trip_id=actual_trip_id,
+            destination_id=orig_act.destination_id if orig_act else None,
+            categorie_id=orig_act.categorie_id if orig_act else None,
+            titre=orig_act.titre if orig_act else "Activité dupliquée",
+            type_element=orig_act.type_element if orig_act else 'activite',
+            statut_validation='validee',
+            cout_par_personne=orig_act.cout_par_personne if orig_act else 0.0,
+            duree_min=orig_act.duree_min if orig_act else duration,
+            description=orig_act.description if orig_act else None,
+            remarques=orig_act.remarques if orig_act else None,
+            zone_geo=orig_act.zone_geo if orig_act else None,
+            adresse=orig_act.adresse if orig_act else None,
+            url_source=orig_act.url_source if orig_act else None,
+            note_interet=orig_act.note_interet if orig_act else None,
+            source='copie'
+        )
+        db.add(new_act)
+        db.flush()
+        if orig_act and orig_act.tags:
+            new_act.tags = list(orig_act.tags)
+        new_activity_id = new_act.id
+
+    elif slot.special_block_id:
+        orig_block = db.query(SpecialBlock).filter(SpecialBlock.id == slot.special_block_id).first()
+        new_block = SpecialBlock(
+            trip_id=actual_trip_id,
+            label=orig_block.label if orig_block else "Bloc dupliqué",
+            type=orig_block.type if orig_block else 'personnalise',
+            categorie_id=orig_block.categorie_id if orig_block else None,
+            duree_minutes=orig_block.duree_minutes if orig_block else duration,
+            cout=orig_block.cout if orig_block else 0.0,
+            icone=orig_block.icone if orig_block else None,
+            couleur=orig_block.couleur if orig_block else None
+        )
+        db.add(new_block)
+        db.flush()
+        new_special_block_id = new_block.id
+
+    # 5. Création du nouveau créneau
+    new_slot = ScheduledSlot(
+        trip_id=actual_trip_id,
+        activity_id=new_activity_id,
+        special_block_id=new_special_block_id,
+        jour=target_jour,
+        heure_debut=target_start,
+        heure_fin=target_end,
+        type=slot.type or ('activite' if new_activity_id else 'special_block'),
+        verrouille=0,
+        couleur_override=slot.couleur_override
+    )
+    db.add(new_slot)
+    db.commit()
+    db.refresh(new_slot)
+
+    return {
+        "message": "Créneau dupliqué avec succès",
+        "slot_id": new_slot.id,
+        "activity_id": new_activity_id,
+        "special_block_id": new_special_block_id,
+        "jour": new_slot.jour,
+        "heure_debut": new_slot.heure_debut,
+        "heure_fin": new_slot.heure_fin
+    }
+
 
 
 # -----------------------------------------------------------------------------

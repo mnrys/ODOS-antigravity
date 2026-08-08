@@ -3,7 +3,7 @@
 > Document de référence unique pour la structure des données. Toute session de code (Claude Code, Cowork ou autre) doit s'appuyer sur ce schéma plutôt que d'en réinventer un.
 > Stack : FastAPI (Python) + SQLAlchemy + SQLite + React 18 (inchangé depuis le cahier des charges d'origine).
 
-**Dernière mise à jour :** 27 juillet 2026
+**Dernière mise à jour :** 7 août 2026, 15h40 — ajout de `lien_avis_tripadvisor` sur `activities` (Phase 4b, résumés TripAdvisor)
 
 ---
 
@@ -19,6 +19,7 @@
 | — | `note_interet` (1-5) | Priorité personnelle, absente à l'origine |
 | — | `avis_utilisateurs` (distinct de `remarques`) | Synthèse des avis d'autres voyageurs (Tripadvisor scrapé + filtré IA en Phase 2), vide et éditable manuellement en V1 |
 | — | Soft-delete généralisé (corbeille récupérable) | Écran 1 (fiches rejetées) et Atelier (corbeille) |
+| — | `lien_avis_tripadvisor` | Référence vers un résumé d'avis TripAdvisor produit par la webapp externe (Phase 4b), rattachée automatiquement par correspondance nom + destination |
 
 ---
 
@@ -74,6 +75,10 @@ avis_utilisateurs     TEXT                               -- synthèse des avis d
                                                           -- filtré IA en Phase 2, complétable manuellement dès la V1).
                                                           -- Vide en V1 → affiché "Aucun avis pour l'instant" dans l'UI.
                                                           -- Distinct de `remarques` (notes personnelles vs avis tiers)
+lien_avis_tripadvisor TEXT                               -- URL vers le résumé d'avis produit par la webapp TripAdvisor
+                                                          -- (Phase 4b), renseignée automatiquement quand une correspondance
+                                                          -- nom+destination normalisés est trouvée. NULL = aucun lien affiché
+                                                          -- (pas de placeholder). Distinct de `avis_utilisateurs`.
 rating                REAL
 note_interet          INTEGER                            -- 1 à 5, 5 = à faire absolument
 statut                TEXT DEFAULT 'non_reserve'          -- 'non_reserve'|'en_cours'|'reserve'|'action_requise'|'annule'
@@ -228,6 +233,7 @@ Un besoin de "fiche réutilisable" (ex: repas générique placé plusieurs fois)
 Deux champs texte distincts, à ne pas confondre en code ou en UI :
 - `remarques` = notes **personnelles** de l'utilisateur (ex: "prévoir chaussures de marche")
 - `avis_utilisateurs` = synthèse des avis **d'autres voyageurs** (source externe, Tripadvisor). Vide en V1, affiché avec un message par défaut ("Aucun avis pour l'instant") tant que le scraping Tripadvisor (Phase 2) n'est pas branché. Éditable manuellement dès la V1 si l'utilisateur veut y coller un avis pertinent trouvé lui-même.
+- `lien_avis_tripadvisor` = un lien, pas un texte. Renseigné automatiquement (Phase 4b) quand la webapp TripAdvisor détecte une correspondance avec cette fiche. N'a pas de message par défaut ; simplement absent de l'affichage tant qu'aucune correspondance n'existe. Ne remplace pas `avis_utilisateurs` : les deux peuvent coexister (le premier pointe vers l'extérieur, le second est une synthèse copiée dans ODOS).
 
 ---
 

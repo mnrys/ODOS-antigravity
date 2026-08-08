@@ -152,6 +152,30 @@ export default function PlanningPage({ tripId = 1 }) {
     }
   };
 
+  // Duplication rapide d'un créneau (Alt + Drag ou bouton Dupliquer - US-21, US-22)
+  const handleDuplicateSlot = async (slotId, targetJour, targetStart, targetEnd) => {
+    try {
+      const res = await fetch(`/api/trips/${tripId}/slots/${slotId}/duplicate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jour: targetJour,
+          heure_debut: targetStart,
+          heure_fin: targetEnd
+        })
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || "Impossible de dupliquer ce créneau.");
+      }
+      showToast("✨ Activité clonée et positionnée sur le créneau !");
+      await fetchPlanningData();
+    } catch (err) {
+      showToast(err.message, true);
+    }
+  };
+
+
   // Verrouillage / Déverrouillage d'un créneau (US-11)
   const handleToggleLock = async (slotId) => {
     try {
@@ -327,6 +351,7 @@ export default function PlanningPage({ tripId = 1 }) {
             }}
             onDropActivity={handleQuickPlace}
             onMoveSlot={handleMoveSlot}
+            onDuplicateSlot={handleDuplicateSlot}
           />
         )}
 

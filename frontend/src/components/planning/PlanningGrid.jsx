@@ -12,7 +12,8 @@ import {
   Plus,
   GripVertical,
   Calendar,
-  ArrowRightLeft
+  ArrowRightLeft,
+  Copy
 } from 'lucide-react';
 import { getPhotoUrl } from '../../utils/imageUtils';
 import MoveSlotModal from './MoveSlotModal';
@@ -32,7 +33,7 @@ const minsToTimeString = (mins) => {
  * Grille temporelle dynamique du Planning (Écran 3).
  * Intègre le glisser-déposer (HTML5 Drag & Drop), le zoom continu,
  * le survol riche de fiche, et le verrouillage de créneaux.
- * cf. PRD_ecran3_planning.md (US-10, US-11, US-12, US-13, US-14, US-15, US-16, US-19, US-20).
+ * cf. PRD_ecran3_planning.md (US-10, US-11, US-12, US-13, US-14, US-15, US-16, US-19, US-20, US-21, US-22).
  */
 export default function PlanningGrid({
   visibleDays = [1],
@@ -48,8 +49,10 @@ export default function PlanningGrid({
   onEmptySlotClick,
   onCloseDrawers,
   onDropActivity,
-  onMoveSlot
+  onMoveSlot,
+  onDuplicateSlot
 }) {
+
   const [hoveredSlot, setHoveredSlot] = useState(null);
   const [hoverPos, setHoverPos] = useState({ x: 0, y: 0 });
   const [dragOverDay, setDragOverDay] = useState(null);
@@ -136,13 +139,18 @@ export default function PlanningGrid({
       const calculatedStart = Math.min(Math.max(START_MINUTES + snappedMinutes, START_MINUTES), END_MINUTES - 15);
 
       if (payload.type === 'slot_move') {
-        // Déplacement d'un créneau existant
+        // Déplacement ou Duplication d'un créneau existant (Alt + Glisser pour cloner)
         const duration = (payload.heure_fin - payload.heure_debut) || 60;
         const calculatedEnd = Math.min(calculatedStart + duration, END_MINUTES);
-        if (onMoveSlot) {
+        const isDuplicate = e.altKey || e.ctrlKey || payload.isDuplicate;
+
+        if (isDuplicate && onDuplicateSlot) {
+          onDuplicateSlot(payload.slot_id, jour, calculatedStart, calculatedEnd);
+        } else if (onMoveSlot) {
           onMoveSlot(payload.slot_id, jour, calculatedStart, calculatedEnd);
         }
       } else if (payload.type === 'activity' || payload.activity_id || payload.id) {
+
         // Positionnement d'une fiche non placée
         const actId = payload.activity_id || payload.id;
         const duration = payload.duree_min || 60;
@@ -349,6 +357,7 @@ export default function PlanningGrid({
                       draggable={!isLocked}
                       onDragStart={(e) => {
                         e.stopPropagation();
+                        const isAlt = e.altKey || e.ctrlKey;
                         e.dataTransfer.setData(
                           'text/plain',
                           JSON.stringify({
@@ -356,14 +365,15 @@ export default function PlanningGrid({
                             slot_id: slot.id,
                             heure_debut: slot.heure_debut,
                             heure_fin: slot.heure_fin,
-                            jour: slot.jour
+                            jour: slot.jour,
+                            isDuplicate: isAlt
                           })
                         );
                         e.dataTransfer.effectAllowed = 'all';
                       }}
                       onDragOver={(e) => {
                         e.preventDefault();
-                        e.dataTransfer.dropEffect = 'move';
+                        e.dataTransfer.dropEffect = (e.altKey || e.ctrlKey) ? 'copy' : 'move';
                       }}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -413,17 +423,35 @@ export default function PlanningGrid({
                                 {/* Actions rapides */}
                                 <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                                   {!isLocked && (
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setSlotToMove(slot);
-                                      }}
-                                      title="Déplacer / Changer d'horaire"
-                                      className="p-1 rounded-md bg-white/90 hover:bg-[#3F7A55] text-[#55565A] hover:text-white shadow-2xs transition-colors"
-                                    >
-                                      <Calendar className="w-3 h-3" />
-                                    </button>
+                                    <>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          if (onDuplicateSlot) {
+                                            const duration = (slot.heure_fin - slot.heure_debut) || 60;
+                                            const nextStart = Math.min(slot.heure_fin, END_MINUTES - duration);
+                                            const nextEnd = nextStart + duration;
+                                            onDuplicateSlot(slot.id, slot.jour, nextStart, nextEnd);
+                                          }
+                                        }}
+                                        title="Dupliquer l'activité (ou Alt + Glisser)"
+                                        className="p-1 rounded-md bg-white/90 hover:bg-[#3F7A55] text-[#55565A] hover:text-white shadow-2xs transition-colors"
+                                      >
+                                        <Copy className="w-3 h-3" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setSlotToMove(slot);
+                                        }}
+                                        title="Déplacer / Changer d'horaire"
+                                        className="p-1 rounded-md bg-white/90 hover:bg-[#3F7A55] text-[#55565A] hover:text-white shadow-2xs transition-colors"
+                                      >
+                                        <Calendar className="w-3 h-3" />
+                                      </button>
+                                    </>
                                   )}
                                   <button
                                     type="button"
@@ -449,6 +477,7 @@ export default function PlanningGrid({
                                   </button>
                                 </div>
                               </div>
+
 
                               <div className="text-[11px] font-bold text-[#55565A] flex items-center gap-1.5 mt-0.5">
                                 <Clock className="w-3 h-3 text-[#8E8F92] shrink-0" />
@@ -514,17 +543,35 @@ export default function PlanningGrid({
                             {/* Boutons d'action rapides */}
                             <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                               {!isLocked && (
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSlotToMove(slot);
-                                  }}
-                                  title="Déplacer / Changer d'horaire"
-                                  className="p-1 rounded-md bg-white/90 hover:bg-[#3F7A55] text-[#55565A] hover:text-white shadow-2xs transition-colors"
-                                >
-                                  <Calendar className="w-3 h-3" />
-                                </button>
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (onDuplicateSlot) {
+                                        const duration = (slot.heure_fin - slot.heure_debut) || 60;
+                                        const nextStart = Math.min(slot.heure_fin, END_MINUTES - duration);
+                                        const nextEnd = nextStart + duration;
+                                        onDuplicateSlot(slot.id, slot.jour, nextStart, nextEnd);
+                                      }
+                                    }}
+                                    title="Dupliquer l'activité (ou Alt + Glisser)"
+                                    className="p-1 rounded-md bg-white/90 hover:bg-[#3F7A55] text-[#55565A] hover:text-white shadow-2xs transition-colors"
+                                  >
+                                    <Copy className="w-3 h-3" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSlotToMove(slot);
+                                    }}
+                                    title="Déplacer / Changer d'horaire"
+                                    className="p-1 rounded-md bg-white/90 hover:bg-[#3F7A55] text-[#55565A] hover:text-white shadow-2xs transition-colors"
+                                  >
+                                    <Calendar className="w-3 h-3" />
+                                  </button>
+                                </>
                               )}
                               <button
                                 type="button"
@@ -639,7 +686,13 @@ export default function PlanningGrid({
             await onMoveSlot(slotId, newJour, newStart, newEnd);
           }
         }}
+        onDuplicate={async (slotId, newJour, newStart, newEnd) => {
+          if (onDuplicateSlot) {
+            await onDuplicateSlot(slotId, newJour, newStart, newEnd);
+          }
+        }}
       />
+
     </div>
   );
 }

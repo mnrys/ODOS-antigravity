@@ -359,3 +359,163 @@ Dashboard une fois terminée.
 
 ## Bloquée par
 - Phase 9
+
+---
+
+## Phase 11 : Écran 1 — Mode consultation/modification + persistance du scroll
+
+**User stories** : US-13, US-14, US-15 (PRD1)
+
+### Ce qu'on livre
+Un toggle à deux positions ("Consultation" / "Modification") dans la barre horizontale de l'écran
+Création, au-dessus de la grille de fiches validées. Le mode actif détermine le comportement du
+double-clic sur une fiche : en consultation, le panneau complet s'ouvre en lecture seule avec galerie
+photo visible, présentation centrée sur fond flou (réutilise le style déjà existant du panneau complet
+de l'Atelier) ; en modification, le panneau complet garde son comportement actuel (édition de tous les
+champs). Mode par défaut à l'ouverture de l'écran : consultation. Correction du bug de réinitialisation
+du scroll : fermer le panneau complet, quel que soit le mode, restitue la grille exactement à sa
+position de défilement précédente (état conservé côté frontend, pas en base ni en `localStorage`).
+
+### Critères d'acceptation
+- [ ] Le toggle est visible et accessible dans la barre horizontale de l'écran Création
+- [ ] En mode consultation, double-cliquer une fiche ouvre un panneau en lecture seule avec galerie
+      photo, sans aucun champ éditable
+- [ ] En mode modification, double-cliquer une fiche ouvre le panneau complet éditable existant
+      (comportement inchangé par rapport à la Phase 2)
+- [ ] Changer de mode via le toggle prend effet immédiatement sur toute la grille, sans rechargement
+      de page
+- [ ] À l'ouverture de l'écran Création, le mode actif est "Consultation"
+- [ ] Faire défiler la grille, ouvrir une fiche en double-clic, la fermer : la grille est exactement à
+      la même position de défilement qu'avant l'ouverture — vérifiable sur plusieurs fiches
+      consécutives à des positions de scroll différentes
+
+## Bloquée par
+- Phase 2 (grille de fiches validées et panneau complet)
+
+---
+
+## Phase 12 : TripAdvisor — pipeline Firecrawl, activités gratuites, résumés d'avis
+
+**User stories** : US-16 (PRD1)
+
+### Contexte de la décision (7-8 août 2026)
+
+Apify a été testé et validé techniquement (voir Journal des tests ci-dessous), mais son modèle
+économique ne convient pas à un usage personnel ponctuel : le crédit gratuit de 5$/mois a été épuisé
+par ~50 activités GetYourGuide, et l'abonnement Starter (29$/mois récurrent) est disproportionné.
+
+Un scraper Python maison (`requests` + `BeautifulSoup`) a également été testé le 7 août : la requête
+sur une page TripAdvisor **n'a jamais abouti** (aucune réponse après 10 minutes, malgré un
+`timeout=15` — comportement typique d'une protection anti-bot qui ralentit volontairement les clients
+suspects plutôt que de les rejeter franchement). Conclusion : le scraping direct sans infrastructure
+de contournement n'est pas viable sur TripAdvisor.
+
+**Décision retenue : Firecrawl.** Plan gratuit à 1000 crédits/mois, sans carte bancaire, renouvelé
+mensuellement. Deux avantages décisifs sur les alternatives :
+1. Gère nativement l'anti-bot via son mode `proxy: "stealth"` (5 crédits/page au lieu de 1).
+2. Son format de sortie `json` fait l'**extraction structurée par LLM à partir d'un prompt en
+   français** — aucun sélecteur CSS à écrire ni à maintenir. C'est ce qui rend la solution tenable
+   pour un projet mené par un non-développeur : une refonte du design de TripAdvisor ne casse pas le
+   pipeline.
+
+### Ce qu'on livre
+
+Un script Python autonome (`scripts/pipeline_tripadvisor.py`), hors du code applicatif ODOS, lancé
+par une seule commande. Il ne s'exécute jamais automatiquement : c'est un outil d'alimentation lancé
+à la demande, par destination.
+
+**Périmètre du premier lancement : les attractions à entrée gratuite**, sur La Palma et Tenerife.
+C'est l'objectif prioritaire de l'utilisateur (repérer les activités non payantes qui n'apparaissent
+pas sur GetYourGuide et dont la lecture manuelle des avis prendrait des heures).
+
+TripAdvisor expose des URLs de filtres officiels, ce qui évite tout tri heuristique côté script :
+- Entrée gratuite (`zft11292`) :
+  `https://www.tripadvisor.com/Attractions-g{GEO}-Activities-zft11292-{SLUG}.html`
+- Budget-friendly (`zft11309`) : même schéma, autre code de filtre.
+- Codes géographiques : La Palma = `g187475`, Tenerife = `g187479`.
+- **À vérifier au premier lancement** : l'URL Tenerife avec filtre gratuit n'a pas encore été testée
+  (déduite par analogie). Le script doit échouer proprement avec un message explicite si l'URL ne
+  renvoie pas de résultats, plutôt que de continuer silencieusement.
+
+**Étapes du pipeline :**
+1. **Liste** — Firecrawl scrape les pages de listing filtrées (pagination incluse) et en extrait
+   nom, note, nombre d'avis, URL de la fiche.
+2. **Détail + avis** — pour chaque attraction, Firecrawl scrape sa page (format `json`, prompt en
+   français) : nom, note, adresse, `locationString`, catégorie, URL de la photo principale, et les
+   avis les plus utiles (plafonnés à 15-20, pas d'exhaustivité).
+3. **Photos** — l'URL de la photo obtenue à l'étape 2 est téléchargée par une requête HTTPS directe
+   vers le CDN d'images. **Aucun crédit Firecrawl consommé** : les CDN d'images ne sont pas protégés
+   par de l'anti-bot. Le fichier est stocké selon la convention du schéma
+   (`uploads/activities/{activity_id}/{uuid}.jpg`), conformément à la règle « jamais un lien externe
+   direct ».
+4. **Résumé** — les avis (multilingues) sont envoyés à l'API Claude qui produit une synthèse
+   pratique **en français**, orientée conseils concrets (accès, horaires, ce qu'il faut prévoir),
+   pas une paraphrase des avis. Le résumé alimente `avis_utilisateurs`.
+5. **Intégration ODOS** — via l'**API FastAPI d'ODOS**, jamais par écriture directe en base : le
+   script réutilise ainsi la validation métier existante, et bénéficie automatiquement de ses
+   évolutions futures.
+   - **Correspondance trouvée** (nom + destination normalisés, même logique que la Phase 4
+     GetYourGuide) : la fiche existante reçoit `avis_utilisateurs` (le résumé) et
+     `lien_avis_tripadvisor` (l'URL de la page TripAdvisor). Aucun doublon créé.
+   - **Aucune correspondance** : création d'une fiche `statut_validation='a_valider'`,
+     `source='scraping_auto'`, `url_source` = page TripAdvisor. Elle rejoint le mode focus de la
+     Phase 3 comme n'importe quelle fiche scrapée, sans code de validation dupliqué.
+6. **Restitution** — génération d'un fichier HTML statique autonome
+   (`sorties/tripadvisor_{destination}_{date}.html`) présentant les résultats du run : attractions
+   trouvées, résumés, photos, et pour chacune si elle a été rattachée à une fiche existante ou créée
+   comme nouvelle fiche. Ouvert par simple double-clic, sans serveur.
+
+**Robustesse — exigence de premier ordre** (l'utilisateur n'est pas développeur et ne doit pas avoir
+à déboguer) :
+- **Points de contrôle** : l'état d'avancement est écrit sur disque après chaque attraction traitée.
+  Une interruption à la 40ᵉ attraction reprend à la 40ᵉ, pas à zéro — et ne re-consomme pas les
+  crédits déjà dépensés.
+- **Escalade de proxy** : essai en `proxy: "basic"` (1 crédit) d'abord, bascule automatique en
+  `"stealth"` (5 crédits) seulement si la page échoue. Économise jusqu'à 5× les crédits.
+- **Mode `--dry-run`** : déroule tout le pipeline et affiche ce qui serait créé ou modifié, sans
+  écrire ni dans ODOS ni sur le disque.
+- **Plafond de crédits** : paramètre `--max-credits` qui arrête proprement le run avant d'épuiser le
+  quota mensuel, avec un point de contrôle exploitable au lancement suivant.
+- **Journal lisible** : une ligne par attraction, en français, indiquant l'action effectuée.
+- Cloisonnement des sources respecté (`CLAUDE.md`, règle 5.11) : l'échec du scraping, du résumé ou
+  du téléchargement de photo d'une attraction n'interrompt jamais le traitement des suivantes.
+
+### Critères d'acceptation
+- [ ] Une seule commande lance le pipeline complet pour une destination donnée
+- [ ] `--dry-run` affiche le résultat attendu sans rien écrire dans ODOS ni sur disque
+- [ ] Le script traite les attractions à entrée gratuite de La Palma, puis de Tenerife
+- [ ] Une interruption en cours de run, relancée, reprend au point d'arrêt sans re-scraper ce qui
+      l'a déjà été
+- [ ] Chaque fiche créée ou mise à jour possède au moins une photo téléchargée localement
+- [ ] `avis_utilisateurs` contient un résumé en français, quelle que soit la langue des avis sources
+- [ ] Une attraction déjà présente dans ODOS est mise à jour, pas dupliquée
+- [ ] Une attraction absente crée une fiche `a_valider` visible dans le mode focus de l'écran Création
+- [ ] Toutes les écritures passent par l'API FastAPI, aucune écriture SQL directe dans le script
+- [ ] Le fichier HTML de restitution s'ouvre sans serveur et présente les résultats du run
+- [ ] Un échec sur une attraction n'interrompt pas le traitement des autres
+- [ ] Le run reste dans le quota gratuit de 1000 crédits/mois
+
+### Hors périmètre de cette phase
+- **Webapp de présentation dédiée** : le fichier HTML statique de l'étape 6 couvre le besoin. Une
+  vraie webapp (serveur, routes, base) serait un projet à part entière — à rouvrir seulement si
+  l'usage réel du HTML statique montre qu'il ne suffit pas.
+- **GetYourGuide Tenerife** : à traiter dans un second temps, une fois le pipeline TripAdvisor
+  validé. Le même script pourra être étendu (les étapes 3 à 6 sont communes), mais ce n'est pas
+  l'objectif de ce premier lancement.
+- **Attractions payantes TripAdvisor** : le filtre `zft11292` les exclut volontairement. Élargir le
+  périmètre est un simple changement d'URL une fois le pipeline éprouvé.
+
+### Journal des tests réalisés (à conserver)
+- **Apify `maxcopell/tripadvisor`** (7 août, La Palma) : 10 résultats, $0,05. Champs :
+  `name`, `category`, `rating`, `address` (texte libre), `webUrl`, `numberOfReviews`. Pas de GPS.
+- **Apify `maxcopell/tripadvisor-reviews`** (7 août) : 28 avis, $0,14. Champ clé :
+  `placeInfo.locationString` (« La Palma, Canary Islands ») — **plus fiable que `address`** pour la
+  correspondance destination. Avis constatés en 6 langues sur un seul lieu.
+- **Scraper Python maison** (7 août) : échec, aucune réponse (anti-bot silencieux).
+- **Firecrawl** : plan gratuit 1000 crédits/mois confirmé, mode `stealth` à 5 crédits/page. Test sur
+  page TripAdvisor non abouti (quota anonyme partagé épuisé) — **à refaire avec la clé API
+  personnelle, en tout premier**, avant d'écrire le reste du pipeline.
+
+## Bloquée par
+- Phase 3 (mode focus), Phase 11 (affichage du lien sur la fiche)
+- Création d'un compte Firecrawl gratuit et obtention de la clé API

@@ -195,6 +195,7 @@ def get_workshop_data(
             horaires_ouverture=act.horaires_ouverture,
             jours_fermeture=act.jours_fermeture,
             avis_utilisateurs=act.avis_utilisateurs,
+            lien_avis_tripadvisor=act.lien_avis_tripadvisor,
             rating=act.rating,
             date_debut=act.date_debut,
             date_fin=act.date_fin,

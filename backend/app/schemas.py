@@ -110,6 +110,7 @@ class ActivityCreate(BaseModel):
     source: str = "manuel"              # 'manuel' | 'scraping_auto' | 'claude_chrome'
     remarques: Optional[str] = None
     avis_utilisateurs: Optional[str] = None
+    lien_avis_tripadvisor: Optional[str] = None
     rating: Optional[float] = None
     note_interet: Optional[int] = None   # 1 à 5
     statut: str = "non_reserve"         # 'non_reserve'|'en_cours'|'reserve'|'action_requise'|'annule'
@@ -137,6 +138,7 @@ class ActivityUpdate(BaseModel):
     source: Optional[str] = None
     remarques: Optional[str] = None
     avis_utilisateurs: Optional[str] = None
+    lien_avis_tripadvisor: Optional[str] = None
     rating: Optional[float] = None
     note_interet: Optional[int] = None
     statut: Optional[str] = None
@@ -170,6 +172,7 @@ class ActivityDetail(BaseModel):
     source: str
     remarques: Optional[str] = None
     avis_utilisateurs: Optional[str] = None
+    lien_avis_tripadvisor: Optional[str] = None
     rating: Optional[float] = None
     note_interet: Optional[int] = None
     statut: str
@@ -312,6 +315,7 @@ class WorkshopActivityNode(BaseModel):
     horaires_ouverture: Optional[str] = None
     jours_fermeture: Optional[str] = None
     avis_utilisateurs: Optional[str] = None
+    lien_avis_tripadvisor: Optional[str] = None
     rating: Optional[float] = None
     date_debut: Optional[date] = None
     date_fin: Optional[date] = None

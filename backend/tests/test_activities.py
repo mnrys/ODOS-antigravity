@@ -264,3 +264,59 @@ def test_soft_delete_activity(client_with_db):
     db_act = db.query(Activity).filter(Activity.id == act_id).first()
     assert db_act is not None
     assert db_act.supprime_le is not None
+
+
+def test_activity_tripadvisor_link_and_consultation_detail(client_with_db):
+    """
+    Phase 11 — Validation du champ lien_avis_tripadvisor et du format de consultation détaillée.
+    cf. PRD_ecran1_creation.md (US-13, US-14) et SCHEMA_BASE_DE_DONNEES.md.
+    Vérifie :
+    1. La création avec lien_avis_tripadvisor.
+    2. La récupération complète pour affichage dans ActivityDetailModal (note, prix, avis, lien TripAdvisor).
+    3. La modification du lien TripAdvisor via PUT.
+    """
+    client, db, trip, dest1, cat_nat, tags = client_with_db
+
+    tripadvisor_url = "https://www.tripadvisor.fr/Attraction_Review-g187791-d192285-Reviews-Colosseum-Rome_Lazio.html"
+
+    payload = {
+        "destination_id": dest1.id,
+        "categorie_id": cat_nat.id,
+        "type_element": "activite",
+        "titre": "Visite du Colisée",
+        "cout_par_personne": 29.0,
+        "description": "Amphithéâtre romain emblématique",
+        "avis_utilisateurs": "Incontournable, réserver à l'avance",
+        "lien_avis_tripadvisor": tripadvisor_url,
+        "note_interet": 5,
+        "statut": "non_reserve",
+        "tag_ids": [tags[0].id]
+    }
+
+    # 1. Création
+    create_res = client.post(f"/api/trips/{trip.id}/activities", json=payload)
+    assert create_res.status_code == 201
+    created_act = create_res.json()
+    act_id = created_act["id"]
+    assert created_act["lien_avis_tripadvisor"] == tripadvisor_url
+
+    # 2. Récupération pour consultation détaillée
+    detail_res = client.get(f"/api/activities/{act_id}")
+    assert detail_res.status_code == 200
+    detail = detail_res.json()
+    assert detail["id"] == act_id
+    assert detail["titre"] == "Visite du Colisée"
+    assert detail["lien_avis_tripadvisor"] == tripadvisor_url
+    assert detail["avis_utilisateurs"] == "Incontournable, réserver à l'avance"
+    assert detail["cout_total"] == 58.0  # 29 * 2 personnes
+    assert detail["note_interet"] == 5
+    assert len(detail["tags"]) == 1
+
+    # 3. Mise à jour du lien
+    new_url = "https://www.tripadvisor.fr/Attraction_Review-g187791-d192285-Updated.html"
+    update_res = client.put(f"/api/activities/{act_id}", json={
+        "lien_avis_tripadvisor": new_url
+    })
+    assert update_res.status_code == 200
+    assert update_res.json()["lien_avis_tripadvisor"] == new_url
+

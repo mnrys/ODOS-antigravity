@@ -251,3 +251,115 @@ def test_delete_slot_unplaces_activity(client, setup_planning_data):
     res2 = client.get("/trips/1/planning")
     assert len(res2.json()["unplaced_activities"]) == 2
     assert 1 not in res2.json()["placed_activity_ids"]
+
+
+def test_duplicate_activity_slot_success(client, setup_planning_data):
+    """
+    US-21 / US-22 : Dupliquer un créneau d'activité crée une nouvelle activité clone
+    et un nouveau créneau sans déplacer ni altérer l'activité d'origine.
+    """
+    # 1. Création du créneau initial (Activité 1 sur Jour 1, 09:00 - 11:00)
+    res_create = client.post("/trips/1/slots", json={
+        "activity_id": 1,
+        "jour": 1,
+        "heure_debut": 540,
+        "heure_fin": 660
+    })
+    orig_slot_id = res_create.json()["slot_id"]
+
+    # 2. Duplication sur Jour 2, 14:00 - 16:00 (840 - 960)
+    res_dup = client.post(f"/trips/1/slots/{orig_slot_id}/duplicate", json={
+        "jour": 2,
+        "heure_debut": 840,
+        "heure_fin": 960
+    })
+    assert res_dup.status_code == 201
+    dup_data = res_dup.json()
+    assert dup_data["jour"] == 2
+    assert dup_data["heure_debut"] == 840
+    assert dup_data["heure_fin"] == 960
+    new_slot_id = dup_data["slot_id"]
+    new_act_id = dup_data["activity_id"]
+
+    # L'ID de l'activité doit être différent (clone autonome)
+    assert new_act_id != 1
+    assert new_slot_id != orig_slot_id
+
+    # 3. Vérification du planning complet
+    res_planning = client.get("/trips/1/planning")
+    slots = res_planning.json()["slots"]
+    assert len(slots) == 2
+
+    # L'original est toujours là
+    orig = next(s for s in slots if s["id"] == orig_slot_id)
+    assert orig["jour"] == 1
+    assert orig["heure_debut"] == 540
+
+    # Le clone est bien présent
+    clone = next(s for s in slots if s["id"] == new_slot_id)
+    assert clone["jour"] == 2
+    assert clone["titre"] == "Randonnée Teide"
+    assert clone["cout_total"] == 100.0
+
+
+def test_duplicate_special_block_slot_success(client, setup_planning_data):
+    """
+    US-21 : Dupliquer un bloc libre (ex: repas) crée un nouveau bloc spécial indépendant.
+    """
+    # 1. Création du bloc libre initial (Déjeuner à 80€ sur Jour 1, 12:00)
+    res_block = client.post("/trips/1/special_blocks", json={
+        "label": "Déjeuner Tapas",
+        "type": "repas",
+        "categorie_id": 2,
+        "cout": 80.0,
+        "duree_minutes": 60,
+        "jour": 1,
+        "heure_debut": 720
+    })
+    assert res_block.status_code == 201
+    slot_id = res_block.json()["slot_id"]
+
+
+    # 2. Duplication sur Jour 3, 19:30 - 21:00 (1170 - 1260)
+    res_dup = client.post(f"/trips/1/slots/{slot_id}/duplicate", json={
+        "jour": 3,
+        "heure_debut": 1170,
+        "heure_fin": 1260
+    })
+    assert res_dup.status_code == 201
+    dup_data = res_dup.json()
+    assert dup_data["jour"] == 3
+    assert dup_data["heure_debut"] == 1170
+    assert dup_data["special_block_id"] is not None
+
+
+def test_duplicate_slot_conflict_rejected(client, setup_planning_data):
+    """
+    US-10 / US-21 : Refus de la duplication si le créneau cible chevauche un créneau existant (409 Conflict).
+    """
+    # 1. Créneau sur Jour 1, 09:00 - 11:00
+    res_create = client.post("/trips/1/slots", json={
+        "activity_id": 1,
+        "jour": 1,
+        "heure_debut": 540,
+        "heure_fin": 660
+    })
+    orig_slot_id = res_create.json()["slot_id"]
+
+    # 2. Créneau sur Jour 2, 14:00 - 16:00
+    client.post("/trips/1/slots", json={
+        "activity_id": 2,
+        "jour": 2,
+        "heure_debut": 840,
+        "heure_fin": 960
+    })
+
+    # 3. Tentative de duplication sur Jour 2, 15:00 - 17:00 (chevauchement partiel)
+    res_dup = client.post(f"/trips/1/slots/{orig_slot_id}/duplicate", json={
+        "jour": 2,
+        "heure_debut": 900,
+        "heure_fin": 1020
+    })
+    assert res_dup.status_code == 409
+    assert "Créneau cible occupé" in res_dup.json()["detail"]
+

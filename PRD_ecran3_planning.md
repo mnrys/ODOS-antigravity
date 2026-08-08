@@ -40,12 +40,16 @@ Toto, utilisateur unique de l'application (usage solo, pas d'authentification). 
 - **US-18** — En tant qu'utilisateur, je veux pouvoir ajouter un bloc "frais supplémentaires" à côté d'une activité déjà planifiée, afin d'ajuster son coût réel sans modifier la fiche d'origine.
 - **US-19** — En tant qu'utilisateur, je veux basculer l'affichage de la grille entre le quart d'heure et la demi-heure, afin de choisir entre précision maximale et lecture plus calme selon ce que je suis en train de faire.
 - **US-20** — En tant qu'utilisateur, je veux que ce changement de granularité ne déplace jamais mes créneaux déjà posés, afin de pouvoir basculer d'un affichage à l'autre sans risque de perdre un placement précis.
+- **US-21** — En tant qu'utilisateur, je veux dupliquer rapidement un créneau existant en maintenant la touche `Alt` lors du glisser-déposer (`Alt+Drag`), afin de créer un clone autonome posé sur un nouveau jour/horaire sans déplacer l'original.
+- **US-22** — En tant qu'utilisateur, je veux disposer d'un bouton de duplication rapide au survol du créneau, afin de pouvoir cloner une activité facilement même sans clavier.
 
 ## Critères de succès
 
 - Une activité peut être glissée depuis l'Atelier vers le Planning (panneau latéral) sans erreur de placement.
 - Un créneau occupé affiche sans ambiguïté le nom de l'activité et sa catégorie (couleur), identifiable en un coup d'œil.
 - Le survol d'un créneau occupé affiche la fiche complète de l'activité correspondante.
+- Le geste `Alt+Drag` sur un créneau crée un clone autonome (activité ou bloc libre) au nouvel emplacement horaire sans déplacer le créneau d'origine.
+- La fiche clonée est indépendante et peut être éditée sans altérer la fiche source (addition, photos, prix).
 - Le programme du jour est consultable rapidement sur mobile, avec accès en un clic aux détails pratiques (documents, adresse, itinéraire).
 - Le passage entre panneau latéral et vue plein écran se fait sans perte du travail en cours.
 - La navigation (jour/3 jours/semaine) permet de retrouver n'importe quel jour du séjour en quelques clics.

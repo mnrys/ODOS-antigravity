@@ -112,6 +112,7 @@ class Activity(Base):
     source = Column(String, default='manuel')         # 'manuel' | 'scraping_auto' | 'claude_chrome'
     remarques = Column(Text, nullable=True)           # Notes personnelles
     avis_utilisateurs = Column(Text, nullable=True)   # Synthèse avis tiers (Tripadvisor...)
+    lien_avis_tripadvisor = Column(String, nullable=True)  # URL de la fiche source TripAdvisor
     rating = Column(Float, nullable=True)
     note_interet = Column(Integer, nullable=True)     # 1 à 5
     statut = Column(String, default='non_reserve')    # 'non_reserve'|'en_cours'|'reserve'|'action_requise'|'annule'
