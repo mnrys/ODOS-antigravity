@@ -3,7 +3,7 @@
 > Ce fichier centralise les idées évoquées pendant les échanges de conception, classées par horizon.
 > Mis à jour au fur et à mesure des sessions — chaque ajout est proposé et validé avec l'utilisateur avant d'être inscrit ici.
 
-**Dernière mise à jour :** 1er août 2026, 20h15
+**Dernière mise à jour :** 8 août 2026, 23h10
 
 ---
 
@@ -33,7 +33,8 @@
 - Option de rejet rapide des fiches non désirées (glisser vers corbeille latérale + raccourci clavier)
   - Décision tranchée : **corbeille récupérable** pendant quelques jours (pas de suppression immédiate et définitive)
 - Confirmé : les fiches issues du scraping automatique par destination arrivent bien dans l'**écran 1** (pile "À valider"), même circuit que les autres modes de création
-- **PRD complet de l'écran 1 rédigé via le skill `/cadre`** (Problème, Solution, User Stories US-1 à US-12, Critères de succès, Hors périmètre, Décisions d'implémentation) — voir `PRD_ecran1_creation.md`
+- **PRD complet de l'écran 1 rédigé via le skill `/cadre`** (Problème, Solution, User Stories US-1 à US-17, Critères de succès, Hors périmètre, Décisions d'implémentation) — voir `PRD_ecran1_creation.md`
+- **Double mode de vue sur la grille Création** (US-13 à US-15) : bascule fluide Consultation (lecture seule via `ActivityDetailModal`) / Modification (édition via `ActivityModal`).
 - Validation dans la pile "À valider" : **fiche par fiche uniquement** (mode focus séquentiel), pas de validation par lot
 - La validation n'est **jamais bloquée par l'incomplétude** d'une fiche : le score de complétude reflète juste l'état, il n'empêche pas de valider (à compléter plus tard dans l'atelier si besoin)
 - Les **tags sont modifiables dès l'écran 1**, au même titre que les autres champs du formulaire de validation
@@ -81,15 +82,18 @@ Recommandation : utiliser **`@xyflow/react`** (React Flow) pour construire le ca
 Une V1 avait été développée avec un autre outil (Antigravity/Gemini) sur une vision plus ancienne et plus restrictive du projet (pas de scraping, pas de budget, pas d'écran 1 séparé, interaction de tri façon "swipe" au lieu de piles). Cette version n'est **pas retenue comme base** — on repart du présent backlog et du schéma associé. Seules deux idées ont été récupérées (typologie élargie et `@xyflow/react`, ci-dessus). Une troisième idée (fiches réutilisables pour repas/repos) a été envisagée puis abandonnée : ce besoin est déjà couvert par les blocs spéciaux créés directement dans le planning (repas/trajet/pause, cf. section Écran 3), pas besoin d'un mécanisme de fiche dédié.
 
 ### Scraping automatique par destination
-- Solution retenue pour le prototype : **Apify** (quota gratuit généreux, scrapers prêts à l'emploi pour sites comme GetYourGuide/TripAdvisor)
-- **Périmètre V1 précisé en session `/planifie` du 1er août 2026 : GetYourGuide uniquement.** Tripadvisor est volontairement différé — s'ajoutera comme un second traducteur (mapper) sans toucher au mécanisme de scraping lui-même. cf. `docs/PLAN.md`, Phase 4.
-- Alternative de secours : script Python maison (gratuit mais fragile, casse si le site change de structure)
-- Décision réversible — interface backend stable (`POST /ai/suggest-destination`) pour pouvoir changer de solution technique sans tout casser
-- **Ajouter une nouvelle source de scraping = un mapper Python dédié par source, pas une extraction dynamique par IA.** L'extraction pilotée par IA existe déjà dans la vision d'origine (agent Dify `enrich_activity`), mais reste volontairement cantonnée au projet séparé "Collecteur IA" — plus lente, moins fiable qu'un mapper codé, et coûteuse à chaque fiche plutôt qu'une fois pour toutes à l'écriture.
-- **Pistes V2/V3 identifiées le 1er août 2026** (évaluation d'une stratégie multi-sources proposée par un autre outil IA, jugée trop tôt pour la V1 mais notée pour plus tard) :
-  - Scraping des listings Tripadvisor (`maxcopell/tripadvisor` ou `maxcopell/tripadvisor-things-to-do-scraper`, vérifiés réels et bien établis sur Apify)
-  - Scraping des sites officiels de tourisme espagnols (TurEspaña, Visit Canary Islands) — jamais spécifié, aucune User Story à ce jour
-  - Détection d'activités "exclusives" par comparaison entre plusieurs sources (ex. présentes sur Tripadvisor mais absentes de GetYourGuide) — idée intéressante, non spécifiée, à cadrer via `/cadre` si elle est retenue un jour
+- **Solution hybride multi-sources V1 intégrée** :
+  - **GetYourGuide** via Apify (`POST /ai/suggest-destination` avec `source="getyourguide"`).
+  - **TripAdvisor** via Firecrawl & archive locale pérenne (`POST /ai/suggest-destination` avec `source="tripadvisor"`).
+- **Archive locale pérenne (`data/tripadvisor_canaries_archive.json`)** : 17 fiches d'activités haute fidélité (La Palma + Tenerife) avec synthèses d'avis structurées (Route, Accès, Horaires, Équipement, Météo, Réservations indispensables).
+- **Règle de résilience et de cloisonnement** : Le backend charge l'archive locale en priorité sans consommation de quota d'API et bascule en direct de manière transparente.
+- **🚨 Anomalie active à traiter en priorité** : Le scraping GetYourGuide pour Tenerife a renvoyé 0 résultat. Une session d'investigation technique est programmée pour analyser la réponse de l'acteur Apify sur le terme "Tenerife" et adapter les paramètres de recherche.
+- **Outils annexes produits & archivés** :
+  - `guide_interactif_canaries.html` : catalogue web réactif et autonome (modes Grille / Magazine).
+  - `Guide_Canaries_Avis_TripAdvisor.pdf` : guide A4 imprimable pour consultation hors-ligne sur smartphone.
+- **Pistes V2/V3** :
+  - Scraping des sites officiels de tourisme espagnols (TurEspaña, Visit Canary Islands).
+  - Détection d'activités "exclusives" par comparaison entre plusieurs sources (ex. présentes sur Tripadvisor mais absentes de GetYourGuide).
 
 ### Intégration Claude for Chrome
 - Flux réel, précisé en session `/planifie` du 1er août 2026 : Claude for Chrome n'appelle jamais une

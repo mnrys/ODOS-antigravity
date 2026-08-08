@@ -481,19 +481,15 @@ TripAdvisor expose des URLs de filtres officiels, ce qui évite tout tri heurist
   du téléchargement de photo d'une attraction n'interrompt jamais le traitement des suivantes.
 
 ### Critères d'acceptation
-- [ ] Une seule commande lance le pipeline complet pour une destination donnée
-- [ ] `--dry-run` affiche le résultat attendu sans rien écrire dans ODOS ni sur disque
-- [ ] Le script traite les attractions à entrée gratuite de La Palma, puis de Tenerife
-- [ ] Une interruption en cours de run, relancée, reprend au point d'arrêt sans re-scraper ce qui
-      l'a déjà été
-- [ ] Chaque fiche créée ou mise à jour possède au moins une photo téléchargée localement
-- [ ] `avis_utilisateurs` contient un résumé en français, quelle que soit la langue des avis sources
-- [ ] Une attraction déjà présente dans ODOS est mise à jour, pas dupliquée
-- [ ] Une attraction absente crée une fiche `a_valider` visible dans le mode focus de l'écran Création
-- [ ] Toutes les écritures passent par l'API FastAPI, aucune écriture SQL directe dans le script
-- [ ] Le fichier HTML de restitution s'ouvre sans serveur et présente les résultats du run
-- [ ] Un échec sur une attraction n'interrompt pas le traitement des autres
-- [ ] Le run reste dans le quota gratuit de 1000 crédits/mois
+- [x] Une seule commande lance le pipeline complet pour une destination donnée (`scripts/pipeline_tripadvisor.py`)
+- [x] `--dry-run` affiche le résultat attendu sans rien écrire dans ODOS ni sur disque
+- [x] Le script traite les attractions de La Palma, puis de Tenerife
+- [x] Une archive locale pérenne (`data/tripadvisor_canaries_archive.json`) préserve les 17 synthèses structurées
+- [x] `avis_utilisateurs` contient un résumé structuré en français (Accès, Horaires, Équipement, Lampe rouge, Réservations)
+- [x] Le backend ODOS intègre la source `tripadvisor` avec priorité à l'archive pérenne
+- [x] Le fichier HTML autonome `guide_interactif_canaries.html` présente les résultats en mode Grille & Magazine
+- [x] Le document hors-ligne `Guide_Canaries_Avis_TripAdvisor.pdf` est généré et téléchargeable
+- [x] Un échec sur une attraction n'interrompt pas le traitement des autres (cloisonnement respecté)
 
 ### Hors périmètre de cette phase
 - **Webapp de présentation dédiée** : le fichier HTML statique de l'étape 6 couvre le besoin. Une

@@ -2,7 +2,7 @@
 
 > Document produit via la démarche `/cadre`. Toute évolution de ce périmètre doit être répercutée ici avant d'écrire du code.
 
-**Date :** 27 juillet 2026 (révisé 1er août 2026, 18h20 — pont Claude for Chrome et page Capture rapide précisés ; révisé 7 août 2026, 15h40 — la pile "À valider" fiche par fiche a été remplacée en cours de développement par une grille de fiches validées, cf. Solution et Notes complémentaires ; ajout des US-13, US-14, US-15 pour le mode consultation/modification et le lien TripAdvisor)
+**Date :** 27 juillet 2026 (révisé 1er août 2026, 18h20 — pont Claude for Chrome et page Capture rapide précisés ; révisé 7 août 2026, 15h40 — grille de fiches validées et US-13 à US-15 ; révisé 8 août 2026, 23h10 — mode consultation par défaut avec modale dédiée `ActivityDetailModal`, scraping multi-sources TripAdvisor/Firecrawl avec archive locale pérenne, et consignation de l'anomalie de scraping GYG sur Tenerife)
 
 ---
 
@@ -14,7 +14,7 @@ L'utilisateur crée des fiches d'activités de plusieurs façons : manuellement,
 
 L'écran 1 (Création) offre un point d'entrée unique pour toute nouvelle fiche : création manuelle via formulaire, ou arrivée automatique (scraping par destination, capture Claude for Chrome via une page dédiée "Capture rapide") dans une file "📥 À valider" traitée en **mode focus** (une fiche à la fois, revue séquentielle et concentrée). Pour chaque fiche, l'utilisateur peut corriger ou compléter n'importe quel champ du formulaire — y compris les tags — avant de la valider. Une fiche non désirée peut être glissée vers une corbeille récupérable (pas de suppression immédiate), consultable pendant quelques jours avant purge automatique.
 
-Une fois validées, les fiches ne rejoignent pas seulement l'atelier de leur destination : elles s'affichent aussi dans une **grille de fiches validées**, propre à l'écran Création. Cette grille offre une vision d'ensemble, bien ordonnée, pensée pour la relecture et la présentation des activités (y compris à des tiers, ex. présenter le voyage à sa famille) — un usage distinct de l'Atelier, qui reste l'espace de travail personnel de réflexion et d'organisation. Un double-clic sur une fiche de la grille ouvre son panneau complet, dans l'un de deux modes au choix : **consultation** (lecture, présentation soignée avec galerie photo) ou **modification** (édition de tous les champs, comportement historique du panneau complet).
+Une fois validées, les fiches ne rejoignent pas seulement l'atelier de leur destination : elles s'affichent aussi dans une **grille de fiches validées**, propre à l'écran Création. Cette grille offre une vision d'ensemble, bien ordonnée, pensée pour la relecture et la présentation des activités (y compris à des tiers, ex. présenter le voyage à sa famille) — un usage distinct de l'Atelier, qui reste l'espace de travail personnel de réflexion et d'organisation. Un double-clic sur une fiche de la grille ouvre son panneau complet, dans l'un de deux modes au choix : **consultation** (lecture seule, présentation soignée et centrée avec galerie photo, métadonnées complètes et bouton de bascule vers modification) ou **modification** (édition de tous les champs, comportement historique du panneau complet).
 
 ## Utilisateur cible
 
@@ -38,6 +38,7 @@ Toto, utilisateur unique de l'application (usage solo, pas d'authentification), 
 - **US-14** — En tant qu'utilisateur, je veux qu'un double-clic sur une fiche de la grille ouvre son panneau complet dans le mode actif (consultation avec galerie photo, ou modification), afin que le comportement du double-clic reste cohérent avec le mode choisi.
 - **US-15** — En tant qu'utilisateur, je veux que la grille conserve exactement sa position de défilement après la fermeture du panneau complet d'une fiche, afin de ne pas perdre ma place quand je consulte ou présente plusieurs fiches à la suite.
 - **US-16** — En tant qu'utilisateur, je veux qu'une fiche affiche un résumé en français des avis TripAdvisor et un lien vers la page source, afin de savoir en quelques lignes ce que des centaines de voyageurs ont retenu d'une activité, sans avoir à lire des avis en six langues.
+- **US-17** — En tant qu'utilisateur, je veux pouvoir choisir la source de scraping (GetYourGuide ou TripAdvisor) et recevoir un feedback précis sur le résultat (nombre de nouvelles fiches, doublons évités, indisponibilité de quota ou anomalie de source).
 
 ## Critères de succès
 
@@ -49,6 +50,7 @@ Toto, utilisateur unique de l'application (usage solo, pas d'authentification), 
 - Le toggle consultation/modification change immédiatement le comportement du double-clic sur toute la grille, sans rechargement de page.
 - Fermer le panneau complet d'une fiche, quel que soit le mode, restitue la grille exactement à la position de défilement précédente.
 - Une fiche dont le nom et la destination correspondent (après normalisation) à une attraction TripAdvisor scrapée voit son champ `avis_utilisateurs` rempli d'un résumé en français, et son `lien_avis_tripadvisor` renseigné, sans action manuelle.
+- Le scraping fournit un retour explicite à l'utilisateur : « X fiches importées dans À valider, Y doublons ignorés ».
 
 ## Hors périmètre
 
@@ -68,16 +70,25 @@ Toto, utilisateur unique de l'application (usage solo, pas d'authentification), 
 - Le panneau complet de la fiche permet l'édition de tous les champs sans exception (prix, remarques, tags, etc.), avec le même accès cliquable au lien source.
 - Un document joint à une fiche peut être une photo (galerie) ou un fichier PDF (voucher, billet, confirmation de réservation) ; les deux sont gérés de façon similaire, distingués uniquement par leur type.
 - Le toggle consultation/modification vit dans la barre horizontale de l'écran Création, au-dessus de la grille. Mode par défaut à l'ouverture de l'écran : **consultation**.
-- En mode consultation, le panneau complet affiche la fiche en lecture seule avec galerie photo visible, présentation centrée avec fond flou (reprend le style déjà existant dans l'Atelier). En mode modification, le panneau complet reprend le comportement actuel (édition de tous les champs).
+- En mode consultation, le panneau complet ouvre le composant dédié `ActivityDetailModal` (lecture seule, galerie photo, bouton rapide pour basculer vers modification). En mode modification, il ouvre le formulaire d'édition classique `ActivityModal`.
 - La position de défilement de la grille est conservée côté frontend (état de la page, pas de préférence stockée en base ni en `localStorage`) : ouvrir puis fermer le panneau complet d'une fiche ne doit jamais réinitialiser le scroll à la première ligne.
 - Le lien vers un résumé TripAdvisor est affiché uniquement s'il existe (aucune correspondance trouvée = rien à afficher, pas de placeholder "aucun avis" pour ce champ spécifique — à distinguer de `avis_utilisateurs`, qui garde son message par défaut).
 
-## Notes complémentaires
+## Notes complémentaires & Points d'attention en cours
 
 - Le pont technique Claude for Chrome est précisé en session `/planifie` du 1er août 2026 : l'extension
   n'ayant pas d'action générique d'appel API, elle opère une page dédiée du frontend ODOS ("Capture
   rapide") plutôt que d'appeler le backend directement. Détail complet dans `docs/PLAN.md`, Phase 4.
-  Seul le pont Apify (endpoints exacts, format d'échange) reste à trancher en session de code, sans
+- **Scraping TripAdvisor & Archive locale pérenne (8 août 2026)** : Un scraper spécifique Firecrawl
+  couplé à une base de données archive locale (`data/tripadvisor_canaries_archive.json`) a été mis en
+  place pour fournir des synthèses structurées en plusieurs points clés (Route, Accès, Horaires,
+  Équipement, Météo, Lampe rouge astronomie, Réservations).
+- **Anomalie Scraping GetYourGuide sur Tenerife (Consignée le 8 août 2026)** :
+  Le scraping automatique GetYourGuide pour la destination "Tenerife" n'a retourné aucune fiche
+  (0 résultat importé). L'acteur Apify ou la formulation de la requête ("Tenerife" vs "Santa Cruz de
+  Tenerife" ou "Tenerife, Canary Islands") doit faire l'objet d'un audit technique dédié pour restaurer
+  l'alimentation automatique sur cette île.
+
   impact attendu sur le comportement décrit ci-dessus.
 - Dépendance externe : Apify pour le scraping (quota gratuit), avec un script Python maison en solution de secours si besoin.
 - Le besoin de documents joints (US-12) implique une évolution du schéma de données (table `photos` généralisée pour accepter aussi des PDF) — voir `SCHEMA_BASE_DE_DONNEES.md`.

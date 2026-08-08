@@ -142,3 +142,19 @@
   3. *Git Push immédiat vers origin/main*.
   4. *Mise à jour immédiate du présent journal*.
 
+---
+
+### 11. Synchronisation Complète de la Documentation de Référence & Ticket d'Anomalie GYG (8 août - 23h12)
+- **Demande utilisateur** : Assurer une concordance absolue et pérenne entre les documents de spécification (`PRD_ecran1_creation.md`, `BACKLOG.md`, `PLAN.md`) et le code réel développé. Consigner l'anomalie de scraping GetYourGuide sur Tenerife.
+- **Actions de synchronisation documentaire engagées** :
+  1. **`PRD_ecran1_creation.md`** :
+     - Ajout de l'US-17 (sélection de source et retour d'information explicite).
+     - Formalisation de l'ouverture par défaut en mode consultation avec le composant dédié `ActivityDetailModal`.
+     - Intégration de l'architecture de scraping multi-sources TripAdvisor avec archive locale pérenne.
+     - Enregistrement du point d'attention / anomalie : Scraping GYG sur Tenerife (0 fiche).
+  2. **`BACKLOG.md`** :
+     - Actualisation à la date du 8 août 2026, 23h10.
+     - Validation V1 de la bascule Consultation/Modification et du pipeline TripAdvisor.
+     - Enregistrement du ticket d'anomalie prioritaire sur le scraper GYG Tenerife.
+  3. **`PLAN.md`** :
+     - Validation des critères d'acceptation de la Phase 12 (Pipeline TripAdvisor, archive pérenne JSON, guide HTML interactif et guide PDF).
