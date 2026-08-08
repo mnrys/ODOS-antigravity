@@ -125,3 +125,20 @@
      - *17 fiches d'activités grand format* (1 par page) avec encadré complet des avis voyageurs (Route & Accès, Horaires & Timing, Équipement & Climat, Points de vigilance, URLs directes).
      - *Fiche Mémo Voyageur* en fin de document (Tableau des goulots d'étranglement / réservations obligatoires, check-list équipement spécifique, règles de conduite).
   3. **Bouton de téléchargement dans le Guide Web** : Ajout d'un bouton de téléchargement direct du PDF dans la barre supérieure de `guide_interactif_canaries.html`.
+
+---
+
+### 10. Rappel à l'Ordre & Règle d'Or : Automatisation Proactive du Cycle Test → Commit → Push (8 août - 23h05)
+- **Réclamation légitime de Moun** : Les tests, commits et push doivent être pris en charge de manière proactive et systématique à la fin de chaque étape de travail, sans que l'utilisateur n'ait à le demander ou à rappeler les règles de bonne pratique. L'état du dépôt doit rester impeccable et synchronisé en permanence pour éviter tout décalage lors des relectures de code.
+- **Actions immédiates exécutées** :
+  1. **Banquage officiel par tests** : 46 tests validés (`pytest`), 0 échec.
+  2. **Commits intentionnels créés** :
+     - `88c77dc` (*Ajoute le double mode Consultation/Modification et la vue detail sur l'ecran Creation*)
+     - `c5616b1` (*Integre le scraping TripAdvisor, l'archive locale Canaries, le guide interactif et le guide PDF hors-ligne*)
+  3. **Push distant exécuté** : `git push origin main` effectué avec succès vers `https://github.com/mnrys/ODOS-antigravity.git`.
+- **Engagement de méthode strict pour la suite** : Antigravity intègre désormais obligatoirement, à chaque clôture de tâche validée :
+  1. *Test de non-régression automatique*.
+  2. *Commit explicite en français*.
+  3. *Git Push immédiat vers origin/main*.
+  4. *Mise à jour immédiate du présent journal*.
+
