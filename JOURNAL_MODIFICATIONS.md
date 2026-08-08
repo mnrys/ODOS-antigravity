@@ -172,3 +172,16 @@
   3. **Consolidation `tripadvisor_firecrawl.py`** : Chargement dynamique des URLs depuis l'archive JSON unique `data/tripadvisor_canaries_archive.json`.
   4. **Validation de tests (47/47)** : 47 tests `pytest` passés avec succès (dont nouveaux tests directs du service planning).
   5. **Validation compilation frontend** : Build Vite (`npm run build`) validé avec succès (0 erreur).
+
+---
+
+### 13. Audit des Couleurs en Dur (~1 266 occurrences) & Arbitrage Option B (8 août - 23h40)
+- **Constat & Audit** :
+  - L'audit PowerShell a identifié 1 266 occurrences de classes de couleurs arbitraires en dur (`bg-[#...]`: 327, `text-[#...]`: 654, `border-[#...]`: 285) dans les composants React hérités des phases initiales.
+  - Les jetons de design sémantiques `@theme` sont déjà définis et opérationnels dans `frontend/src/index.css` (`brand-success`, `brand-encre`, `brand-fond`, `brand-surface`, `brand-border`, `brand-muted`, `brand-alert`, `brand-error`, `brand-info`, `cat-*`).
+- **Décision & Arbitrage (Option B retenue)** :
+  - **Option A rejetée** : Un remplacement massif et automatisé de 1 266 occurrences d'un coup comporte un risque élevé de régression visuelle silencieuse (survol, contrastes, opacités conditionnelles).
+  - **Option B validée** :
+    1. *Règle de non-aggravation immédiate* : Tous les nouveaux composants ou fichiers créés utilisent obligatoirement les jetons `@theme` dès le départ.
+    2. *Création de la Phase 13 dans `PLAN.md`* : Découpage du refactoring exhaustif par lots cohérents (13.1 Composants partagés, 13.2 Dashboard, 13.3 Création, 13.4 Atelier, 13.5 Planning) avec vérification visuelle écran par écran.
+

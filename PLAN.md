@@ -515,3 +515,37 @@ TripAdvisor expose des URLs de filtres officiels, ce qui évite tout tri heurist
 ## Bloquée par
 - Phase 3 (mode focus), Phase 11 (affichage du lien sur la fiche)
 - Création d'un compte Firecrawl gratuit et obtention de la clé API
+
+---
+
+## Phase 13 : Système de design — Refactoring exhaustif des tokens @theme dans les composants React
+
+**User stories / Règles d'or** : Règle 5.6 (Aucune couleur, taille ou espacement en dur dans les composants), `docs/DESIGN.md`.
+
+### Contexte & Dette identifiée (8 août 2026)
+L'audit a recensé ~1 266 occurrences de couleurs arbitraires en dur (`bg-[#...]`, `text-[#...]`, `border-[#...]`) dans les composants React hérités des phases de prototypage v1-v6.
+Bien que les jetons sémantiques soient déjà configurés dans `frontend/src/index.css` (`@theme`), une migration globale et précipitée comporte un risque élevé de régression visuelle silencieuse (survol, contrastes, opacités conditionnelles) sans vérification visuelle écran par écran.
+
+### Décision stratégique (Option B adoptée)
+1. **Règle de non-aggravation immédiate** : Tout nouveau composant ou fichier créé à partir de la Phase 12 doit utiliser exclusivement les classes et jetons sémantiques de `index.css` (`brand-success`, `brand-encre`, `brand-fond`, `brand-surface`, `brand-border`, `brand-muted`, `brand-alert`, `brand-error`, `brand-info`, `cat-*`).
+2. **Phase 13 dédiée** : Chantier de refactoring méthodique fichier par fichier avec contrôle visuel (Cowork / preview).
+
+### Ce qu'on livre
+Nettoyage complet et méthodique des ~1 266 occurrences de couleurs en dur dans les composants React existants, remplacement par les classes de tokens `@theme`, et validation visuelle complète.
+
+### Découpage par sous-tranches
+- **13.1 — Composants partagés & modales** (`ActivityDetailModal`, `ActivityFormModal`, `ConfirmModal`, `Header`, `Navigation`)
+- **13.2 — Écran 0 (Dashboard)** (`DashboardPage`, `DestinationCard`, `BudgetWidget`)
+- **13.3 — Écran 1 (Création)** (`CreationPage`, `FocusValidationModal`, `TrashView`)
+- **13.4 — Écran 2 (Atelier)** (`AtelierCanvas`, `ActivityNode`, `ClusterGroup`, `Toolbar`)
+- **13.5 — Écran 3 (Planning)** (`PlanningPage`, `PlanningGrid`, `TimeSlotCard`, `SidePanel`)
+
+### Critères d'acceptation
+- [ ] 0 occurrence de `[#` dans `frontend/src` (vérifié par script de linting)
+- [ ] Tous les 47 tests `pytest` continuent de passer
+- [ ] Compilation Vite (`npm run build`) validée avec 0 erreur
+- [ ] Aucune régression visuelle sur les 4 écrans principaux
+
+## Bloquée par
+- Phase 12 (Pipeline TripAdvisor et guides Canaries)
+
