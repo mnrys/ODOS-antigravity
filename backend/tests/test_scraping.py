@@ -376,4 +376,129 @@ def test_suggest_destination_attaches_photos_as_documents(client_with_db):
     assert len(acts) > 0
 
 
+def test_suggest_destination_tripadvisor_firecrawl(client_with_db):
+    """
+    Phase 12 : Ingestion via scraping TripAdvisor (Firecrawl).
+    Vérifie que les données structurées (synthèse d'avis, lien TripAdvisor, prix 0€, photos)
+    sont correctement insérées dans la pile à valider.
+    """
+    client, db, trip, dest1, _, _ = client_with_db
+
+    mocked_tripadvisor_items = [
+        {
+            "titre": "Instituto de Astrofisica de Canarias",
+            "cout_par_personne": 0.0,
+            "duree_min": 90,
+            "adresse": "Observatorio del Roque de los Muchachos, La Palma",
+            "description": "Observatoire astrophysique de renommée mondiale.",
+            "horaires_ouverture": "09:00 - 17:00",
+            "url_source": "https://www.tripadvisor.com/Attraction_Review-g187475-d1800798.html",
+            "lien_avis_tripadvisor": "https://www.tripadvisor.com/Attraction_Review-g187475-d1800798.html",
+            "avis_utilisateurs": "Visites guidées enrichissantes, prévoir des vêtements chauds en altitude.",
+            "source": "scraping_auto",
+            "note_interet": 5,
+            "type_element": "activite",
+            "statut": "non_reserve",
+            "statut_validation": "a_valider",
+            "photos": ["https://media-cdn.tripadvisor.com/media/photo-o/observatory.jpg"]
+        }
+    ]
+
+    with patch("app.routers.scraping.scrape_tripadvisor_destination", return_value=mocked_tripadvisor_items):
+        res = client.post("/ai/suggest-destination", json={
+            "trip_id": trip.id,
+            "destination_id": dest1.id,
+            "source": "tripadvisor",
+            "limit": 10
+        })
+
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "success"
+    assert data["nombre_ajoutees"] == 1
+    assert data["activities"][0]["titre"] == "Instituto de Astrofisica de Canarias"
+    assert data["activities"][0]["cout_par_personne"] == 0.0
+    assert data["activities"][0]["lien_avis_tripadvisor"] == "https://www.tripadvisor.com/Attraction_Review-g187475-d1800798.html"
+    assert data["activities"][0]["avis_utilisateurs"] == "Visites guidées enrichissantes, prévoir des vêtements chauds en altitude."
+
+
+def test_tripadvisor_helper_parsers():
+    """
+    Vérifie les fonctions utilitaires de conversion de durée et de note pour TripAdvisor.
+    """
+    from app.services.scraping.tripadvisor_firecrawl import _parse_duration_to_minutes, _map_rating_to_interest
+
+    # Parsing durée
+    assert _parse_duration_to_minutes("1h à 1h30") == 90
+    assert _parse_duration_to_minutes("Plus de 3 heures") == 180
+    assert _parse_duration_to_minutes("45 min") == 45
+    assert _parse_duration_to_minutes("Demi-journée") == 240
+    assert _parse_duration_to_minutes(None) is None
+
+    # Mapping note d'intérêt
+    assert _map_rating_to_interest(4.8) == 5
+    assert _map_rating_to_interest(4.2) == 4
+    assert _map_rating_to_interest(3.5) == 3
+    assert _map_rating_to_interest(2.5) == 2
+    assert _map_rating_to_interest(None) == 3
+
+
+def test_tripadvisor_loads_from_local_archive():
+    """
+    Vérifie que scrape_tripadvisor_destination charge l'archive pérenne JSON
+    et produit des fiches avec synthèses structurées en plusieurs points clés.
+    """
+    from app.services.scraping.tripadvisor_firecrawl import scrape_tripadvisor_destination
+
+    results = scrape_tripadvisor_destination("La Palma", limit=5)
+    assert len(results) > 0
+    first = results[0]
+    assert first["titre"] == "Roque de los Muchachos & Observatoire Astrophysique (IAC)"
+    assert first["cout_par_personne"] == 0.0
+    assert "avis_utilisateurs" in first
+    assert "La route d'accès" in first["avis_utilisateurs"]
+    assert "Lampe rouge obligatoire" in first["avis_utilisateurs"]
+    assert "https://www.tripadvisor.fr/Attraction_Review-g187475-d546252" in first["lien_avis_tripadvisor"]
+
+
+def test_tripadvisor_archive_and_pdf_builder_integrity():
+    """
+    Vérifie l'intégrité de l'archive locale (17 fiches complètes)
+    et le bon fonctionnement du générateur HTML/PDF.
+    """
+    import json
+    from pathlib import Path
+    import sys
+
+    # Vérification de l'archive
+    archive_path = Path(__file__).resolve().parents[2] / "data" / "tripadvisor_canaries_archive.json"
+    assert archive_path.exists(), "L'archive JSON des Canaries doit exister."
+
+    with open(archive_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    assert "destinations" in data
+    assert len(data["destinations"]) == 2
+
+    # Vérification La Palma (9) et Tenerife (8)
+    lp = next(d for d in data["destinations"] if d["code"] == "la_palma")
+    tf = next(d for d in data["destinations"] if d["code"] == "tenerife")
+    assert len(lp["activites"]) == 9
+    assert len(tf["activites"]) == 8
+
+    # Vérification du générateur HTML
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
+    from generate_pdf_guide import build_html
+
+    html = build_html(data)
+    assert "<!DOCTYPE html>" in html
+    assert "Roque de los Muchachos" in html
+    assert "Pico del Teide" in html
+    assert "Tableau des Réservations Indispensables" in html
+    assert "Lampe frontale à lumière rouge" in html
+
+
+
+
+
 

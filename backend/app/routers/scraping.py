@@ -15,6 +15,7 @@ from app.models import Trip, TripDestination, Activity, Document
 from app.schemas import ActivityDetail
 from app.routers.activities import _format_activity_detail
 from app.services.scraping.getyourguide import scrape_getyourguide
+from app.services.scraping.tripadvisor_firecrawl import scrape_tripadvisor_destination
 
 router = APIRouter(tags=["Scraping & Capture"])
 
@@ -22,7 +23,7 @@ router = APIRouter(tags=["Scraping & Capture"])
 class SuggestDestinationRequest(BaseModel):
     trip_id: int
     destination_id: int
-    source: str = "getyourguide"
+    source: str = "getyourguide"  # "getyourguide" ou "tripadvisor"
     limit: int = Field(default=50, le=50)
 
 
@@ -53,6 +54,7 @@ class QuickCaptureRequest(BaseModel):
     jours_fermeture: Optional[str] = None
     remarques: Optional[str] = None
     avis_utilisateurs: Optional[str] = None
+    lien_avis_tripadvisor: Optional[str] = None
     statut: Optional[str] = "non_reserve"
     tag_ids: Optional[List[int]] = Field(default_factory=list)
 
@@ -74,6 +76,7 @@ def suggest_destination(
 ):
     """
     Déclenche la suggestion automatique d'activités pour une destination via scraping.
+    Supporte GetYourGuide et TripAdvisor (Firecrawl).
     Plafonné à 50 résultats maximum, avec renouvellement des résultats par offset et
     déduplication stricte par URL et titre normalisé (y compris corbeille).
     """
@@ -95,14 +98,21 @@ def suggest_destination(
         Activity.destination_id == payload.destination_id
     ).count()
 
-    # 3. Exécution du scraping cloisonné
-    scraped_items = scrape_getyourguide(
-        destination_nom=destination.nom,
-        trip_id=payload.trip_id,
-        destination_id=payload.destination_id,
-        offset=count_existing,
-        limit=payload.limit
-    )
+    # 3. Exécution du scraping selon la source demandée (cloisonnement)
+    if payload.source.lower() == "tripadvisor":
+        scraped_items = scrape_tripadvisor_destination(
+            destination_nom=destination.nom,
+            limit=payload.limit,
+            offset=count_existing
+        )
+    else:
+        scraped_items = scrape_getyourguide(
+            destination_nom=destination.nom,
+            trip_id=payload.trip_id,
+            destination_id=payload.destination_id,
+            offset=count_existing,
+            limit=payload.limit
+        )
 
     # 4. Déduplication stricte : on vérifie toutes les fiches de la destination, y compris celles en corbeille
     all_known_activities = db.query(Activity.url_source, Activity.titre).filter(
@@ -132,7 +142,9 @@ def suggest_destination(
             duree_min=item.get("duree_min"),
             adresse=item.get("adresse"),
             description=item.get("description"),
+            horaires_ouverture=item.get("horaires_ouverture"),
             url_source=item.get("url_source"),
+            lien_avis_tripadvisor=item.get("lien_avis_tripadvisor"),
             avis_utilisateurs=item.get("avis_utilisateurs"),
             source="scraping_auto",
             statut_validation="a_valider",
@@ -172,14 +184,22 @@ def suggest_destination(
         for a in new_activities
     ]
 
+    if len(new_activities) > 0:
+        msg = f"{len(new_activities)} nouvelle(s) fiche(s) importée(s) dans la pile 'À valider' pour {destination.nom}."
+    elif ignored_duplicates > 0:
+        msg = f"Toutes les {ignored_duplicates} activités trouvées sont déjà présentes dans votre voyage ou votre corbeille (doublons évités)."
+    else:
+        msg = f"Aucune nouvelle activité n'a été renvoyée par {payload.source} pour {destination.nom} (quota atteint ou pas de nouveaux résultats)."
+
     return SuggestDestinationResponse(
         status="success",
-        message=f"{len(new_activities)} fiches importées dans la pile à valider pour {destination.nom}",
+        message=msg,
         destination_nom=destination.nom,
         nombre_ajoutees=len(new_activities),
         nombre_doublons_ignores=ignored_duplicates,
         activities=activity_details
     )
+
 
 
 @router.post("/activities/quick-capture", response_model=ActivityDetail, status_code=status.HTTP_201_CREATED)

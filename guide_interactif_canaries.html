@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ODOS — Guide & Synthèse des Avis TripAdvisor (La Palma & Tenerife)</title>
+  <!-- Google Fonts: Plus Jakarta Sans (conforme à DESIGN.md) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            odos: {
+              lime: '#D6F84C',
+              dark: '#17181A',
+              sand: '#FAF8F5',
+              bg: '#F1F0ED',
+              surface: '#FFFFFF',
+              muted: '#55565A',
+              lightmuted: '#8E8F92',
+              border: '#E3E1DC',
+              green: '#3F7A55',
+              'green-dark': '#254A33',
+              'green-light': '#E8F2EC',
+              indigo: '#395E8C',
+              amber: '#B9862F',
+              tripadvisor: '#00AF87'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #F1F0ED;
+      color: #17181A;
+      -webkit-font-smoothing: antialiased;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    /* Texture topographique discrète ODOS */
+    .topo-bg {
+      background-color: #F1F0ED;
+      background-image: radial-gradient(#E3E1DC 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #F1F0ED;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #C8C6C0;
+      border-radius: 999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #8E8F92;
+    }
+  </style>
+</head>
+<body class="topo-bg min-h-screen flex flex-col antialiased">
+
+  <!-- En-tête / Barre supérieure unifiée ODOS -->
+  <header class="sticky top-0 z-40 bg-[#17181A] text-white border-b border-[#2B2D30] shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      
+      <!-- Logo & Titre du Guide -->
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-[#D6F84C] text-[#17181A] flex items-center justify-center font-extrabold text-sm shadow-sm">
+          ODOS
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-sm sm:text-base font-bold tracking-tight text-white flex items-center gap-1.5">
+              <span>Guide Expert TripAdvisor</span>
+              <span class="text-[#8E8F92] font-normal hidden sm:inline">— Canaries</span>
+            </h1>
+            <span class="px-2 py-0.5 text-[10px] font-semibold bg-[#00AF87]/20 text-[#00E5B0] border border-[#00AF87]/30 rounded-full flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#00E5B0]"></span>
+              Avis voyageurs vérifiés
+            </span>
+          </div>
+          <p class="text-[11px] text-[#8E8F92] hidden md:block">
+            Synthèses approfondies, conseils de route, équipements et astuces de terrain
+          </p>
+        </div>
+      </div>
+
+      <!-- Sélecteur de Mode de Vue & Téléchargement PDF -->
+      <div class="flex items-center gap-2">
+        <a 
+          href="Guide_Canaries_Avis_TripAdvisor.pdf" 
+          download="Guide_Canaries_Avis_TripAdvisor.pdf"
+          title="Télécharger le document PDF complet pour lecture hors-ligne"
+          class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-[#3F7A55] hover:bg-[#254A33] text-white transition-all shadow-sm"
+        >
+          <i data-lucide="download" class="w-3.5 h-3.5"></i>
+          <span class="hidden md:inline">Télécharger PDF Hors-Ligne</span>
+          <span class="md:hidden">PDF</span>
+        </a>
+
+        <div class="bg-[#2B2D30] p-1 rounded-xl flex items-center gap-1 border border-[#3E4044]">
+          <button 
+            id="view-mode-grid-btn"
+            onclick="switchViewMode('grid')" 
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-[#D6F84C] text-[#17181A] shadow-sm"
+          >
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+            <span>Grille</span>
+          </button>
+          <button 
+            id="view-mode-magazine-btn"
+            onclick="switchViewMode('magazine')" 
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#8E8F92] hover:text-white transition-all"
+          >
+            <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+            <span>Magazine</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Barre de sélection de Destination & Onglets -->
+  <div class="bg-[#EDEBE6] border-b border-[#E3E1DC] sticky top-16 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Sélecteur d'île / Destination -->
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold uppercase tracking-wider text-[#55565A] mr-1">Destination :</span>
+        <button 
+          id="tab-dest-lapalma"
+          onclick="selectDestination('la_palma')" 
+          class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-[#17181A] text-white shadow-sm"
+        >
+          <i data-lucide="mountain" class="w-4 h-4 text-[#D6F84C]"></i>
+          <span>La Palma (Étape 1)</span>
+          <span class="px-1.5 py-0.5 text-[10px] rounded-full bg-white/20 text-white font-semibold">9 fiches</span>
+        </button>
+
+        <button 
+          id="tab-dest-tenerife"
+          onclick="selectDestination('tenerife')" 
+          class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-white text-[#55565A] border border-[#E3E1DC] hover:border-[#17181A] hover:text-[#17181A]"
+        >
+          <i data-lucide="flame" class="w-4 h-4 text-[#A4553A]"></i>
+          <span>Tenerife (Étape 2)</span>
+          <span class="px-1.5 py-0.5 text-[10px] rounded-full bg-[#EDEBE6] text-[#55565A] font-semibold">8 fiches</span>
+        </button>
+      </div>
+
+      <!-- Recherche rapide & Stats -->
+      <div class="flex items-center gap-3 w-full sm:w-auto">
+        <div class="relative flex-1 sm:w-64">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#8E8F92]"></i>
+          <input 
+            type="text" 
+            id="search-input"
+            oninput="handleSearch(this.value)"
+            placeholder="Rechercher une activité, un volcan, un lieu..." 
+            class="w-full pl-9 pr-3 py-1.5 bg-white border border-[#E3E1DC] rounded-xl text-xs text-[#17181A] placeholder-[#8E8F92] focus:outline-none focus:ring-2 focus:ring-[#17181A]"
+          />
+        </div>
+        <div class="text-xs text-[#55565A] font-medium hidden md:block">
+          <span id="active-count-label" class="font-bold text-[#17181A]">9</span> activités répertoriées
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CONTENU PRINCIPAL -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+    <!-- ========================================== -->
+    <!-- VUE 1 : GRILLE AVEC FILTRES THÉMATIQUES    -->
+    <!-- ========================================== -->
+    <div id="view-grid-container" class="space-y-6">
+
+      <!-- Filtres Thématiques horizontaux -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
+        <span class="text-xs font-semibold text-[#8E8F92] whitespace-nowrap mr-1">Filtrer par :</span>
+        <button onclick="setCategoryFilter('all')" class="cat-filter-btn px-3 py-1.5 rounded-full text-xs font-bold transition-all bg-[#17181A] text-white" data-cat="all">
+          Toutes les activités
+        </button>
+        <button onclick="setCategoryFilter('nature')" class="cat-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold transition-all bg-white text-[#55565A] border border-[#E3E1DC] hover:border-[#3F7A55] hover:text-[#3F7A55]" data-cat="nature">
+          🌿 Nature & Randonnée
+        </button>
+        <button onclick="setCategoryFilter('volcan')" class="cat-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold transition-all bg-white text-[#55565A] border border-[#E3E1DC] hover:border-[#A4553A] hover:text-[#A4553A]" data-cat="volcan">
+          🌋 Volcans & Cratères
+        </button>
+        <button onclick="setCategoryFilter('ciel')" class="cat-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold transition-all bg-white text-[#55565A] border border-[#E3E1DC] hover:border-[#395E8C] hover:text-[#395E8C]" data-cat="ciel">
+          ✨ Ciel & Astronomie
+        </button>
+        <button onclick="setCategoryFilter('mer')" class="cat-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold transition-all bg-white text-[#55565A] border border-[#E3E1DC] hover:border-[#395E8C] hover:text-[#395E8C]" data-cat="mer">
+          🌊 Mer & Piscines de Lave
+        </button>
+        <button onclick="setCategoryFilter('culture')" class="cat-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold transition-all bg-white text-[#55565A] border border-[#E3E1DC] hover:border-[#B9862F] hover:text-[#B9862F]" data-cat="culture">
+          🏛️ Villes & Patrimoine
+        </button>
+      </div>
+
+      <!-- Grille des Cartes d'Activités -->
+      <div id="activities-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Rempli dynamiquement par JavaScript -->
+      </div>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VUE 2 : MODE MAGAZINE / LIVRE IMMERSIF    -->
+    <!-- ========================================== -->
+    <div id="view-magazine-container" class="hidden space-y-6">
+      
+      <!-- Barre d'état du Magazine & Navigation Page par Page -->
+      <div class="bg-white rounded-2xl p-4 border border-[#E3E1DC] shadow-sm flex flex-wrap items-center justify-between gap-4">
+        
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-[#FAF8F5] border border-[#E3E1DC] flex items-center justify-center text-[#17181A]">
+            <i data-lucide="book-marked" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="text-xs uppercase tracking-wider font-bold text-[#8E8F92]" id="mag-destination-subtitle">
+              CARNET DE VOYAGE — LA PALMA
+            </div>
+            <h2 class="text-base font-extrabold text-[#17181A]" id="mag-current-title-header">
+              1. Roque de los Muchachos
+            </h2>
+          </div>
+        </div>
+
+        <!-- Contrôles Précédent / Suivant -->
+        <div class="flex items-center gap-2">
+          <button 
+            onclick="prevMagazinePage()" 
+            class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#FAF8F5] border border-[#E3E1DC] text-[#17181A] hover:bg-[#EDEBE6] transition-all"
+          >
+            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            <span>Précédent</span>
+          </button>
+
+          <span class="px-3 py-1.5 bg-[#17181A] text-white text-xs font-bold rounded-xl tabular-nums" id="mag-page-indicator">
+            1 / 9
+          </span>
+
+          <button 
+            onclick="nextMagazinePage()" 
+            class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#17181A] text-white hover:bg-[#2B2D30] transition-all shadow-sm"
+          >
+            <span>Suivant</span>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Contenu Éditorial de la Page Magazine (Grand Format Double-Volet) -->
+      <div id="magazine-page-content" class="bg-white rounded-3xl border border-[#E3E1DC] shadow-md overflow-hidden">
+        <!-- Rempli dynamiquement par renderMagazinePage() -->
+      </div>
+
+      <!-- Sommaire Visuel Rapide (Bandeau de miniatures au bas du livre) -->
+      <div class="bg-white rounded-2xl p-4 border border-[#E3E1DC]">
+        <div class="text-xs font-bold text-[#55565A] mb-3 flex items-center gap-2">
+          <i data-lucide="list" class="w-4 h-4"></i>
+          <span>Sommaire visuel du chapitre :</span>
+        </div>
+        <div id="mag-thumbnails-bar" class="flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
+          <!-- Miniatures générées par JS -->
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODALE DE DÉTAIL COMPLET D'UNE ACTIVITÉ     -->
+  <!-- ========================================== -->
+  <div id="activity-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-[#E3E1DC] overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- En-tête photo & titre modal -->
+      <div class="relative h-64 sm:h-72 w-full bg-[#17181A] flex-shrink-0">
+        <img id="modal-img" src="" alt="Photo activité" class="w-full h-full object-cover opacity-90" />
+        <div class="absolute inset-0 bg-gradient-to-t from-[#17181A] via-[#17181A]/40 to-transparent"></div>
+        
+        <!-- Bouton Fermer -->
+        <button 
+          onclick="closeModal()" 
+          class="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/50 hover:bg-black text-white flex items-center justify-center backdrop-blur-md transition-all border border-white/20"
+        >
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+
+        <!-- Titre & Badges en superposition bas -->
+        <div class="absolute bottom-4 left-6 right-6 text-white space-y-2">
+          <div class="flex flex-wrap items-center gap-2" id="modal-badges">
+            <!-- Badges injectés -->
+          </div>
+          <h2 id="modal-title" class="text-xl sm:text-2xl font-extrabold tracking-tight text-white drop-shadow-md">
+            Titre de l'activité
+          </h2>
+          <div class="flex items-center gap-4 text-xs text-white/90 font-medium">
+            <span id="modal-rating" class="flex items-center gap-1 text-[#D6F84C] font-bold">
+              ★ 4.8 / 5
+            </span>
+            <span id="modal-reviews-count" class="text-white/80">1 238 avis TripAdvisor</span>
+            <span id="modal-duration" class="flex items-center gap-1">
+              <i data-lucide="clock" class="w-3.5 h-3.5"></i> 3h
+            </span>
+            <span id="modal-price" class="font-bold text-white bg-white/20 px-2 py-0.5 rounded-md">
+              Gratuit
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Corps du Modal défilable -->
+      <div class="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 custom-scrollbar bg-[#FAF8F5]">
+        
+        <!-- Présentation générale -->
+        <div class="bg-white p-5 rounded-2xl border border-[#E3E1DC] shadow-sm">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-[#8E8F92] mb-2 flex items-center gap-1.5">
+            <i data-lucide="info" class="w-4 h-4 text-[#17181A]"></i>
+            <span>Présentation du lieu</span>
+          </h3>
+          <p id="modal-description" class="text-sm text-[#17181A] leading-relaxed font-normal">
+            Description...
+          </p>
+        </div>
+
+        <!-- RAPPORT APPROFONDI DES AVIS TRIPADVISOR -->
+        <div class="bg-white p-6 rounded-2xl border-2 border-[#00AF87]/30 shadow-sm space-y-4">
+          
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[#E3E1DC] pb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-[#00AF87] text-white flex items-center justify-center">
+                <i data-lucide="message-square" class="w-4 h-4"></i>
+              </div>
+              <h3 class="text-sm sm:text-base font-extrabold text-[#17181A]">
+                Rapport & Synthèse des Avis Voyageurs
+              </h3>
+            </div>
+            <div id="modal-review-stats" class="text-xs font-semibold text-[#00AF87] bg-[#00AF87]/10 px-2.5 py-1 rounded-full">
+              Synthèse basée sur les avis vérifiés
+            </div>
+          </div>
+
+          <!-- Points structurants de la synthèse -->
+          <div id="modal-structured-points" class="space-y-4 pt-1">
+            <!-- Injecté dynamiquement avec encadrés riches -->
+          </div>
+
+        </div>
+
+        <!-- Informations Pratiques & Logistique -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <div class="bg-white p-4 rounded-xl border border-[#E3E1DC]">
+            <div class="font-bold text-[#17181A] mb-1 flex items-center gap-1.5">
+              <i data-lucide="map-pin" class="w-3.5 h-3.5 text-[#3F7A55]"></i>
+              <span>Localisation & Accès</span>
+            </div>
+            <p id="modal-address" class="text-[#55565A]">Adresse...</p>
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-[#E3E1DC]">
+            <div class="font-bold text-[#17181A] mb-1 flex items-center gap-1.5">
+              <i data-lucide="calendar" class="w-3.5 h-3.5 text-[#395E8C]"></i>
+              <span>Horaires d'ouverture</span>
+            </div>
+            <p id="modal-hours" class="text-[#55565A]">Horaires...</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Pied de page du Modal avec actions directes -->
+      <div class="bg-white px-6 py-4 border-t border-[#E3E1DC] flex flex-wrap items-center justify-between gap-3">
+        <a 
+          id="modal-tripadvisor-link" 
+          href="#" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          class="flex items-center gap-2 text-xs font-bold text-[#00AF87] hover:text-[#008f6d] transition-colors"
+        >
+          <i data-lucide="external-link" class="w-4 h-4"></i>
+          <span>Consulter la page officielle sur TripAdvisor</span>
+        </a>
+
+        <div class="flex items-center gap-2">
+          <button 
+            onclick="copyCurrentModalReview()" 
+            class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#FAF8F5] border border-[#E3E1DC] text-[#17181A] hover:bg-[#EDEBE6] transition-all"
+          >
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span id="copy-btn-text">Copier la synthèse</span>
+          </button>
+          <button 
+            onclick="closeModal()" 
+            class="px-4 py-2 bg-[#17181A] text-white text-xs font-bold rounded-xl hover:bg-[#2B2D30] transition-all"
+          >
+            Fermer
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- SCRIPT & DONNÉES EMBARQUÉES               -->
+  <!-- ========================================== -->
+  <script>
+    // Données exhaustives vérifiées TripAdvisor pour La Palma & Tenerife
+    const GUIDE_DATABASE = {
+      "la_palma": {
+        nom: "La Palma",
+        sous_titre: "La Isla Bonita — Volcans, Ciel Pur & Forêts Primaires",
+        activites: [
+          {
+            id: "lp-roque-muchachos",
+            titre: "Roque de los Muchachos & Observatoire Astrophysique (IAC)",
+            categorie: "ciel",
+            categorie_libelle: "Nature & Ciel",
+            note_globale: 4.8,
+            nb_avis: 1238,
+            cout_texte: "Gratuit",
+            duree_texte: "3h à 4h",
+            adresse: "Carretera LP-4, 38728 Garafía, La Palma (2 426 m)",
+            horaires: "Accès libre belvédère 24/24. Centre visiteurs : 10:00 - 17:30",
+            url_tripadvisor: "https://www.tripadvisor.fr/Attraction_Review-g187475-d546252-Reviews-Roque_de_los_Muchachos-La_Palma_Canary_Islands.html",
+            photo: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+            tags: ["Incontournable", "Astronomie", "Point de Vue", "Coucher de Soleil"],
+            description: "Le point culminant de La Palma (2 426 m), perché au-dessus d'une mer de nuages perpétuelle, abritant l'un des observatoires astrophysiques les plus avancés au monde et un panorama grandiose plongeant dans la Caldera de Taburiente.",
+            synthese_avis: {
+              statistiques: "Synthèse sur 1 238 avis vérifiés (Note 4,8/5 — 83% Excellent, 14% Très bon, 3% mitigé).",
+              points: [
+                {
+                  titre: "La route d'accès, star (malgré elle) des avis",
+                  badge: "Route & Accès",
+                  badge_color: "bg-blue-100 text-blue-800",
+                  texte: "Presque tous les visiteurs évoquent une route de montagne longue (souvent 1h15 à 2h selon le point de départ) et très sinueuse, en lacets serrés, traversant d'abord la forêt de pins puis perçant la couche nuageuse. Elle est bien goudronnée mais exige une conduite attentive. Conseil majeur des avis : monter de préférence par le versant Ouest (LP-4 via Hoya Grande / Garafía), jugé plus fluide et moins vertigineux que le versant Nord-Est. Vérifier impérativement l'état des routes avant le départ (brouillard ou fermetures temporaires)."
+                },
+                {
+                  titre: "Arriver tôt le matin ou pour le coucher de soleil",
+                  badge: "Horaires & Timing",
+                  badge_color: "bg-amber-100 text-amber-800",
+                  texte: "C'est la recommandation la plus répétée : le parking sommital au bout de la route est petit (environ 20 places) et affiche complet dès 11h. Arriver avant 10h permet de profiter d'un ciel limpide avant la montée thermique des nuages. Pour le coucher de soleil, la mer de nuages se teinte d'or et de pourpre, offrant un spectacle magique."
+                },
+                {
+                  titre: "S'habiller très chaudement, même en plein été",
+                  badge: "Équipement",
+                  badge_color: "bg-purple-100 text-purple-800",
+                  texte: "À plus de 2 400 m, l'écart thermique avec la côte atteint souvent 15°C à 20°C. Même lorsqu'il fait 28°C à la plage, le sommet peut être balayé par un vent glacial à 8°C. Coupe-vent, polaire chaude, bonnet et chaussures de marche fermées sont indispensables pour parcourir les crêtes sans grelotter."
+                },
+                {
+                  titre: "Règles nocturnes pour les étoiles (Lampe rouge obligatoire)",
+                  badge: "Point Crucial",
+                  badge_color: "bg-red-100 text-red-800",
+                  texte: "Pour l'observation des étoiles à la nuit tombée, une discipline stricte s'impose : les lampes torches blanches et les phares de voiture perturbent les télescopes scientifiques. Seules les lampes frontales à lumière rouge atténuée sont autorisées. Coupez vos feux de route dès l'approche des zones d'observation."
+                },
+                {
+                  titre: "Plusieurs niveaux de balade le long de la crête",
+                  badge: "Sentiers",
+                  badge_color: "bg-green-100 text-green-800",
+                  texte: "Depuis le parking, un sentier sécurisé sur passerelles rocheuses (15 à 30 min aller-retour) mène au Mirador principal dominant l'abîme de la Caldera. Pour les randonneurs, le sentier GR-131 serpente sur la crête vers le Pico de la Cruz avec des vues panoramiques continues."
+                }
+              ]
+            }
+          },
+          {
+            id: "lp-caldera-taburiente",
+            titre: "Parc National de la Caldera de Taburiente",
+            categorie: "nature",
+            categorie_libelle: "Nature & Rando",
+            note_globale: 4.8,
+            nb_avis: 1162,
+            cout_texte: "Gratuit",
+            duree_texte: "4h à 7h",
+            adresse: "Mirador de La Cumbrecita / Barranco de Las Angustias, El Paso, La Palma",
+            horaires: "Centre visiteurs El Paso : 09:00 - 18:00. Parc en accès libre.",
+            url_tripadvisor: "https://www.tripadvisor.fr/Attraction_Review-g187475-d2279268-Reviews-Parque_Nacional_de_la_Caldera_de_Taburiente-La_Palma_Canary_Islands.html",
+            photo: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
+            tags: ["Incontournable", "Randonnée", "Cascade", "Canyon Sauvage"],
+            description: "Un immense cirque d'érosion volcanique de 8 km de diamètre aux parois abruptes de 2 000 m, traversé de torrents d'eau pure, de pins canariens centenaires et abritant la célèbre Cascada de Los Colores.",
+            synthese_avis: {
+              statistiques: "Synthèse sur 1 162 avis voyageurs (Note 4,8/5 — 84% Excellent).",
+              points: [
+                {
+                  titre: "Réservation obligatoire du parking La Cumbrecita",
+                  badge: "À Ne Pas Oublier",
+                  badge_color: "bg-red-100 text-red-800",
+                  texte: "C'est l'avertissement majeur de 80% des avis : pour accéder en voiture au belvédère de La Cumbrecita entre 8h30 et 16h, la réservation gratuite préalable sur le site des parcs nationaux (reservasparquesnacionales.es) est obligatoire plusieurs jours à l'avance. Une barrière automatique avec scan QR code bloque tout véhicule non inscrit."
+                },
+                {
+                  titre: "La grande traversée classique (Los Brecitos -> Barranco)",
+                  badge: "Logistique Rando",
+                  badge_color: "bg-blue-100 text-blue-800",
+                  texte: "La rando reine fait 16 km (5h30 à 6h30 de marche). La méthode recommandée : garez votre véhicule au parking d'arrivée au fond du Barranco de las Angustias, puis prenez un taxi 4x4 collectif officiel (environ 15 € par personne) qui vous monte au départ haut à Los Brecitos. Vous descendez ensuite à votre rythme sans contrainte."
+                },
+                {
+                  titre: "Détour incontournable à la Cascada de Los Colores",
+                  badge: "Astuce Photo",
+                  badge_color: "bg-amber-100 text-amber-800",
+                  texte: "À environ 1h30 avant l'arrivée au parking bas, un embranchement fléché mène dans un canyon secondaire vers la cascade des couleurs. Les parois rocheuses recouvertes de fer et de minéraux offrent des dégradés intenses d'ocre, de jaune et de vert turquoise (comptez 20 min A/R)."
+                },
+                {
+                  titre: "Traversée de ruisseaux et chaussures adhérentes",
+                  badge: "Équipement",
+                  badge_color: "bg-purple-100 text-purple-800",
+                  texte: "Le dernier tiers de la randonnée suit le lit du torrent : vous devrez franchir le ruisseau à gué à de multiples reprises en sautant d'une pierre à l'autre. Bâtons de randonnée vivement conseillés pour garder l'équilibre sur les galets humides."
+                }
+              ]
+            }
+          },
+          {
+            id: "lp-volcan-tajogaite",
+            titre: "Volcan Tajogaite & Éruption de Cumbre Vieja (2021)",
+            categorie: "volcan",
+            categorie_libelle: "Volcans & Géologie",
+            note_globale: 4.9,
+            nb_avis: 640,
+            cout_texte: "35 € (guidé)",
+            duree_texte: "2h30 à 3h",
+            adresse: "Sendero del Volcán Tajogaite, El Paso / Los Llanos, La Palma",
+            horaires: "Départs guidés le matin (09:00 - 11:30)",
+            url_tripadvisor: "https://www.tripadvisor.fr/Attraction_Review-g187475-d24996529-Reviews-Tajogaite_Volcano-La_Palma_Canary_Islands.html",
+            photo: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80",
+            tags: ["Volcan Récent", "Exclusif", "Guide Obligatoire", "Géologie"],
+            description: "Le plus jeune volcan d'Espagne, né lors de l'éruption de 85 jours en 2021. Une immersion lunaire sur un manteau de lapilli noirs encore chaud avec un guide officiel local.",
+            synthese_avis: {
+              statistiques: "Synthèse sur 640 avis (Note 4,9/5 — 91% Excellent).",
+              points: [
+                {
+                  titre: "Accès strictement interdit en solo (Guide certifié obligatoire)",
+                  badge: "Réglementation",
+                  badge_color: "bg-red-100 text-red-800",
+                  texte: "La zone est classée réserve naturelle protégée et périmètre géothermique surveillé. Tout accès autonome est interdit sous peine de lourde amende. La visite se fait impérativement via des excursions guidées par des guides officiels certifiés (petits groupes de 15 personnes max, environ 35 à 45 € par adulte)."
+                },
+                {
+                  titre: "Chaleur résiduelle et fumerolles actives",
+                  badge: "Expérience",
+                  badge_color: "bg-amber-100 text-amber-800",
+                  texte: "Les visiteurs soulignent l'émotion intense de marcher sur une terre formée il y a seulement quelques années. À plusieurs endroits le long de la crête de lapilli, la chaleur émane encore du sous-sol et les fumerolles de gaz s'élèvent entre les roches volcaniques."
+                },
+                {
+                  titre: "Équipement : Chaussures montantes et vêtements foncés",
+                  badge: "Équipement",
+                  badge_color: "bg-purple-100 text-purple-800",
+                  texte: "La cendre volcanique (picón) est abrasive et s'infiltre dans les chaussures basses. Des chaussures de randonnée montantes avec chaussettes hautes sont fortement conseillées. Évitez les vêtements clairs ou neufs, car la poussière noire incruste les tissus en cas de vent."
+                }
+              ]
+            }
+          },
+          {
+            id: "lp-bosque-los-tilos",
+            titre: "Forêt de Laurisilve de Los Tilos (Bosque de Los Tilos)",
+            categorie: "nature",
+            categorie_libelle: "Forêt Primaire",
+            note_globale: 4.7,
+            nb_avis: 980,
+            cout_texte: "Gratuit",
+            duree_texte: "1h30 à 4h",
+            adresse: "Carretera Los Tilos, 38729 San Andrés y Sauces, La Palma",
+            horaires: "Centre visiteurs : 09:00 - 17:30. Accès sentiers libre.",
+            url_tripadvisor: "https://www.tripadvisor.fr/Attraction_Review-g187475-d1876774-Reviews-Bosque_de_Los_Tilos-La_Palma_Canary_Islands.html",
+            photo: "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80",
+            tags: ["UNESCO", "Laurisilve", "Cascade", "Tunnels d'Eau"],
+            description: "Une plongée dans une jungle jurassique de lauriers géants et de fougères arborescentes protégée par l'UNESCO, célèbre pour sa cascade féerique et le sentier des tunnels aquatiques.",
+            synthese_avis: {
+              statistiques: "Synthèse sur 980 avis voyageurs (Note 4,7/5 — 80% Excellent).",
+              points: [
+                {
+                  titre: "Deux parcours très distincts selon vos envies",
+                  badge: "Options de Visite",
+                  badge_color: "bg-blue-100 text-blue-800",
+                  texte: "Option 1 (Balade familiale, 20 min) : Courte promenade ombragée et plate menant directement au pied de la cascade de Los Tilos. Option 2 (Randonnée d'aventure de Marcos y Cordero, 4h30) : Sentier spectaculaire traversant 13 tunnels creusés dans la roche volcanique."
+                },
+                {
+                  titre: "Équipement impératif pour les tunnels de Marcos y Cordero",
+                  badge: "Équipement",
+                  badge_color: "bg-purple-100 text-purple-800",
+                  texte: "Lampe frontale puissante, k-way étanche et casque de protection sont obligatoires : l'eau ruisselle en abondance depuis le plafond des galeries sombres et certaines voûtes sont basses."
+                },
+                {
+                  titre: "Arriver avant 10h30 au parking du centre d'accueil",
+                  badge: "Parking",
+                  badge_color: "bg-amber-100 text-amber-800",
+                  texte: "Le parking du centre d'accueil compte une quarantaine de places encaissées dans la gorge. Dès 11h, la route d'accès est régulée en bas pour éviter les blocages."
+                }
+              ]
+            }
+          },
+          {
+            id: "lp-poris-candelaria",
+            titre: "Porís de Candelaria (Village Troglodyte des Pêcheurs)",
+            categorie: "culture",
+            categorie_libelle: "Culture & Insolite",
+            note_globale: 4.8,
+            nb_avis: 750,
+            cout_texte: "Gratuit",
+            duree_texte: "2h",
+            adresse: "Camino El Porís, 38780 Tijarafe, La Palma",
+            horaires: "Accès permanent 24/24 (recommandé en journée)",
+            url_tripadvisor: "https://www.tripadvisor.fr/Attraction_Review-g187475-d8837153-Reviews-Poris_de_Candelaria-La_Palma_Canary_Islands.html",
+            photo: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+            tags: ["Troglodyte", "Grotte Marine", "Village Secret", "Photogénique"],
+            description: "Un hameau secret de cabanes de pêcheurs peintes en blanc et bleu, blotti au creux d'une immense caverne marine naturelle de 50 m de haut face aux rouleaux de l'Atlantique.",
+            synthese_avis: {
+              statistiques: "Synthèse sur 750 avis (Note 4,8/5 — 81% Excellent).",
+              points: [
+                {
+                  titre: "La route d'accès : Descente impressionnante mais faisable",
+                  badge: "Route & Conduite",
+                  badge_color: "bg-amber-100 text-amber-800",
+                  texte: "La route asphaltée plonge vers la falaise avec des pentes raides et des virages serrés. Conduite lente en 1ère/2ème vitesse recommandée. Si vous n'êtes pas à l'aise au volant en forte pente, garez-vous au parking supérieur et descendez à pied (25 min de marche)."
+                },
+                {
+                  titre: "Zéro commerce : Emportez eau et pique-nique",
+                  badge: "Autonomie",
+                  badge_color: "bg-blue-100 text-blue-800",
+                  texte: "Le site est un village de vacances traditionnel préservé sans boutique, ni restaurant, ni distributeur d'eau. Pensez à emporter de quoi boire et manger pour profiter du coucher de soleil dans la calanque."
+                },
+                {
+                  titre: "Baignade prudente selon l'état de l'océan",
+                  badge: "Baignade",
+                  badge_color: "bg-teal-100 text-teal-800",
+                  texte: "L'eau est limpide et d'un bleu turquoise intense, mais l'accès se fait directement sur des dalles rocheuses. Par forte houle, les vagues pénètrent dans la calanque : baignade à proscrire si la mer est agitée."
+                }
+              ]
+            }
+          },
+          {
+            id: "lp-charco-azul",
+            titre: "Piscines Naturelles du Charco Azul",
+            categorie: "mer",
+            categorie_libelle: "Baignade & Mer",
+            note_globale: 4.7,
+            nb_avis: 830,
+            cout_texte: "Gratuit",
+            duree_texte: "2h à 3h",
+            adresse: "Calle Charco Azul, 38729 San Andrés y Sauces, La Palma",
+            horaires: "Accès libre toute l'année",
+            url_tripadvisor: "https://www.tripadvisor.fr/Attraction_Review-g187475-d1876779-Reviews-Piscinas_Naturales_Charco_Azul-La_Palma_Canary_Islands.html",
+            photo: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1200&q=80",
+            tags: ["Piscine Naturelle", "Baignade", "Famille", "Poisson Frais"],
+            description: "Des bassins d'eau de mer sculptés dans la lave volcanique, protégés des courants atlantiques avec solarium, pataugeoire d'eau douce et vue sur la côte sauvage.",
+            synthese_avis: {
+              statistiques: "Synthèse sur 830 avis vérifiés (Note 4,7/5 — 78% Excellent).",
+              points: [
+                {
+                  titre: "Privilégier la marée basse ou moyenne",
+                  badge: "Marées",
+                  badge_color: "bg-blue-100 text-blue-800",
+                  texte: "À marée basse, l'eau dans le grand bassin est calme, cristalline et parfaitement protégée. À marée haute par mer agitée, de gros paquets de mer franchissent la digue naturelle en spectacle puissant."
+                },
+                {
+                  titre: "Accès facile et restaurant sur place",
+                  badge: "Services",
+                  badge_color: "bg-green-100 text-green-800",
+                  texte: "Grand parking gratuit en haut avec un sentier piétonnier descendant en pente douce de 5 minutes. Restaurant avec terrasse panoramique servant des poissons grillés frais du jour (vieja canaria)."
+                }
+              ]
+            }
+          },
+          {
+            id: "lp-salinas-fuencaliente",
+            titre: "Salines et Phare de Fuencaliente",
+            categorie: "culture",
+            categorie_libelle: "Patrimoine & Paysage",
+            note_globale: 4.6,
+            nb_avis: 1050,
+            cout_texte: "Gratuit",
+            duree_texte: "1h30 à 2h",
+            adresse: "Carretera La Costa Faro, 38740 Fuencaliente de La Palma",
+            horaires: "Salines en accès libre. Restaurant ouvert midi et soir.",
+            url_tripadvisor: "https://www.tripadvisor.fr/Attraction_Review-g187475-d1876785-Reviews-Salinas_Marinas_de_Fuencaliente-La_Palma_Canary_Islands.html",
+            photo: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80",
+            tags: ["Salines", "Phare", "Contraste Minéral", "Coucher de Soleil"],
+            description: "À la pointe sud de La Palma, un contraste saisissant entre la lave noire des volcans Teneguía et San Antonio, les bassins d'évaporation rose pastel et les pyramides de sel marin.",
+            synthese_avis: {
+              statistiques: "Synthèse sur 1 050 avis (Note 4,6/5 — 72% Excellent).",
+              points: [
+                {
+                  titre: "Sentier d'interprétation libre et pédagogique",
+                  badge: "Visite",
+                  badge_color: "bg-blue-100 text-blue-800",
+                  texte: "Un parcours balisé gratuit serpente entre les bassins salins avec des panneaux explicatifs sur la récolte artisanale de la fleur de sel et la faune ornithologique migratrice."
+                },
+                {
+                  titre: "Restaurant El Jardín de la Sal : Réserver au coucher de soleil",
+                  badge: "Gastronomie",
+                  badge_color: "bg-amber-100 text-amber-800",
+                  texte: "Le restaurant gastronomique situé au cœur des salines est très réputé. Les avis conseillent unanimement de réserver une table en terrasse pour dîner face au soleil couchant plongeant dans l'Atlantique."
+                }
+              ]
+            }
+          },
+          {
+            id: "lp-playa-nogales",
+            titre: "Plage sauvage de Nogales (Playa de Nogales)",
+            categorie: "mer",
+            categorie_libelle: "Plage Sauvage",
+            note_globale: 4.8,
+            nb_avis: 690,
+            cout_texte: "Gratuit",
+            duree_texte: "2h à 3h",
+            adresse: "Camino de Nogales, 38715 Puntallana, La Palma",
+            horaires: "Accès libre de jour",
+            url_tripadvisor: "https://www.tripadvisor.fr/Attraction_Review-g187475-d2279277-Reviews-Playa_de_Nogales-La_Palma_Canary_Islands.html",
+            photo: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80",
+            tags: ["Sable Noir", "Sauvage", "Falaise Vertigineuse", "Contemplation"],
+            description: "La plus belle plage de sable noir fin de l'île, encastrée au pied de falaises vertigineuses couvertes de végétation tropicale.",
+            synthese_avis: {
+              statistiques: "Synthèse sur 690 avis (Note 4,8/5 — 81% Excellent).",
+              points: [
+                {
+                  titre: "Sentier taillé dans la falaise : 15 min de marche magique",
+                  badge: "Sentier",
+                  badge_color: "bg-blue-100 text-blue-800",
+                  texte: "Depuis le parking de Puntallana, un sentier piétonnier sécurisé avec marches longe la paroi rocheuse au-dessus de l'écume marine. Vue panoramique saisissante sur l'ensemble de la baie."
+                },
+                {
+                  titre: "Courants très puissants : Baignade contemplative",
+                  badge: "Sécurité",
+                  badge_color: "bg-red-100 text-red-800",
+                  texte: "Les vagues et les courants de fond atlantiques sont violents. La plupart des visiteurs trempent les pieds au bord de l'eau mais déconseillent de nager au large sans planche de surf ou surveillance."
+                }
+              ]
+            }
+          },
+          {
+            id: "lp-santa-cruz",
+            titre: "Centre Historique de Santa Cruz & Balcons Fleuris",
+            categorie: "culture",
+            categorie_libelle: "Villes & Histoire",
+            note_globale: 4.6,
+            nb_avis: 1120,
+            cout_texte: "Gratuit",
+            duree_texte: "2h30 à 4h",
+            adresse: "Avenida Marítima & Calle Real, 38700 Santa Cruz de La Palma",
+            horaires: "Centre piétonnier accessible 24/24",
+            url_tripadvisor: "https://www.tripadvisor.fr/Attraction_Review-g187475-d2279282-Reviews-Santa_Cruz_de_La_Palma-La_Palma_Canary_Islands.html",
+            photo: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80",
+            tags: ["Architecture Coloniale", "Balcons en Bois", "Patios Fleuris", "Cafés"],
+            description: "Capitale maritime pavée du XVIe siècle renommée pour ses balcons en bois de pin canarien richement fleuris et ses ruelles piétonnes bordées d'édifices coloniaux.",
+            synthese_avis: {
+              statistiques: "Synthèse sur 1 120 avis voyageurs (Note 4,6/5 — 70% Excellent).",
+              points: [
+                {
+                  titre: "Les balcons de l'Avenida Marítima sous leur meilleur angle",
+                  badge: "Photo",
+                  badge_color: "bg-amber-100 text-amber-800",
+                  texte: "Les emblématiques balcons doubles en bois sculpté garnis de géraniums et de bougainvilliers se situent au nord de l'Avenida Marítima. La lumière du matin est idéale pour les photographier."
+                },
+                {
+                  titre: "Balade piétonne le long de la Calle O'Daly (Calle Real)",
+                  badge: "Flânerie",
+                  badge_color: "bg-green-100 text-green-800",
+                  texte: "L'artère piétonne principale concentre de magnifiques maisons de marchands avec patios andalous intérieurs ombragés, glaciers artisanaux et la place d'Espagne avec sa fontaine en pierre volcanique."
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "tenerife": {
+        nom: "Tenerife",
+        sous_titre: "L'Île aux Mille Visages — Du Toit d'Espagne aux Canyons de Teno",
+        activites: [
+          {
+            id: "tf-teide-telepherique",
+            titre: "Parc National du Teide & Téléphérique (Pico del Teide)",
+            categorie: "volcan",
+            categorie_libelle: "Haute Montagne & Volcan",
+            note_globale: 4.8,
+            nb_avis: 14500,
+            cout_texte: "40 € (téléphérique)",
+            duree_texte: "3h30 à 5h",
+            adresse: "Carretera TF-21, km 43, 38300 La Orotava, Tenerife (3 715 m)",
+            horaires: "Téléphérique : 09:00 - 16:00 (dernière montée). Parc ouvert 24/24.",
+            url_tripadvisor: "https://www.tripadvisor.fr/Attraction_Review-g187479-d197608-Reviews-Teide_National_Park-Tenerife_Canary_Islands.html",
+            photo: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+            tags: ["Incontournable", "UNESCO", "Point Culminant", "Téléphérique"],
+            description: "Le sommet le plus haut d'Espagne (3 715 m), classé au patrimoine mondial de l'UNESCO. Une caldeira volcanique martienne de 17 km de diamètre dominée par le cône fumant du stratovolcan.",
+            synthese_avis: {
+              statistiques: "Synthèse basée sur plus de 14 500 avis vérifiés (Note 4,8/5 — 84% Excellent).",
+              points: [
+                {
+                  titre: "Permis pour le cratère sommital : Réserver 2 à 3 mois à l'avance",
+                  badge: "Permis Obligatoire",
+                  badge_color: "bg-red-100 text-red-800",
+                  texte: "C'est l'avertissement capital souligné par des milliers d'avis : le téléphérique monte à La Rambleta (3 555 m). Pour franchir les 200 derniers mètres de dénivelé jusqu'au cratère fumant (sentier Telesforo Bravo), un permis nominatif gratuit délivré par le réseau des parcs nationaux est obligatoire (limite à 200 personnes/jour). Les créneaux s'épuisent souvent 60 à 90 jours à l'avance."
+                },
+                {
+                  titre: "Réservation du téléphérique et gestion de la météo",
+                  badge: "Téléphérique",
+                  badge_color: "bg-blue-100 text-blue-800",
+                  texte: "Achetez impérativement vos billets de téléphérique avec créneau horaire en ligne. En cas de rafales de vent fort au sommet, le téléphérique est suspendu pour sécurité : vos billets sont alors soit remboursés, soit reportés au lendemain."
+                },
+                {
+                  titre: "Raréfaction de l'oxygène et froid glacial",
+                  badge: "Altitude & Météo",
+                  badge_color: "bg-purple-100 text-purple-800",
+                  texte: "À 3 555 m d'altitude, la pression atmosphérique et l'oxygène sont réduits d'un tiers. Marchez lentement. Prévoyez une doudoune chaude, gants, lunettes de soleil catégorie 4 et crème solaire indice 50+ : le rayonnement UV y est extrêmement intense."
+                },
+                {
+                  titre: "Les alternatives magnifiques sans téléphérique",
+                  badge: "Alternative Rando",
+                  badge_color: "bg-green-100 text-green-800",
+                  texte: "Si le téléphérique est complet ou fermé, la boucle à pied autour des Roques de García (sentier n°3, 2h de marche au pied du volcan) offre des panoramas extraordinaires sur la 'Cathédrale' et le cratère sans difficulté majeure."
+                }
+              ]
+            }
+          },
+          {
+            id: "tf-anaga-laurisilva",
+            titre: "Parc Rural d'Anaga & Forêt Enchantée (Bosque Encantado)",
+            categorie: "nature",
+            categorie_libelle: "Nature & Rando",
+            note_globale: 4.9,
+            nb_avis: 3200,
+            cout_texte: "Gratuit",
+            duree_texte: "3h à 5h",
+            adresse: "Carretera TF-12, 38294 San Cristóbal de La Laguna, Tenerife",
+            horaires: "Centre visiteurs Cruz del Carmen : 09:30 - 16:00",
+            url_tripadvisor: "https://www.tripadvisor.fr/Attraction_Review-g187479-d2279262-Reviews-Anaga_Rural_Park-Tenerife_Canary_Islands.html",
+            photo: "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80",
+            tags: ["UNESCO", "Forêt Primaire", "Brumes Mystiques", "Rando"],
+            description: "Le plus ancien massif volcanique de Tenerife, abritant une forêt jurassique de lauriers baignée de brumes océaniques et des crêtes plongeant à pic dans l'Atlantique.",
+            synthese_avis: {
+              statistiques: "Synthèse sur 3 200 avis voyageurs (Note 4,9/5 — 89% Excellent).",
+              points: [
+                {
+                  titre: "Permis strict pour le sentier d'El Pijaral (Forêt Enchantée)",
+                  badge: "Permis Requis",
+                  badge_color: "bg-red-100 text-red-800",
+                  texte: "Pour préserver cet écosystème fragile, l'accès à la réserve intégrale d'El Pijaral est limité à 45 personnes par jour. Le permis gratuit s'obtient sur le site du Cabildo de Tenerife environ 15 jours à l'avance. Des gardes forestiers contrôlent les autorisations à l'entrée."
+                },
+                {
+                  titre: "Sentiers magiques accessibles sans permis à Cruz del Carmen",
+                  badge: "Accès Libre",
+                  badge_color: "bg-green-100 text-green-800",
+                  texte: "Si vous n'avez pas de permis, aucun souci : le Sentier des Sens (Sendero de los Sentidos) et la boucle de Taborno ou de Chinamada offrent une immersion tout aussi spectaculaire en accès libre total."
+                },
+                {
+                  titre: "Climat humide et brumeux : Veste imperméable",
+                  badge: "Équipement",
+                  badge_color: "bg-purple-100 text-purple-800",
+                  texte: "Les alizés créent une condensation permanente (mer de nuages). Le sol en sous-bois est souvent meuble et humide : prévoyez de bonnes chaussures de marche antidérapantes et une veste coupe-vent étanche."
+                }
+              ]
+            }
+          },
+          {
+            id: "tf-masca-canyon",
+            titre: "Gorge & Village Perché de Masca (Barranco de Masca)",
+            categorie: "nature",
+            categorie_libelle: "Canyon & Village",
+            note_globale: 4.8,
+            nb_avis: 5800,
+            cout_texte: "30 € (canyon)",
+            duree_texte: "4h à 6h",
+            adresse: "Carretera TF-436, 38489 Masca, Buenavista del Norte, Tenerife",
+            horaires: "Descente du canyon sur réservation le week-end",
+            url_tripadvisor: "https://www.tripadvisor.fr/Attraction_Review-g187479-d197607-Reviews-Masca_Valley-Tenerife_Canary_Islands.html",
+            photo: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
+            tags: ["Spectaculaire", "Canyon", "Village Perché", "Trekking"],
+            description: "Surnommé le 'Machu Picchu des Canaries', un village spectaculaire juché sur une arête rocheuse ouvrant sur un canyon monumental plongeant 650 m plus bas vers l'océan.",
+            synthese_avis: {
+              statistiques: "Synthèse sur 5 800 avis (Note 4,8/5 — 83% Excellent).",
+              points: [
+                {
+                  titre: "Réglementation stricte de la descente du canyon",
+                  badge: "Sécurité Rando",
+                  badge_color: "bg-red-100 text-red-800",
+                  texte: "La descente à pied de la gorge est désormais encadrée : réservation obligatoire en ligne le week-end, port du casque de montagne (fourni) et contrôle systématique de vos chaussures de randonnée crantées. Baskets de ville, tennis lisses et sandales sont formellement refusées à l'entrée."
+                },
+                {
+                  titre: "La route en lacets TF-436 : Privilégier les bus ou taxis",
+                  badge: "Route & Transport",
+                  badge_color: "bg-amber-100 text-amber-800",
+                  texte: "La route menant à Masca depuis Santiago del Teide est l'une des plus vertigineuses d'Europe, à voie unique avec virages en épingle et croisements étroits. Le stationnement au village est limité à 2 heures pour les voitures particulières : l'usage des transports en commun (bus Titsa 355) ou des taxis est fortement conseillé."
+                },
+                {
+                  titre: "Physique : 650 m de dénivelé si vous remontez à pied",
+                  badge: "Condition Physique",
+                  badge_color: "bg-purple-100 text-purple-800",
+                  texte: "Comptez 3h pour la descente vers la plage de Masca. Si les bateaux-navettes vers Los Gigantes ne sont pas opérationnels, la remontée complète à pied (+650 m de dénivelé raide sous le soleil) exige une excellente condition physique et 2 litres d'eau par personne."
+                }
+              ]
+            }
+          },
+          {
+            id: "tf-los-gigantes",
+            titre: "Falaises de Los Gigantes (Acantilados de Los Gigantes)",
+            categorie: "mer",
+            categorie_libelle: "Mer & Falaises",
+            note_globale: 4.7,
+            nb_avis: 4600,
+            cout_texte: "25 € (bateau)",
+            duree_texte: "2h30 à 3h",
+            adresse: "Puerto Deportivo Los Gigantes, 38683 Santiago del Teide, Tenerife",
+            horaires: "Excursions maritimes au départ du port : 10:00 - 16:30",
+            url_tripadvisor: "https://www.tripadvisor.fr/Attraction_Review-g187479-d2279264-Reviews-Acantilados_de_Los_Gigantes-Tenerife_Canary_Islands.html",
+            photo: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+            tags: ["Mur de Basalte", "Dauphins & Baleines", "Bateau", "Coucher de Soleil"],
+            description: "Des murailles volcaniques verticales de 500 à 800 mètres tombant directement dans l'océan Atlantique, réputées pour leurs eaux abritant dauphins et baleines pilotes toute l'année.",
+            synthese_avis: {
+              statistiques: "Synthèse sur 4 600 avis vérifiés (Note 4,7/5 — 79% Excellent).",
+              points: [
+                {
+                  titre: "La vue depuis la mer est incomparable",
+                  badge: "Excursion Mer",
+                  badge_color: "bg-blue-100 text-blue-800",
+                  texte: "Pour mesurer la démesure des falaises, rien ne vaut une sortie en mer depuis le port de Los Gigantes (voilier, catamaran ou kayak de mer). Les parois de basalte noir dominent l'embarcation de toute leur hauteur."
+                },
+                {
+                  titre: "Observation éco-responsable des cétacés",
+                  badge: "Écologie",
+                  badge_color: "bg-teal-100 text-teal-800",
+                  texte: "Le détroit entre Tenerife et La Gomera abrite une colonie sédentaire de dauphins et de globicéphales tropicaux. Choisissez les bateaux arborant le pavillon 'Barco Azul' garantissant le respect des distances et de la tranquillité des animaux."
+                },
+                {
+                  titre: "Baignade au Charco de Isla Cangrejo",
+                  badge: "Baignade",
+                  badge_color: "bg-green-100 text-green-800",
+                  texte: "Au nord de la marina, une piscine naturelle aménagée avec mur brise-lames permet de nager en toute sécurité avec une vue directe sur les falaises géantes au soleil couchant."
+                }
+              ]
+            }
+          },
+          {
+            id: "tf-la-laguna-unesco",
+            titre: "Centre Historique de San Cristóbal de La Laguna (Patrimoine UNESCO)",
+            categorie: "culture",
+            categorie_libelle: "Patrimoine & Histoire",
+            note_globale: 4.7,
+            nb_avis: 2900,
+            cout_texte: "Gratuit",
+            duree_texte: "2h30 à 4h",
+            adresse: "Calle San Agustín & Plaza del Adelantado, 38201 San Cristóbal de La Laguna",
+            horaires: "Zone piétonne 24/24. Musées et patios : 10:00 - 19:00",
+            url_tripadvisor: "https://www.tripadvisor.fr/Attraction_Review-g187479-d197609-Reviews-Historic_Center_of_La_Laguna-Tenerife_Canary_Islands.html",
+            photo: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80",
+            tags: ["UNESCO", "Patios Fleuris", "Architecture Coloniale", "Tapas"],
+            description: "L'ancienne capitale historique de Tenerife, première ville coloniale non fortifiée au monde dont le tracé en damier a servi de modèle pour La Havane et Carthagène des Indes.",
+            synthese_avis: {
+              statistiques: "Synthèse sur 2 900 avis voyageurs (Note 4,7/5 — 77% Excellent).",
+              points: [
+                {
+                  titre: "Flânerie dans les cours et patios intérieurs cachés",
+                  badge: "Visite",
+                  badge_color: "bg-blue-100 text-blue-800",
+                  texte: "Les façades colorées pastel cachent de superbes patios andalous en bois de pin canarien avec palmiers et fontaines (Palacio de Lercaro, Casa Salazar, Casa de los Capitanes). La plupart sont en accès libre gratuit en journée."
+                },
+                {
+                  titre: "Climat plus frais et humide : Prévoir une veste",
+                  badge: "Météo",
+                  badge_color: "bg-amber-100 text-amber-800",
+                  texte: "Située sur un plateau à 550 m d'altitude, La Laguna est souvent enveloppée d'une brume rafraîchissante locale (el bajío) avec 5°C de moins que sur les plages du Sud. Un gilet est bienvenu pour les soirées tapas."
+                },
+                {
+                  titre: "Accès facile en tramway depuis Santa Cruz",
+                  badge: "Transport",
+                  badge_color: "bg-green-100 text-green-800",
+                  texte: "Si vous séjournez à Santa Cruz de Tenerife, le tramway moderne (Ligne 1) vous dépose directement au cœur de la zone piétonne en 35 minutes sans aucun souci de stationnement."
+                }
+              ]
+            }
+          },
+          {
+            id: "tf-garachico-caleton",
+            titre: "Piscines Naturelles de lave d'El Caletón (Garachico)",
+            categorie: "mer",
+            categorie_libelle: "Baignade Volcanique",
+            note_globale: 4.7,
+            nb_avis: 2100,
+            cout_texte: "Gratuit",
+            duree_texte: "1h30 à 2h30",
+            adresse: "Avenida Tomé Cano, 38450 Garachico, Tenerife",
+            horaires: "Accès libre toute l'année (surveillance estivale)",
+            url_tripadvisor: "https://www.tripadvisor.fr/Attraction_Review-g187479-d2279266-Reviews-Piscinas_Naturales_El_Caleton-Tenerife_Canary_Islands.html",
+            photo: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1200&q=80",
+            tags: ["Lave Volcanique", "Piscine Naturelle", "Garachico", "Fort Médiéval"],
+            description: "Des bassins naturels sculptés par les coulées de lave de l'éruption de 1706 au pied du château San Miguel, offrant une baignade unique dans une eau limpide protégée de la houle.",
+            synthese_avis: {
+              statistiques: "Synthèse sur 2 100 avis (Note 4,7/5 — 77% Excellent).",
+              points: [
+                {
+                  titre: "Aménagements confortables et sécurisés",
+                  badge: "Confort",
+                  badge_color: "bg-green-100 text-green-800",
+                  texte: "Des passerelles et escaliers en pierre avec échelles de bain permettent d'accéder facilement aux différents bassins de profondeurs variées. Idéal pour nager en admirant le pittoresque village historique de Garachico."
+                },
+                {
+                  titre: "Vérifier le drapeau de baignade",
+                  badge: "Sécurité",
+                  badge_color: "bg-red-100 text-red-800",
+                  texte: "Par mer très forte, l'accès aux bassins extérieurs peut être fermé par précaution. Privilégiez les heures de marée basse pour une eau calme et transparente propice au masque et tuba."
+                }
+              ]
+            }
+          },
+          {
+            id: "tf-stargazing-teide",
+            titre: "Observation des Étoiles au Teide (Stargazing Experience)",
+            categorie: "ciel",
+            categorie_libelle: "Ciel & Astronomie",
+            note_globale: 4.9,
+            nb_avis: 1850,
+            cout_texte: "45 € (séance)",
+            duree_texte: "2h30 à 3h",
+            adresse: "Mirador de Minas de San José / Parador del Teide, 38300 La Orotava, Tenerife (2 200 m)",
+            horaires: "Séances nocturnes guidées (20:30 - 23:00)",
+            url_tripadvisor: "https://www.tripadvisor.fr/Attraction_Review-g187479-d33366592-Reviews-Teide_Stargazing_Experience-Tenerife_Canary_Islands.html",
+            photo: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80",
+            tags: ["Voie Lactée", "Télescopes Pros", "Réserve Starlight", "Magique"],
+            description: "Une séance d'astronomie immersive sur le plateau volcanique du Teide sous l'un des trois ciels les plus purs de la planète, avec télescopes motorisés et guides astrophysiciens.",
+            synthese_avis: {
+              statistiques: "Synthèse sur 1 850 avis (Note 4,9/5 — 91% Excellent).",
+              points: [
+                {
+                  titre: "Visibilité exceptionnelle de la Voie Lactée et des planètes",
+                  badge: "Ciel Pur",
+                  badge_color: "bg-blue-100 text-blue-800",
+                  texte: "L'altitude à 2 200 m au-dessus de la couche nuageuse élimine toute humidité et pollution lumineuse. Les visiteurs observent avec netteté les anneaux de Saturne, les bandes de Jupiter, des nébuleuses et des amas d'étoiles."
+                },
+                {
+                  titre: "Froid nocturne intense : Équipement grand froid indispensable",
+                  badge: "Grand Froid",
+                  badge_color: "bg-purple-100 text-purple-800",
+                  texte: "La nuit dans la caldeira volcanique, le mercure chute régulièrement entre 0°C et 5°C (parfois négatif en automne/hiver). Doudoune épaisse de ski, bonnet, gants chauds et écharpe sont indispensables pour rester immobile devant les télescopes."
+                }
+              ]
+            }
+          },
+          {
+            id: "tf-jardin-botanico",
+            titre: "Jardin d'Acclimatation Botanique de Puerto de la Cruz",
+            categorie: "culture",
+            categorie_libelle: "Flore Tropicale & Histoire",
+            note_globale: 4.6,
+            nb_avis: 3400,
+            cout_texte: "3 €",
+            duree_texte: "1h30",
+            adresse: "Calle Retama 2, 38400 Puerto de la Cruz, Tenerife",
+            horaires: "Tous les jours : 09:00 - 18:00",
+            url_tripadvisor: "https://www.tripadvisor.fr/Attraction_Review-g187479-d197606-Reviews-Jardin_Botanico-Tenerife_Canary_Islands.html",
+            photo: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80",
+            tags: ["Ficus Géant", "Arbre Bicentenaire", "Oasis Végétale", "Ombragé"],
+            description: "Fondé au XVIIIe siècle par le roi Charles III pour acclimater les espèces tropicales des Amériques, ce jardin historique est réputé pour son spectaculaire Ficus macrophylla bicentenaire aux racines monumentales.",
+            synthese_avis: {
+              statistiques: "Synthèse sur 3 400 avis voyageurs (Note 4,6/5 — 71% Excellent).",
+              points: [
+                {
+                  titre: "Le Ficus géant d'Australie : La star absolue du parc",
+                  badge: "Arbre Monumental",
+                  badge_color: "bg-green-100 text-green-800",
+                  texte: "L'arbre vedette au centre du jardin fascine les visiteurs avec son réseau monumental de racines aériennes colonnaires ressemblant à un décor fantastique."
+                },
+                {
+                  titre: "Tarif symbolique et promenade paisible à l'ombre",
+                  badge: "Bon Plan",
+                  badge_color: "bg-blue-100 text-blue-800",
+                  texte: "À 3 € l'entrée, c'est l'une des visites les plus économiques et reposantes de l'île. Les allées bordées de palmiers royaux, d'arbres à pain et de nénuphars géants offrent une fraîcheur très appréciable en milieu de journée."
+                }
+              ]
+            }
+          }
+        ]
+      }
+    };
+
+    // État global de l'application
+    let currentDestination = 'la_palma';
+    let currentCategory = 'all';
+    let currentSearch = '';
+    let currentViewMode = 'grid'; // 'grid' ou 'magazine'
+    let currentMagazineIndex = 0;
+    let currentActiveModalActivity = null;
+
+    // Initialisation
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      renderAll();
+    });
+
+    // Navigation Clavier pour le mode magazine
+    document.addEventListener('keydown', (e) => {
+      if (currentViewMode === 'magazine') {
+        if (e.key === 'ArrowRight') nextMagazinePage();
+        if (e.key === 'ArrowLeft') prevMagazinePage();
+      }
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+    function selectDestination(destKey) {
+      currentDestination = destKey;
+      currentMagazineIndex = 0;
+      
+      // Mise à jour des boutons d'onglets
+      const btnLP = document.getElementById('tab-dest-lapalma');
+      const btnTF = document.getElementById('tab-dest-tenerife');
+      
+      if (destKey === 'la_palma') {
+        btnLP.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-[#17181A] text-white shadow-sm";
+        btnTF.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-white text-[#55565A] border border-[#E3E1DC] hover:border-[#17181A] hover:text-[#17181A]";
+      } else {
+        btnTF.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-[#17181A] text-white shadow-sm";
+        btnLP.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-white text-[#55565A] border border-[#E3E1DC] hover:border-[#17181A] hover:text-[#17181A]";
+      }
+
+      renderAll();
+    }
+
+    function switchViewMode(mode) {
+      currentViewMode = mode;
+      const gridBtn = document.getElementById('view-mode-grid-btn');
+      const magBtn = document.getElementById('view-mode-magazine-btn');
+      const gridContainer = document.getElementById('view-grid-container');
+      const magContainer = document.getElementById('view-magazine-container');
+
+      if (mode === 'grid') {
+        gridBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-[#D6F84C] text-[#17181A] shadow-sm";
+        magBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#8E8F92] hover:text-white transition-all";
+        gridContainer.classList.remove('hidden');
+        magContainer.classList.add('hidden');
+      } else {
+        magBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-[#D6F84C] text-[#17181A] shadow-sm";
+        gridBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#8E8F92] hover:text-white transition-all";
+        magContainer.classList.remove('hidden');
+        gridContainer.classList.add('hidden');
+        renderMagazinePage();
+      }
+      lucide.createIcons();
+    }
+
+    function setCategoryFilter(cat) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-filter-btn').forEach(btn => {
+        if (btn.getAttribute('data-cat') === cat) {
+          btn.className = "cat-filter-btn px-3 py-1.5 rounded-full text-xs font-bold transition-all bg-[#17181A] text-white";
+        } else {
+          btn.className = "cat-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold transition-all bg-white text-[#55565A] border border-[#E3E1DC] hover:border-[#17181A] hover:text-[#17181A]";
+        }
+      });
+      renderGrid();
+    }
+
+    function handleSearch(query) {
+      currentSearch = query.toLowerCase().trim();
+      renderGrid();
+    }
+
+    function getFilteredActivities() {
+      const dest = GUIDE_DATABASE[currentDestination];
+      if (!dest) return [];
+      return dest.activites.filter(act => {
+        const matchCategory = (currentCategory === 'all') || (act.categorie === currentCategory);
+        const matchSearch = (!currentSearch) || 
+          act.titre.toLowerCase().includes(currentSearch) || 
+          act.description.toLowerCase().includes(currentSearch) ||
+          act.tags.some(t => t.toLowerCase().includes(currentSearch));
+        return matchCategory && matchSearch;
+      });
+    }
+
+    function renderAll() {
+      renderGrid();
+      renderMagazinePage();
+      document.getElementById('active-count-label').innerText = GUIDE_DATABASE[currentDestination].activites.length;
+      lucide.createIcons();
+    }
+
+    function renderGrid() {
+      const container = document.getElementById('activities-grid');
+      const acts = getFilteredActivities();
+
+      if (acts.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full py-12 text-center bg-white rounded-3xl border border-[#E3E1DC] p-8 space-y-3">
+            <div class="w-12 h-12 rounded-full bg-[#FAF8F5] text-[#8E8F92] flex items-center justify-center mx-auto">
+              <i data-lucide="search-x" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-base font-bold text-[#17181A]">Aucune activité trouvée</h3>
+            <p class="text-xs text-[#55565A]">Essayez de modifier votre recherche ou vos filtres.</p>
+            <button onclick="setCategoryFilter('all'); document.getElementById('search-input').value=''; handleSearch('');" class="px-4 py-2 bg-[#17181A] text-white text-xs font-bold rounded-xl mt-2">
+              Réinitialiser les filtres
+            </button>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      container.innerHTML = acts.map(act => {
+        return `
+          <div class="group bg-white rounded-3xl border border-[#E3E1DC] hover:border-[#17181A] shadow-sm hover:shadow-xl transition-all duration-200 overflow-hidden flex flex-col cursor-pointer" onclick="openActivityModal('${act.id}')">
+            
+            <!-- Vignette Photo Propre & Badge Prix -->
+            <div class="relative h-48 w-full bg-[#17181A] overflow-hidden">
+              <img 
+                src="${act.photo}" 
+                alt="${act.titre}" 
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+                onerror="this.src='https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80'"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+              
+              <!-- Badges positionnés proprement en haut sans masquer le titre -->
+              <div class="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
+                <span class="px-2.5 py-1 text-[11px] font-bold bg-[#17181A]/80 backdrop-blur-md text-white rounded-lg border border-white/20">
+                  ${act.categorie_libelle}
+                </span>
+                <span class="px-2.5 py-1 text-[11px] font-extrabold ${act.cout_texte === 'Gratuit' ? 'bg-[#3F7A55] text-white' : 'bg-[#D6F84C] text-[#17181A]'} rounded-lg shadow-sm">
+                  ${act.cout_texte}
+                </span>
+              </div>
+
+              <!-- Note & Durée en bas de l'image -->
+              <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs font-semibold">
+                <div class="flex items-center gap-1 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-md">
+                  <span class="text-[#D6F84C]">★</span>
+                  <span>${act.note_globale}</span>
+                  <span class="text-white/70 font-normal text-[10px]">(${act.nb_avis})</span>
+                </div>
+                <div class="flex items-center gap-1 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-md text-white/90">
+                  <i data-lucide="clock" class="w-3 h-3"></i>
+                  <span>${act.duree_texte}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contenu Textuel de la carte -->
+            <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+              <div>
+                <h3 class="text-base font-extrabold text-[#17181A] group-hover:text-[#3F7A55] transition-colors leading-snug">
+                  ${act.titre}
+                </h3>
+                <p class="text-xs text-[#55565A] mt-2 line-clamp-2 leading-relaxed">
+                  ${act.description}
+                </p>
+              </div>
+
+              <!-- Aperçu du rapport TripAdvisor -->
+              <div class="bg-[#FAF8F5] p-3 rounded-2xl border border-[#E3E1DC] space-y-1.5">
+                <div class="flex items-center justify-between text-[11px] font-bold text-[#00AF87]">
+                  <span class="flex items-center gap-1">
+                    <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                    ${act.synthese_avis.points.length} points clés des avis
+                  </span>
+                  <span class="text-[#8E8F92] font-normal group-hover:text-[#17181A] flex items-center gap-0.5">
+                    Lire le rapport <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                  </span>
+                </div>
+                <p class="text-[11px] text-[#17181A] font-medium line-clamp-1 italic">
+                  💡 "${act.synthese_avis.points[0].titre}"
+                </p>
+              </div>
+
+              <!-- Tags -->
+              <div class="flex flex-wrap gap-1.5 pt-1">
+                ${act.tags.map(t => `<span class="px-2 py-0.5 bg-[#EDEBE6] text-[#55565A] text-[10px] font-semibold rounded-md">${t}</span>`).join('')}
+              </div>
+
+            </div>
+
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function renderMagazinePage() {
+      const dest = GUIDE_DATABASE[currentDestination];
+      if (!dest || dest.activites.length === 0) return;
+
+      const act = dest.activites[currentMagazineIndex];
+      const total = dest.activites.length;
+
+      // Mise à jour des en-têtes
+      document.getElementById('mag-destination-subtitle').innerText = `CARNET DE VOYAGE — ${dest.nom.toUpperCase()}`;
+      document.getElementById('mag-current-title-header').innerText = `${currentMagazineIndex + 1}. ${act.titre}`;
+      document.getElementById('mag-page-indicator').innerText = `${currentMagazineIndex + 1} / ${total}`;
+
+      // Contenu complet de la double page magazine
+      const pageContainer = document.getElementById('magazine-page-content');
+      pageContainer.innerHTML = `
+        <div class="grid grid-cols-1 lg:grid-cols-12 min-h-[600px]">
+          
+          <!-- Volet Gauche : Grande Image & Fiche Signalétique (5 colonnes) -->
+          <div class="lg:col-span-5 bg-[#17181A] text-white p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden">
+            
+            <div class="absolute inset-0 opacity-40">
+              <img src="${act.photo}" alt="${act.titre}" class="w-full h-full object-cover" />
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#17181A] via-[#17181A]/70 to-[#17181A]/40"></div>
+
+            <div class="relative z-10 space-y-4">
+              <div class="flex items-center justify-between gap-2">
+                <span class="px-3 py-1 bg-[#D6F84C] text-[#17181A] font-extrabold text-xs rounded-xl shadow-sm">
+                  ${act.categorie_libelle}
+                </span>
+                <span class="px-3 py-1 bg-white/20 backdrop-blur-md text-white font-bold text-xs rounded-xl">
+                  ${act.cout_texte}
+                </span>
+              </div>
+
+              <div class="space-y-1">
+                <div class="text-xs uppercase tracking-wider text-[#D6F84C] font-semibold">
+                  Activité incontournable #${currentMagazineIndex + 1}
+                </div>
+                <h3 class="text-2xl sm:text-3xl font-extrabold text-white leading-tight">
+                  ${act.titre}
+                </h3>
+              </div>
+
+              <!-- Bloc Note TripAdvisor -->
+              <div class="bg-black/60 backdrop-blur-md p-4 rounded-2xl border border-white/10 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold text-white/80">Avis vérifiés TripAdvisor</span>
+                  <span class="text-[#D6F84C] font-extrabold text-sm">★ ${act.note_globale} / 5</span>
+                </div>
+                <p class="text-xs text-white/90 font-normal leading-relaxed">
+                  ${act.synthese_avis.statistiques}
+                </p>
+              </div>
+
+              <p class="text-xs sm:text-sm text-white/80 font-normal leading-relaxed">
+                ${act.description}
+              </p>
+            </div>
+
+            <!-- Coordonnées & Lien direct -->
+            <div class="relative z-10 pt-6 border-t border-white/20 space-y-3">
+              <div class="text-xs text-white/80 space-y-1">
+                <div class="flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-[#D6F84C]"></i> ${act.adresse}</div>
+                <div class="flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5 text-[#D6F84C]"></i> Durée conseillée : ${act.duree_texte}</div>
+              </div>
+
+              <a 
+                href="${act.url_tripadvisor}" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-[#00AF87] hover:bg-[#008f6d] text-white text-xs font-bold rounded-xl transition-all shadow-md"
+              >
+                <i data-lucide="external-link" class="w-4 h-4"></i>
+                <span>Voir la page officielle sur TripAdvisor</span>
+              </a>
+            </div>
+
+          </div>
+
+          <!-- Volet Droit : Le Rapport Structuré des Avis Voyageurs (7 colonnes) -->
+          <div class="lg:col-span-7 p-6 sm:p-8 bg-[#FAF8F5] flex flex-col justify-between space-y-6">
+            
+            <div class="space-y-4">
+              <div class="flex items-center justify-between border-b border-[#E3E1DC] pb-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-xl bg-[#00AF87] text-white flex items-center justify-center font-bold">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-base font-extrabold text-[#17181A]">
+                      Synthèse & Astuces de Terrain des Voyageurs
+                    </h4>
+                    <p class="text-xs text-[#55565A]">Les points à ne pas négliger avant de partir</p>
+                  </div>
+                </div>
+                <button 
+                  onclick="copyReviewText('${act.id}')"
+                  class="flex items-center gap-1 text-xs font-bold text-[#55565A] hover:text-[#17181A] bg-white px-3 py-1.5 rounded-lg border border-[#E3E1DC] shadow-sm"
+                >
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                  <span>Copier</span>
+                </button>
+              </div>
+
+              <!-- Cartes des rubriques de synthèse -->
+              <div class="space-y-3.5">
+                ${act.synthese_avis.points.map(pt => `
+                  <div class="bg-white p-4 rounded-2xl border border-[#E3E1DC] shadow-sm space-y-1.5 hover:border-[#17181A] transition-all">
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="text-xs font-extrabold text-[#17181A] flex items-center gap-1.5">
+                        <i data-lucide="check-circle-2" class="w-4 h-4 text-[#3F7A55]"></i>
+                        ${pt.titre}
+                      </span>
+                      <span class="px-2 py-0.5 text-[10px] font-bold rounded-md ${pt.badge_color}">
+                        ${pt.badge}
+                      </span>
+                    </div>
+                    <p class="text-xs text-[#55565A] leading-relaxed pl-5 font-normal">
+                      ${pt.texte}
+                    </p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Navigation bas de page -->
+            <div class="pt-4 border-t border-[#E3E1DC] flex items-center justify-between">
+              <button 
+                onclick="prevMagazinePage()" 
+                class="flex items-center gap-1 text-xs font-bold text-[#55565A] hover:text-[#17181A]"
+              >
+                <i data-lucide="chevron-left" class="w-4 h-4"></i> Fiche précédente
+              </button>
+              <button 
+                onclick="nextMagazinePage()" 
+                class="flex items-center gap-1 text-xs font-bold text-[#17181A] hover:text-[#3F7A55]"
+              >
+                Fiche suivante <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+      `;
+
+      // Rendu de la barre des miniatures
+      const thumbsContainer = document.getElementById('mag-thumbnails-bar');
+      thumbsContainer.innerHTML = dest.activites.map((a, idx) => {
+        const isSelected = (idx === currentMagazineIndex);
+        return `
+          <button 
+            onclick="goToMagazinePage(${idx})"
+            class="flex-shrink-0 flex items-center gap-2.5 p-2 rounded-xl border transition-all text-left ${isSelected ? 'bg-[#17181A] text-white border-[#17181A] shadow-md' : 'bg-[#FAF8F5] text-[#55565A] border-[#E3E1DC] hover:border-[#17181A]'}"
+          >
+            <div class="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200">
+              <img src="${a.photo}" class="w-full h-full object-cover" />
+            </div>
+            <div class="max-w-[140px]">
+              <div class="text-[10px] font-bold uppercase tracking-wider opacity-70">Fiche #${idx + 1}</div>
+              <div class="text-xs font-bold truncate">${a.titre}</div>
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function nextMagazinePage() {
+      const dest = GUIDE_DATABASE[currentDestination];
+      if (!dest) return;
+      if (currentMagazineIndex < dest.activites.length - 1) {
+        currentMagazineIndex++;
+      } else {
+        currentMagazineIndex = 0; // Boucle au début
+      }
+      renderMagazinePage();
+    }
+
+    function prevMagazinePage() {
+      const dest = GUIDE_DATABASE[currentDestination];
+      if (!dest) return;
+      if (currentMagazineIndex > 0) {
+        currentMagazineIndex--;
+      } else {
+        currentMagazineIndex = dest.activites.length - 1; // Boucle à la fin
+      }
+      renderMagazinePage();
+    }
+
+    function goToMagazinePage(index) {
+      currentMagazineIndex = index;
+      renderMagazinePage();
+    }
+
+    // Gestion de la Modale
+    function openActivityModal(actId) {
+      const dest = GUIDE_DATABASE[currentDestination];
+      const act = dest.activites.find(a => a.id === actId);
+      if (!act) return;
+
+      currentActiveModalActivity = act;
+
+      document.getElementById('modal-img').src = act.photo;
+      document.getElementById('modal-title').innerText = act.titre;
+      document.getElementById('modal-description').innerText = act.description;
+      document.getElementById('modal-rating').innerText = `★ ${act.note_globale} / 5`;
+      document.getElementById('modal-reviews-count').innerText = `${act.nb_avis} avis vérifiés`;
+      document.getElementById('modal-duration').innerHTML = `<i data-lucide="clock" class="w-3.5 h-3.5"></i> ${act.duree_texte}`;
+      document.getElementById('modal-price').innerText = act.cout_texte;
+      document.getElementById('modal-address').innerText = act.adresse;
+      document.getElementById('modal-hours').innerText = act.horaires;
+      document.getElementById('modal-tripadvisor-link').href = act.url_tripadvisor;
+      document.getElementById('modal-review-stats').innerText = act.synthese_avis.statistiques;
+
+      // Badges
+      const badgesContainer = document.getElementById('modal-badges');
+      badgesContainer.innerHTML = `
+        <span class="px-2.5 py-0.5 text-[11px] font-bold bg-[#D6F84C] text-[#17181A] rounded-md">${act.categorie_libelle}</span>
+        ${act.tags.slice(0, 3).map(t => `<span class="px-2 py-0.5 text-[10px] font-semibold bg-white/20 backdrop-blur-md rounded-md">${t}</span>`).join('')}
+      `;
+
+      // Points structurants
+      const pointsContainer = document.getElementById('modal-structured-points');
+      pointsContainer.innerHTML = act.synthese_avis.points.map(pt => `
+        <div class="bg-[#FAF8F5] p-4 rounded-xl border border-[#E3E1DC] space-y-1">
+          <div class="flex items-center justify-between gap-2">
+            <h4 class="text-xs font-extrabold text-[#17181A] flex items-center gap-1.5">
+              <i data-lucide="check-circle" class="w-3.5 h-3.5 text-[#3F7A55]"></i>
+              ${pt.titre}
+            </h4>
+            <span class="px-2 py-0.5 text-[10px] font-bold rounded-md ${pt.badge_color}">
+              ${pt.badge}
+            </span>
+          </div>
+          <p class="text-xs text-[#55565A] leading-relaxed pl-5">
+            ${pt.texte}
+          </p>
+        </div>
+      `).join('');
+
+      document.getElementById('activity-modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      lucide.createIcons();
+    }
+
+    function closeModal() {
+      document.getElementById('activity-modal').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
+    function copyCurrentModalReview() {
+      if (!currentActiveModalActivity) return;
+      copyReviewText(currentActiveModalActivity.id);
+      const btnText = document.getElementById('copy-btn-text');
+      btnText.innerText = "Copié !";
+      setTimeout(() => { btnText.innerText = "Copier la synthèse"; }, 2000);
+    }
+
+    function copyReviewText(actId) {
+      const dest = GUIDE_DATABASE[currentDestination];
+      const act = dest.activites.find(a => a.id === actId);
+      if (!act) return;
+
+      let text = `📌 SYNTHÈSE DES AVIS TRIPADVISOR — ${act.titre.toUpperCase()}\n`;
+      text += `Note : ${act.note_globale}/5 (${act.nb_avis} avis)\n`;
+      text += `${act.synthese_avis.statistiques}\n\n`;
+      act.synthese_avis.points.forEach((pt, i) => {
+        text += `${i + 1}. ${pt.titre}\n${pt.texte}\n\n`;
+      });
+      text += `Lien TripAdvisor : ${act.url_tripadvisor}`;
+
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Synthèse complète copiée dans le presse-papier !");
+      }).catch(err => {
+        console.error("Erreur de copie :", err);
+      });
+    }
+  </script>
+
+</body>
+</html>

@@ -123,15 +123,30 @@ export default function ScrapingModal({ tripId = 1, isOpen, onClose, onScrapingC
                         : 'border-[#E3E1DC] bg-white text-[#5A5B5E] hover:border-[#8E8F92]'
                     }`}
                   >
-                    <Globe className="w-4 h-4 text-[#E65C00]" />
-                    <span className="font-semibold">GetYourGuide</span>
+                    <Globe className="w-4 h-4 text-[#E65C00] shrink-0" />
+                    <div className="text-left">
+                      <span className="font-semibold block">GetYourGuide</span>
+                      <span className="text-[10px] text-[#8E8F92] block">Visites & Excursions</span>
+                    </div>
                   </button>
 
-                  <div className="flex items-center gap-2.5 p-3 rounded-xl border border-dashed border-[#E3E1DC] bg-[#F8F7F5] text-[#8E8F92] text-sm cursor-not-allowed opacity-60">
-                    <Globe className="w-4 h-4 text-[#00AF87]" />
-                    <span>Tripadvisor (V2)</span>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSource('tripadvisor')}
+                    className={`flex items-center gap-2.5 p-3 rounded-xl border text-sm font-medium transition-all ${
+                      selectedSource === 'tripadvisor'
+                        ? 'border-[#3F7A55] bg-[#E8F2EC]/40 text-[#254A33] shadow-sm ring-1 ring-[#3F7A55]'
+                        : 'border-[#E3E1DC] bg-white text-[#5A5B5E] hover:border-[#8E8F92]'
+                    }`}
+                  >
+                    <Globe className="w-4 h-4 text-[#00AF87] shrink-0" />
+                    <div className="text-left">
+                      <span className="font-semibold block">TripAdvisor</span>
+                      <span className="text-[10px] text-[#8E8F92] block">Avis & Gratuit (Firecrawl)</span>
+                    </div>
+                  </button>
                 </div>
+
               </div>
 
               {/* Choix de la destination */}
@@ -191,26 +206,50 @@ export default function ScrapingModal({ tripId = 1, isOpen, onClose, onScrapingC
               </div>
             </form>
           ) : (
-            /* Résultat du scraping */
             <div className="space-y-4 text-center py-2">
-              <div className="w-12 h-12 rounded-full bg-[#E8F2EC] text-[#3F7A55] flex items-center justify-center mx-auto">
-                <CheckCircle2 className="w-7 h-7" />
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto ${
+                result.nombre_ajoutees > 0
+                  ? 'bg-[#E8F2EC] text-[#3F7A55]'
+                  : result.nombre_doublons_ignores > 0
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'bg-amber-50 text-amber-600'
+              }`}>
+                {result.nombre_ajoutees > 0 ? (
+                  <CheckCircle2 className="w-7 h-7" />
+                ) : result.nombre_doublons_ignores > 0 ? (
+                  <CheckCircle2 className="w-7 h-7" />
+                ) : (
+                  <AlertCircle className="w-7 h-7" />
+                )}
               </div>
               <div>
-                <h3 className="text-base font-bold text-[#17181A]">Scraping terminé avec succès</h3>
-                <p className="text-sm text-[#5A5B5E] mt-1">{result.message}</p>
+                <h3 className="text-base font-bold text-[#17181A]">
+                  {result.nombre_ajoutees > 0
+                    ? 'Scraping terminé avec succès'
+                    : result.nombre_doublons_ignores > 0
+                    ? 'Activités déjà synchronisées'
+                    : 'Aucun résultat trouvé'}
+                </h3>
+                <p className="text-sm text-[#5A5B5E] mt-1 max-w-sm mx-auto">{result.message}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-3 text-left">
-                <div className="p-3 bg-[#E8F2EC]/60 border border-[#3F7A55]/20 rounded-xl">
-                  <div className="text-xl font-bold text-[#254A33]">{result.nombre_ajoutees}</div>
-                  <div className="text-xs text-[#3F7A55]">Fiches ajoutées à la pile</div>
+                <div className={`p-3 rounded-xl border ${
+                  result.nombre_ajoutees > 0
+                    ? 'bg-[#E8F2EC]/60 border-[#3F7A55]/20'
+                    : 'bg-[#F1F0ED] border-[#E3E1DC]'
+                }`}>
+                  <div className={`text-xl font-bold ${
+                    result.nombre_ajoutees > 0 ? 'text-[#254A33]' : 'text-[#8E8F92]'
+                  }`}>{result.nombre_ajoutees}</div>
+                  <div className="text-xs text-[#5A5B5E]">Nouvelles fiches ajoutées</div>
                 </div>
                 <div className="p-3 bg-[#F1F0ED] border border-[#E3E1DC] rounded-xl">
                   <div className="text-xl font-bold text-[#5A5B5E]">{result.nombre_doublons_ignores}</div>
-                  <div className="text-xs text-[#8E8F92]">Doublons / corbeille ignorés</div>
+                  <div className="text-xs text-[#8E8F92]">Doublons / corbeille évités</div>
                 </div>
               </div>
+
 
               <div className="pt-3 flex flex-col sm:flex-row items-center justify-center gap-2">
                 <button

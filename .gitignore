@@ -30,3 +30,7 @@ backend/uploads/*
 Thumbs.db
 .vscode/
 .idea/
+
+# Scripts checkpoints et artefacts temporaires
+scripts/.checkpoints/
+scripts/guide_print_template.html

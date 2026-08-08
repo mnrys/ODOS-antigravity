@@ -1,0 +1,77 @@
+{
+  "destination": "La Palma",
+  "attractions": [
+    {
+      "titre": "Stargazing Private Tour at Roque De Los Muchachos in La Palma",
+      "categorie": "Circuits photo",
+      "note": 4.9,
+      "nb_avis": 50,
+      "photo_url": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/32/97/a4/e2/caption.jpg?w=300&h=300&s=1",
+      "extrait_avis": "Prix variable en fonction de la taille du groupe.",
+      "url_detail": "https://www.tripadvisor.fr/AttractionProductReview-g187475-d33366592-Stargazing_Private_Tour_at_Roque_De_Los_Muchachos_in_La_Palma-La_Palma_Canary_Isla.html"
+    },
+    {
+      "titre": "Hiking Route Visit to the New Volcano of La Palma",
+      "categorie": "Randonnées",
+      "note": 4.9,
+      "nb_avis": 30,
+      "photo_url": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/27/fa/cc/95/caption.jpg?w=300&h=300&s=1",
+      "extrait_avis": "Forte demande !",
+      "url_detail": "https://www.tripadvisor.fr/AttractionProductReview-g187475-d13221771-Hiking_Route_Visit_to_the_New_Volcano_of_La_Palma-La_Palma_Canary_Islands.html"
+    },
+    {
+      "titre": "Eco Friendly Banana Cultivation Tour in La Palma",
+      "categorie": "Excursions nature et observation de la faune sauvage",
+      "note": 4.5,
+      "nb_avis": 13,
+      "photo_url": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/30/a4/04/3c/caption.jpg?w=300&h=300&s=1",
+      "extrait_avis": "Expériences privées et de luxe.",
+      "url_detail": "https://www.tripadvisor.fr/AttractionProductReview-g187475-d33366613-Eco_Friendly_Banana_Cultivation_Tour_in_La_Palma-La_Palma_Canary_Islands.html"
+    },
+    {
+      "titre": "Lanzarote Island Tour (Full-day)",
+      "categorie": "Excursions d'une journée",
+      "note": 4.3,
+      "nb_avis": 17,
+      "photo_url": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/32/a4/e3/8e/caption.jpg?w=300&h=300&s=1",
+      "extrait_avis": "Expériences privées et de luxe.",
+      "url_detail": "https://www.tripadvisor.fr/AttractionProductReview-g659324-d12566399-Lanzarote_Island_Tour_Full_day-Los_Llanos_de_Aridane_La_Palma_Canary_Islands.html"
+    },
+    {
+      "titre": "Discover the last eruption in La Palma",
+      "categorie": "Visites culturelles",
+      "note": 4.5,
+      "nb_avis": 21,
+      "photo_url": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/22/b4/5f/72/caption.jpg?w=300&h=300&s=1",
+      "extrait_avis": "Forte demande !",
+      "url_detail": "https://www.tripadvisor.fr/AttractionProductReview-g187475-d24996529-Discover_the_last_eruption_in_La_Palma-La_Palma_Canary_Islands.html"
+    },
+    {
+      "titre": "From Tenerife: Tajogaite Volcano, La Cumbrecita and Casco Antiguo",
+      "categorie": "Excursions d'une journée",
+      "note": 4.7,
+      "nb_avis": 90,
+      "photo_url": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/29/c0/a0/b9/caption.jpg?w=300&h=300&s=1",
+      "extrait_avis": "Excursions d'une journée.",
+      "url_detail": "https://www.tripadvisor.fr/AttractionProductReview-g659661-d21195440-From_Tenerife_Tajogaite_Volcano_La_Cumbrecita_and_Casco_Antiguo-Los_Cristianos_Aro.html"
+    },
+    {
+      "titre": "Route in Kayak Porís Candelaria Cueva Bonita",
+      "categorie": "Circuits aquatiques",
+      "note": 5,
+      "nb_avis": 1,
+      "photo_url": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/33/29/e9/99/caption.jpg?w=300&h=300&s=1",
+      "extrait_avis": "Expériences privées et de luxe.",
+      "url_detail": "https://www.tripadvisor.fr/AttractionProductReview-g187475-d34374683-Route_in_Kayak_Poris_Candelaria_Cueva_Bonita-La_Palma_Canary_Islands.html"
+    },
+    {
+      "titre": "Coastal excursion with cetacean search island of La Palma",
+      "categorie": "Circuits aquatiques",
+      "note": 4,
+      "nb_avis": 10,
+      "photo_url": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/33/5c/f7/2e/caption.jpg?w=300&h=300&s=1",
+      "extrait_avis": "Expériences privées et de luxe.",
+      "url_detail": "https://www.tripadvisor.fr/AttractionProductReview-g187475-d34346282-Coastal_excursion_with_cetacean_search_island_of_La_Palma-La_Palma_Canary_Islands.html"
+    }
+  ]
+}

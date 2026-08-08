@@ -1,0 +1,880 @@
+{
+  "version": "1.0",
+  "derniere_mise_a_jour": "2026-08-08T22:30:00Z",
+  "description": "Base de données archive des activités et synthèses détaillées des avis voyageurs TripAdvisor pour La Palma et Tenerife.",
+  "destinations": [
+    {
+      "id": 1,
+      "code": "la_palma",
+      "nom": "La Palma",
+      "sous_titre": "La Isla Bonita — Volcans, Ciel Pur & Forêts Primaires",
+      "nb_activites": 9,
+      "activites": [
+        {
+          "id": "lp-roque-muchachos",
+          "titre": "Roque de los Muchachos & Observatoire Astrophysique (IAC)",
+          "categorie": "nature",
+          "categorie_libelle": "Nature & Ciel",
+          "type_element": "activite",
+          "note_globale": 4.8,
+          "note_sur_5": 5,
+          "nb_avis_total": 1238,
+          "repartition_avis": {
+            "excellent": 1033,
+            "tres_bon": 173,
+            "moyen": 21,
+            "mediocre": 8,
+            "horrible": 3
+          },
+          "cout_par_personne": 0.0,
+          "est_gratuit": true,
+          "duree_conseillee_min": 180,
+          "duree_conseillee_texte": "3h à 4h",
+          "adresse": "Carretera LP-4, 38728 Garafía, La Palma",
+          "zone_geo": "Nord / Sommet (2 426 m)",
+          "horaires_ouverture": "Accès libre pour le belvédère. Centre des visiteurs ouvert 10:00 - 17:30",
+          "url_tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g187475-d546252-Reviews-Roque_de_los_Muchachos-La_Palma_Canary_Islands.html",
+          "photos": [
+            "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80"
+          ],
+          "tags": ["Incontournable", "Astronomie", "Point de vue", "Coucher de soleil", "Haute Altitude"],
+          "presentation_courte": "Le point culminant de La Palma (2 426 m), perché au-dessus d'une mer de nuages perpétuelle, abritant l'un des plus importants complexes de télescopes au monde et un panorama grandiose sur la Caldera.",
+          "synthese_avis_detaillee": {
+            "chiffres_cles": "Synthèse représentative basée sur 1 238 avis vérifiés (note 4,8/5 — 83% d'avis Excellent).",
+            "points_structurants": [
+              {
+                "titre": "La route d'accès, star (malgré elle) des avis",
+                "icone": "route",
+                "contenu": "Presque tous les visiteurs évoquent une route de montagne longue (souvent 1h15 à 2h selon le point de départ) et très sinueuse, en lacets serrés, traversant d'abord la forêt de pins puis perçant la couche nuageuse. Elle est bien goudronnée mais exige une conduite concentrée. Conseil récurrent : monter de préférence par le versant Ouest (LP-4 via Hoya Grande / Garafía), jugé plus fluide et moins vertigineux que le versant Nord-Est. Vérifier impérativement l'état des routes avant le départ (brouillard ou chutes de pierres temporaires)."
+              },
+              {
+                "titre": "Arriver tôt le matin ou pour le crépuscule",
+                "icone": "clock",
+                "contenu": "C'est la recommandation numéro un : le parking sommital au bout de la route est petit (environ 20 places) et affiche complet dès 11h. Arriver avant 10h permet de profiter d'une clarté totale avant la remontée thermique des brumes. Pour le coucher de soleil, la mer de nuages se teinte d'or et de pourpre, offrant un spectacle inoubliable."
+              },
+              {
+                "titre": "S'habiller très chaudement, même en plein été",
+                "icone": "thermometer",
+                "contenu": "À plus de 2 400 m, l'écart thermique avec la côte atteint souvent 15°C à 20°C. Même lorsqu'il fait 28°C à la plage, le sommet peut être balayé par un vent glacial à 8°C. Coupe-vent, polaire chaude, bonnet et chaussures de marche fermées sont indispensables pour parcourir les crêtes sans grelotter."
+              },
+              {
+                "titre": "Règles nocturnes pour les étoiles (Lampe rouge obligatoire)",
+                "icone": "moon",
+                "contenu": "Pour l'observation des étoiles à la nuit tombée, une discipline stricte s'impose : les lampes torches blanches et les phares de voiture perturbent les télescopes scientifiques. Seules les lampes frontales à lumière rouge atténuée sont autorisées. Coupez vos feux de route dès l'approche des zones d'observation."
+              },
+              {
+                "titre": "Plusieurs niveaux de balade le long de la crête",
+                "icone": "footprints",
+                "contenu": "Depuis le parking, un sentier balisé sur passerelles rocheuses (15 à 30 min aller-retour) mène au Mirador principal dominant l'abîme de la Caldera. Pour les bons marcheurs, le sentier de grande randonnée GR-131 serpente sur la crête vers le Pico de la Cruz avec des vues panoramiques continues sur Tenerife et La Gomera flottant sur les nuages."
+              }
+            ]
+          }
+        },
+        {
+          "id": "lp-caldera-taburiente",
+          "titre": "Parc National de la Caldera de Taburiente",
+          "categorie": "nature",
+          "categorie_libelle": "Nature & Rando",
+          "type_element": "activite",
+          "note_globale": 4.8,
+          "note_sur_5": 5,
+          "nb_avis_total": 1162,
+          "repartition_avis": {
+            "excellent": 974,
+            "tres_bon": 151,
+            "moyen": 24,
+            "mediocre": 9,
+            "horrible": 4
+          },
+          "cout_par_personne": 0.0,
+          "est_gratuit": true,
+          "duree_conseillee_min": 360,
+          "duree_conseillee_texte": "4h à 7h",
+          "adresse": "Mirador de La Cumbrecita / Barranco de Las Angustias, El Paso, La Palma",
+          "zone_geo": "Centre de l'île",
+          "horaires_ouverture": "Centre d'accueil d'El Paso : 09:00 - 18:00. Parc en accès libre sur réservation parking.",
+          "url_tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g187475-d2279268-Reviews-Parque_Nacional_de_la_Caldera_de_Taburiente-La_Palma_Canary_Islands.html",
+          "photos": [
+            "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80"
+          ],
+          "tags": ["Incontournable", "Randonnée", "Cascade", "Canyon", "Parc National"],
+          "presentation_courte": "Un immense cirque d'érosion de 8 km de diamètre aux remparts vertigineux de 2 000 m, traversé de torrents d'eau pure, de pins canariens centenaires et abritant la célèbre Cascada de Los Colores.",
+          "synthese_avis_detaillee": {
+            "chiffres_cles": "Synthèse sur 1 162 avis voyageurs (note 4,8/5 — 84% Excellent).",
+            "points_structurants": [
+              {
+                "titre": "Réservation du parking La Cumbrecita : Le piège à éviter",
+                "icone": "alert-triangle",
+                "contenu": "C'est l'avertissement majeur : pour accéder au belvédère de La Cumbrecita en voiture entre 8h30 et 16h, la réservation préalable gratuite d'une place de parking sur le site officiel (reservasparquesnacionales.es) est obligatoire. Les créneaux sont souvent complets plusieurs jours à l'avance. Une barrière automatique avec contrôle du QR code bloque tout véhicule non enregistré."
+              },
+              {
+                "titre": "La grande traversée classique (Los Brecitos -> Barranco)",
+                "icone": "navigation",
+                "contenu": "La rando reine fait 16 km (5h30 à 6h30 de marche). La méthode recommandée par les marcheurs : garez votre véhicule au parking d'arrivée au fond du Barranco de las Angustias, puis prenez un taxi 4x4 collectif officiel (environ 15 € par personne) qui vous hisse jusqu'au départ haut à Los Brecitos. Vous n'avez plus qu'à descendre tranquillement vers votre véhicule sans contrainte horaire."
+              },
+              {
+                "titre": "Détour incontournable à la Cascada de Los Colores",
+                "icone": "sparkles",
+                "contenu": "À environ 1h30 avant l'arrivée au parking bas, un embranchement fléché mène dans un canyon secondaire vers la cascade des couleurs. Les parois rocheuses recouvertes de fer et de minéraux offrent des dégradés intenses d'ocre, de jaune doré et de vert émeraude. Comptez 20 minutes aller-retour depuis le lit principal."
+              },
+              {
+                "titre": "Traversée de ruisseaux et chaussures adhérentes",
+                "icone": "footprints",
+                "contenu": "Le dernier tiers de la randonnée suit le lit du torrent : vous devrez franchir le ruisseau à gué à de multiples reprises en sautant d'une pierre à l'autre. Bâtons de randonnée vivement conseillés pour garder l'équilibre sur les galets humides, ainsi que des chaussures de marche étanches ou respirantes à bonne accroche."
+              }
+            ]
+          }
+        },
+        {
+          "id": "lp-volcan-tajogaite",
+          "titre": "Volcan Tajogaite & Éruption de Cumbre Vieja (2021)",
+          "categorie": "nature",
+          "categorie_libelle": "Volcans & Géologie",
+          "type_element": "activite",
+          "note_globale": 4.9,
+          "note_sur_5": 5,
+          "nb_avis_total": 640,
+          "repartition_avis": {
+            "excellent": 582,
+            "tres_bon": 46,
+            "moyen": 9,
+            "mediocre": 2,
+            "horrible": 1
+          },
+          "cout_par_personne": 35.0,
+          "est_gratuit": false,
+          "duree_conseillee_min": 180,
+          "duree_conseillee_texte": "2h30 à 3h",
+          "adresse": "Sendero del Volcán Tajogaite, El Paso / Los Llanos, La Palma",
+          "zone_geo": "Ouest / Cumbre Vieja",
+          "horaires_ouverture": "Départs de visites guidées matinales (09:00 - 11:30)",
+          "url_tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g187475-d24996529-Reviews-Tajogaite_Volcano-La_Palma_Canary_Islands.html",
+          "photos": [
+            "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80"
+          ],
+          "tags": ["Volcan Récent", "Exclusif", "Guide Obligatoire", "Géologie", "Émotion"],
+          "presentation_courte": "Le plus jeune volcan terrestre d'Espagne, né lors de l'éruption de 85 jours en 2021. Une immersion lunaire sur un champ de lapilli encore tiède avec un guide officiel local.",
+          "synthese_avis_detaillee": {
+            "chiffres_cles": "Synthèse sur 640 avis (note 4,9/5 — 91% Excellent).",
+            "points_structurants": [
+              {
+                "titre": "Accès strictement interdit en solo (Guide agréé obligatoire)",
+                "icone": "shield-alert",
+                "contenu": "La zone est classée réserve naturelle et périmètre géothermique surveillé. Tout accès autonome est interdit sous peine de lourde amende. La visite se fait impérativement via des excursions guidées par des entreprises agréées de l'île (petits groupes de 15 personnes max, environ 35 à 45 € par adulte)."
+              },
+              {
+                "titre": "Chaleur résiduelle et fumerolles actives",
+                "icone": "flame",
+                "contenu": "Les visiteurs soulignent l'émotion intense de marcher sur une terre formée il y a seulement quelques années. À plusieurs endroits le long de la crête de lapilli, la chaleur émane encore du sous-sol et les fumerolles de gaz s'élèvent entre les roches volcaniques."
+              },
+              {
+                "titre": "Équipement : Chaussures montantes et vêtements foncés",
+                "icone": "check-circle",
+                "contenu": "La cendre volcanique (picón) est très abrasive et s'infiltre dans les chaussures basses. Des chaussures de randonnée montantes avec chaussettes hautes sont fortement conseillées. Évitez les vêtements clairs ou neufs, car la poussière noire incruste les tissus en cas de vent."
+              }
+            ]
+          }
+        },
+        {
+          "id": "lp-bosque-los-tilos",
+          "titre": "Forêt de Laurisilve de Los Tilos (Bosque de Los Tilos)",
+          "categorie": "nature",
+          "categorie_libelle": "Forêt Primaire",
+          "type_element": "activite",
+          "note_globale": 4.7,
+          "note_sur_5": 5,
+          "nb_avis_total": 980,
+          "repartition_avis": {
+            "excellent": 780,
+            "tres_bon": 160,
+            "moyen": 30,
+            "mediocre": 7,
+            "horrible": 3
+          },
+          "cout_par_personne": 0.0,
+          "est_gratuit": true,
+          "duree_conseillee_min": 150,
+          "duree_conseillee_texte": "1h30 à 4h",
+          "adresse": "Carretera Los Tilos, 38729 San Andrés y Sauces, La Palma",
+          "zone_geo": "Nord-Est",
+          "horaires_ouverture": "Centre des visiteurs : 09:00 - 17:30. Accès sentiers libre.",
+          "url_tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g187475-d1876774-Reviews-Bosque_de_Los_Tilos-La_Palma_Canary_Islands.html",
+          "photos": [
+            "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1511497584788-87676104235f?auto=format&fit=crop&w=1200&q=80"
+          ],
+          "tags": ["UNESCO", "Laurisilve", "Cascade", "Tunnels d'eau", "Végétation luxuriante"],
+          "presentation_courte": "Une plongée dans une jungle préhistorique de lauriers géants et de fougères arborescentes protégée par l'UNESCO, célèbre pour sa cascade accessible et le sentier des tunnels aquatiques.",
+          "synthese_avis_detaillee": {
+            "chiffres_cles": "Synthèse sur 980 avis (note 4,7/5 — 80% Excellent).",
+            "points_structurants": [
+              {
+                "titre": "Deux parcours très différents selon vos envies",
+                "icone": "git-fork",
+                "contenu": "Option 1 (Promenade douce, 20 min) : Depuis le centre d'accueil, une courte marche plate et ombragée mène directement au pied de la féerique cascade de Los Tilos. Accessible avec enfants. Option 2 (Randonnée d'aventure de Marcos y Cordero, 4h30) : Sentier spectaculaire traversant 13 tunnels creusés dans la roche volcanique."
+              },
+              {
+                "titre": "Équipement impératif pour les tunnels de Marcos y Cordero",
+                "icone": "flashlight",
+                "contenu": "Si vous faites le sentier des sources de Marcos y Cordero, lampe frontale puissante, k-way étanche et casque de protection sont obligatoires : l'eau ruisselle en abondance depuis le plafond des galeries sombres et certaines voûtes sont basses."
+              },
+              {
+                "titre": "Arriver avant 10h30 au parking du centre d'accueil",
+                "icone": "clock",
+                "contenu": "Le parking du centre d'accueil est encaissé dans la gorge et compte une quarantaine de places. Dès 11h, la route d'accès est régulée en bas de la vallée pour éviter les embouteillages."
+              }
+            ]
+          }
+        },
+        {
+          "id": "lp-poris-candelaria",
+          "titre": "Porís de Candelaria (Village Troglodyte des Pêcheurs)",
+          "categorie": "detente",
+          "categorie_libelle": "Culture & Insolite",
+          "type_element": "activite",
+          "note_globale": 4.8,
+          "note_sur_5": 5,
+          "nb_avis_total": 750,
+          "repartition_avis": {
+            "excellent": 610,
+            "tres_bon": 110,
+            "moyen": 22,
+            "mediocre": 6,
+            "horrible": 2
+          },
+          "cout_par_personne": 0.0,
+          "est_gratuit": true,
+          "duree_conseillee_min": 120,
+          "duree_conseillee_texte": "2h",
+          "adresse": "Camino El Porís, 38780 Tijarafe, La Palma",
+          "zone_geo": "Nord-Ouest / Falaise de Tijarafe",
+          "horaires_ouverture": "Accès permanent 24/24 (recommandé en journée)",
+          "url_tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g187475-d8837153-Reviews-Poris_de_Candelaria-La_Palma_Canary_Islands.html",
+          "photos": [
+            "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&w=1200&q=80"
+          ],
+          "tags": ["Troglodyte", "Insolite", "Grotte Marine", "Village Secret", "Photogénique"],
+          "presentation_courte": "Un hameau secret de cabanes de pêcheurs peintes en blanc et bleu, blotti au creux d'une immense caverne marine naturelle de 50 m de haut face aux vagues de l'Atlantique.",
+          "synthese_avis_detaillee": {
+            "chiffres_cles": "Synthèse sur 750 avis (note 4,8/5 — 81% Excellent).",
+            "points_structurants": [
+              {
+                "titre": "La route d'accès : Descente impressionnante mais faisable",
+                "icone": "alert-circle",
+                "contenu": "La route asphaltée depuis Tijarafe plonge vers la falaise avec des pentes raides et des virages serrés. Conduite lente en 1ère/2ème vitesse recommandée. Un parking final avec retournement se trouve à 5 minutes de marche des marches descendant dans la grotte. Si vous n'êtes pas à l'aise au volant en forte pente, garez-vous au parking supérieur et descendez à pied (25 min)."
+              },
+              {
+                "titre": "Zéro commerce : Emportez votre eau et votre pique-nique",
+                "icone": "coffee",
+                "contenu": "Le site est un village de vacances traditionnel préservé sans boutique, ni restaurant, ni distributeur d'eau. Pensez à emporter de quoi boire et manger pour profiter du coucher de soleil dans la calanque."
+              },
+              {
+                "titre": "Baignade prudente selon l'état de l'océan",
+                "icone": "waves",
+                "contenu": "L'eau est limpide et d'un bleu turquoise intense, mais l'accès se fait directement sur des rochers et des dalles bétonnées. Par forte houle, les vagues peuvent pénétrer dans la calanque : la baignade est à proscrire si la mer est agitée."
+              }
+            ]
+          }
+        },
+        {
+          "id": "lp-charco-azul",
+          "titre": "Piscines Naturelles du Charco Azul",
+          "categorie": "detente",
+          "categorie_libelle": "Baignade & Mer",
+          "type_element": "activite",
+          "note_globale": 4.7,
+          "note_sur_5": 5,
+          "nb_avis_total": 830,
+          "repartition_avis": {
+            "excellent": 645,
+            "tres_bon": 145,
+            "moyen": 30,
+            "mediocre": 7,
+            "horrible": 3
+          },
+          "cout_par_personne": 0.0,
+          "est_gratuit": true,
+          "duree_conseillee_min": 150,
+          "duree_conseillee_texte": "2h à 3h",
+          "adresse": "Calle Charco Azul, 38729 San Andrés y Sauces, La Palma",
+          "zone_geo": "Nord-Est",
+          "horaires_ouverture": "Accès libre toute l'année",
+          "url_tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g187475-d1876779-Reviews-Piscinas_Naturales_Charco_Azul-La_Palma_Canary_Islands.html",
+          "photos": [
+            "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1200&q=80"
+          ],
+          "tags": ["Piscine Naturelle", "Baignade", "Famille", "Restaurant de Poisson", "Gratuit"],
+          "presentation_courte": "Des bassins d'eau de mer sculptés dans la lave volcanique, protégés des courants atlantiques avec solarium, pataugeoire d'eau douce et vue sur la côte sauvage.",
+          "synthese_avis_detaillee": {
+            "chiffres_cles": "Synthèse sur 830 avis voyageurs (note 4,7/5 — 78% Excellent).",
+            "points_structurants": [
+              {
+                "titre": "Privilégier la marée basse ou moyenne",
+                "icone": "waves",
+                "contenu": "À marée basse, l'eau dans le grand bassin est calme, cristalline et parfaitement protégée. À marée haute par mer agitée, de gros paquets de mer franchissent la digue naturelle en spectacle puissant, mais la baignade est alors temporairement restreinte."
+              },
+              {
+                "titre": "Accès facile et restaurant sur place",
+                "icone": "utensils",
+                "contenu": "Grand parking gratuit en haut avec un sentier piétonnier descendant en pente douce de 5 minutes. Restaurant avec terrasse panoramique servant des poissons grillés frais du jour (vieja canaria)."
+              }
+            ]
+          }
+        },
+        {
+          "id": "lp-salinas-fuencaliente",
+          "titre": "Salines et Phare de Fuencaliente",
+          "categorie": "culture",
+          "categorie_libelle": "Patrimoine & Paysage",
+          "type_element": "activite",
+          "note_globale": 4.6,
+          "note_sur_5": 5,
+          "nb_avis_total": 1050,
+          "repartition_avis": {
+            "excellent": 760,
+            "tres_bon": 220,
+            "moyen": 55,
+            "mediocre": 12,
+            "horrible": 3
+          },
+          "cout_par_personne": 0.0,
+          "est_gratuit": true,
+          "duree_conseillee_min": 120,
+          "duree_conseillee_texte": "1h30 à 2h",
+          "adresse": "Carretera La Costa Faro, 38740 Fuencaliente de La Palma",
+          "zone_geo": "Pointe Sud de l'île",
+          "horaires_ouverture": "Salines en accès libre. Restaurant El Jardín de la Sal ouvert midi et soir.",
+          "url_tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g187475-d1876785-Reviews-Salinas_Marinas_de_Fuencaliente-La_Palma_Canary_Islands.html",
+          "photos": [
+            "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80"
+          ],
+          "tags": ["Salines", "Phare", "Contraste Minéral", "Coucher de Soleil", "Gastronomie"],
+          "presentation_courte": "À la pointe sud de La Palma, un contraste saisissant entre la lave noire des volcans Teneguía et San Antonio, les bassins d'évaporation rose pastel et les pyramides de sel marin.",
+          "synthese_avis_detaillee": {
+            "chiffres_cles": "Synthèse sur 1 050 avis vérifiés (note 4,6/5 — 72% Excellent).",
+            "points_structurants": [
+              {
+                "titre": "Sentier d'interprétation libre et pédagogique",
+                "icone": "compass",
+                "contenu": "Un parcours balisé gratuit serpente entre les bassins salins avec des panneaux explicatifs sur la récolte artisanale de la fleur de sel et la faune ornithologique migratrice."
+              },
+              {
+                "titre": "Restaurant El Jardín de la Sal : Réserver au coucher de soleil",
+                "icone": "sun",
+                "contenu": "Le restaurant gastronomique situé au cœur des salines est très réputé. Les avis conseillent unanimement de réserver une table en terrasse pour dîner face au soleil couchant plongeant dans l'Atlantique."
+              }
+            ]
+          }
+        },
+        {
+          "id": "lp-playa-nogales",
+          "titre": "Plage sauvage de Nogales (Playa de Nogales)",
+          "categorie": "nature",
+          "categorie_libelle": "Plage & Sauvage",
+          "type_element": "activite",
+          "note_globale": 4.8,
+          "note_sur_5": 5,
+          "nb_avis_total": 690,
+          "repartition_avis": {
+            "excellent": 560,
+            "tres_bon": 100,
+            "moyen": 22,
+            "mediocre": 6,
+            "horrible": 2
+          },
+          "cout_par_personne": 0.0,
+          "est_gratuit": true,
+          "duree_conseillee_min": 150,
+          "duree_conseillee_texte": "2h à 3h",
+          "adresse": "Camino de Nogales, 38715 Puntallana, La Palma",
+          "zone_geo": "Nord-Est / Puntallana",
+          "horaires_ouverture": "Accès libre de jour (marée basse recommandée)",
+          "url_tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g187475-d2279277-Reviews-Playa_de_Nogales-La_Palma_Canary_Islands.html",
+          "photos": [
+            "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80"
+          ],
+          "tags": ["Sable Noir", "Sauvage", "Falaise", "Surrealiste", "Contemplation"],
+          "presentation_courte": "La plus belle plage de sable noir fin de l'île, encastrée au pied de falaises vertigineuses couvertes de végétation tropicale.",
+          "synthese_avis_detaillee": {
+            "chiffres_cles": "Synthèse sur 690 avis (note 4,8/5 — 81% Excellent).",
+            "points_structurants": [
+              {
+                "titre": "Sentier taillé dans la falaise : 15 min de marche magique",
+                "icone": "footprints",
+                "contenu": "Depuis le parking de Puntallana, un sentier piétonnier sécurisé avec marches longe la paroi rocheuse au-dessus de l'écume marine. Vue panoramique saisissante sur l'ensemble de la baie."
+              },
+              {
+                "titre": "Courants très puissants : Baignade contemplative",
+                "icone": "alert-triangle",
+                "contenu": "Les vagues et les courants de fond atlantiques sont violents. La plupart des visiteurs trempent les pieds au bord de l'eau mais déconseillent de nager au large sans planche de surf ou surveillance."
+              }
+            ]
+          }
+        },
+        {
+          "id": "lp-santa-cruz",
+          "titre": "Centre Historique de Santa Cruz de La Palma & Balcons Fleuris",
+          "categorie": "culture",
+          "categorie_libelle": "Villes & Histoire",
+          "type_element": "activite",
+          "note_globale": 4.6,
+          "note_sur_5": 5,
+          "nb_avis_total": 1120,
+          "repartition_avis": {
+            "excellent": 780,
+            "tres_bon": 250,
+            "moyen": 68,
+            "mediocre": 18,
+            "horrible": 4
+          },
+          "cout_par_personne": 0.0,
+          "est_gratuit": true,
+          "duree_conseillee_min": 180,
+          "duree_conseillee_texte": "2h30 à 4h",
+          "adresse": "Avenida Marítima & Calle Real, 38700 Santa Cruz de La Palma",
+          "zone_geo": "Est / Capitale",
+          "horaires_ouverture": "Vieille ville piétonne 24/24. Boutiques et musées : 09:30 - 19:30.",
+          "url_tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g187475-d2279282-Reviews-Santa_Cruz_de_La_Palma-La_Palma_Canary_Islands.html",
+          "photos": [
+            "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80"
+          ],
+          "tags": ["Architecture Coloniale", "Balcons en Bois", "Vieille Ville", "Patios", "Cafés"],
+          "presentation_courte": "Capitale maritime pavée du XVIe siècle renommée pour ses balcons en bois de pin canarien richement fleuris et ses ruelles piétonnes bordées d'édifices coloniaux.",
+          "synthese_avis_detaillee": {
+            "chiffres_cles": "Synthèse sur 1 120 avis voyageurs (note 4,6/5 — 70% Excellent).",
+            "points_structurants": [
+              {
+                "titre": "Les balcons de l'Avenida Marítima sous leur meilleur angle",
+                "icone": "camera",
+                "contenu": "Les emblématiques balcons doubles en bois sculpté garnis de géraniums et de bougainvilliers se situent au nord de l'Avenida Marítima. La lumière du matin est idéale pour les photographier."
+              },
+              {
+                "titre": "Balade piétonne le long de la Calle O'Daly (Calle Real)",
+                "icone": "map-pin",
+                "contenu": "L'artère piétonne principale concentre de magnifiques maisons de marchands avec patios andalous intérieurs ombragés, glaciers artisanaux et la place d'Espagne avec sa fontaine en pierre volcanique."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "code": "tenerife",
+      "nom": "Tenerife",
+      "sous_titre": "L'Île aux Mille Visages — Du Toit d'Espagne aux Canyons de Teno",
+      "nb_activites": 8,
+      "activites": [
+        {
+          "id": "tf-teide-telepherique",
+          "titre": "Parc National du Teide & Téléphérique (Pico del Teide)",
+          "categorie": "nature",
+          "categorie_libelle": "Haute Montagne & Volcan",
+          "type_element": "activite",
+          "note_globale": 4.8,
+          "note_sur_5": 5,
+          "nb_avis_total": 14500,
+          "repartition_avis": {
+            "excellent": 12200,
+            "tres_bon": 1750,
+            "moyen": 380,
+            "mediocre": 120,
+            "horrible": 50
+          },
+          "cout_par_personne": 40.0,
+          "est_gratuit": false,
+          "duree_conseillee_min": 240,
+          "duree_conseillee_texte": "3h30 à 5h",
+          "adresse": "Carretera TF-21, km 43, 38300 La Orotava, Tenerife",
+          "zone_geo": "Centre / Parc National (3 715 m)",
+          "horaires_ouverture": "Téléphérique : 09:00 - 16:00 (dernière montée). Parc ouvert 24/24.",
+          "url_tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g187479-d197608-Reviews-Teide_National_Park-Tenerife_Canary_Islands.html",
+          "photos": [
+            "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80"
+          ],
+          "tags": ["Incontournable", "UNESCO", "Point Culminant", "Téléphérique", "Haute Altitude"],
+          "presentation_courte": "Le sommet le plus haut d'Espagne (3 715 m), classé au patrimoine mondial de l'UNESCO. Une caldeira volcanique martienne de 17 km de diamètre dominée par le cône fumant du stratovolcan.",
+          "synthese_avis_detaillee": {
+            "chiffres_cles": "Synthèse basée sur plus de 14 500 avis vérifiés (note 4,8/5 — 84% Excellent).",
+            "points_structurants": [
+              {
+                "titre": "Permis pour le cratère sommital : Réserver 2 à 3 mois à l'avance",
+                "icone": "shield-alert",
+                "contenu": "C'est l'avertissement capital souligné par des milliers d'avis : le téléphérique monte à La Rambleta (3 555 m). Pour franchir les 200 derniers mètres de dénivelé jusqu'au cratère fumant (sentier Telesforo Bravo), un permis nominatif gratuit délivré par le réseau des parcs nationaux est obligatoire (limite à 200 personnes/jour). Les créneaux s'épuisent souvent 60 à 90 jours à l'avance."
+              },
+              {
+                "titre": "Réservation du téléphérique et gestion de la météo",
+                "icone": "cloud-wind",
+                "contenu": "Achetez impérativement vos billets de téléphérique avec créneau horaire en ligne. En cas de rafales de vent fort au sommet, le téléphérique est suspendu pour sécurité : vos billets sont alors soit remboursés, soit reportés au lendemain."
+              },
+              {
+                "titre": "Raréfaction de l'oxygène et froid glacial",
+                "icone": "thermometer",
+                "contenu": "À 3 555 m d'altitude, la pression atmosphérique et l'oxygène sont réduits d'un tiers. Marchez lentement. Prévoyez une doudoune chaude, gants, lunettes de soleil catégorie 4 et crème solaire indice 50+ : le rayonnement UV y est extrêmement intense."
+              },
+              {
+                "titre": "Les alternatives magnifiques sans téléphérique",
+                "icone": "navigation",
+                "contenu": "Si le téléphérique est complet ou fermé, la boucle à pied autour des Roques de García (sentier n°3, 2h de marche au pied du volcan) offre des panoramas extraordinaires sur la 'Cathédrale' et le cratère sans difficulté majeure."
+              }
+            ]
+          }
+        },
+        {
+          "id": "tf-anaga-laurisilva",
+          "titre": "Parc Rural d'Anaga & Forêt Enchantée (Bosque Encantado)",
+          "categorie": "nature",
+          "categorie_libelle": "Nature & Rando",
+          "type_element": "activite",
+          "note_globale": 4.9,
+          "note_sur_5": 5,
+          "nb_avis_total": 3200,
+          "repartition_avis": {
+            "excellent": 2850,
+            "tres_bon": 280,
+            "moyen": 50,
+            "mediocre": 15,
+            "horrible": 5
+          },
+          "cout_par_personne": 0.0,
+          "est_gratuit": true,
+          "duree_conseillee_min": 240,
+          "duree_conseillee_texte": "3h à 5h",
+          "adresse": "Carretera TF-12, 38294 San Cristóbal de La Laguna, Tenerife",
+          "zone_geo": "Nord-Est / Massif d'Anaga",
+          "horaires_ouverture": "Centre des visiteurs de Cruz del Carmen : 09:30 - 16:00.",
+          "url_tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g187479-d2279262-Reviews-Anaga_Rural_Park-Tenerife_Canary_Islands.html",
+          "photos": [
+            "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1511497584788-87676104235f?auto=format&fit=crop&w=1200&q=80"
+          ],
+          "tags": ["UNESCO", "Forêt Primaire", "Brumes Mystiques", "Crêtes Déchiquetées", "Rando"],
+          "presentation_courte": "Le plus ancien massif volcanique de Tenerife, abritant une forêt jurassique de lauriers baignée de brumes océaniques et des crêtes plongeant à pic dans l'Atlantique.",
+          "synthese_avis_detaillee": {
+            "chiffres_cles": "Synthèse sur 3 200 avis voyageurs (note 4,9/5 — 89% Excellent).",
+            "points_structurants": [
+              {
+                "titre": "Permis strict pour le sentier d'El Pijaral (Forêt Enchantée)",
+                "icone": "shield-check",
+                "contenu": "Pour préserver cet écosystème fragile, l'accès à la réserve intégrale d'El Pijaral est limité à 45 personnes par jour. Le permis gratuit s'obtient sur le site du Cabildo de Tenerife environ 15 jours à l'avance. Des gardes forestiers contrôlent les autorisations à l'entrée."
+              },
+              {
+                "titre": "Sentiers magiques accessibles sans permis à Cruz del Carmen",
+                "icone": "map",
+                "contenu": "Si vous n'avez pas de permis, aucun souci : le Sentier des Sens (Sendero de los Sentidos) et la boucle de Taborno ou de Chinamada offrent une immersion tout aussi spectaculaire en accès libre total."
+              },
+              {
+                "titre": "Climat humide et brumeux : Veste imperméable",
+                "icone": "cloud-drizzle",
+                "contenu": "Les alizés créent une condensation permanente (mer de nuages). Le sol en sous-bois est souvent meuble et humide : prévoyez de bonnes chaussures de marche antidérapantes et une veste coupe-vent étanche."
+              }
+            ]
+          }
+        },
+        {
+          "id": "tf-masca-canyon",
+          "titre": "Gorge & Village Perché de Masca (Barranco de Masca)",
+          "categorie": "nature",
+          "categorie_libelle": "Canyon & Village",
+          "type_element": "activite",
+          "note_globale": 4.8,
+          "note_sur_5": 5,
+          "nb_avis_total": 5800,
+          "repartition_avis": {
+            "excellent": 4820,
+            "tres_bon": 760,
+            "moyen": 160,
+            "mediocre": 45,
+            "horrible": 15
+          },
+          "cout_par_personne": 30.0,
+          "est_gratuit": false,
+          "duree_conseillee_min": 300,
+          "duree_conseillee_texte": "4h à 6h",
+          "adresse": "Carretera TF-436, 38489 Masca, Buenavista del Norte, Tenerife",
+          "zone_geo": "Nord-Ouest / Massif de Teno",
+          "horaires_ouverture": "Descente du canyon sur réservation les vendredis, samedis et dimanches.",
+          "url_tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g187479-d197607-Reviews-Masca_Valley-Tenerife_Canary_Islands.html",
+          "photos": [
+            "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80"
+          ],
+          "tags": ["Spectaculaire", "Canyon", "Village Perché", "Trekking Exigeant", "Falaises"],
+          "presentation_courte": "Surnommé le 'Machu Picchu des Canaries', un village spectaculaire juché sur une arête rocheuse ouvrant sur un canyon monumental plongeant 650 m plus bas vers l'océan.",
+          "synthese_avis_detaillee": {
+            "chiffres_cles": "Synthèse sur 5 800 avis (note 4,8/5 — 83% Excellent).",
+            "points_structurants": [
+              {
+                "titre": "Réglementation stricte de la descente du canyon",
+                "icone": "check-square",
+                "contenu": "La descente à pied de la gorge est désormais encadrée : réservation obligatoire en ligne le week-end, port du casque de montagne (fourni) et contrôle systématique de vos chaussures de randonnée crantées. Baskets de ville, tennis lisses et sandales sont formellement refusées à l'entrée."
+              },
+              {
+                "titre": "La route en lacets TF-436 : Privilégier les bus ou taxis",
+                "icone": "bus",
+                "contenu": "La route menant à Masca depuis Santiago del Teide est l'une des plus vertigineuses d'Europe, à voie unique avec virages en épingle et croisements étroits. Le stationnement au village est limité à 2 heures pour les voitures particulières : l'usage des transports en commun (bus Titsa 355) ou des taxis est fortement conseillé."
+              },
+              {
+                "titre": "Physique : 650 m de dénivelé si vous remontez à pied",
+                "icone": "activity",
+                "contenu": "Comptez 3h pour la descente vers la plage de Masca. Si les bateaux-navettes vers Los Gigantes ne sont pas opérationnels, la remontée complète à pied (+650 m de dénivelé raide sous le soleil) exige une excellente condition physique et 2 litres d'eau par personne."
+              }
+            ]
+          }
+        },
+        {
+          "id": "tf-los-gigantes",
+          "titre": "Falaises de Los Gigantes (Acantilados de Los Gigantes)",
+          "categorie": "detente",
+          "categorie_libelle": "Mer & Falaises",
+          "type_element": "activite",
+          "note_globale": 4.7,
+          "note_sur_5": 5,
+          "nb_avis_total": 4600,
+          "repartition_avis": {
+            "excellent": 3650,
+            "tres_bon": 720,
+            "moyen": 170,
+            "mediocre": 45,
+            "horrible": 15
+          },
+          "cout_par_personne": 25.0,
+          "est_gratuit": false,
+          "duree_conseillee_min": 180,
+          "duree_conseillee_texte": "2h30 à 3h",
+          "adresse": "Puerto Deportivo Los Gigantes, 38683 Santiago del Teide, Tenerife",
+          "zone_geo": "Sud-Ouest",
+          "horaires_ouverture": "Excursions maritimes au départ du port : départs 10:00 - 16:30",
+          "url_tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g187479-d2279264-Reviews-Acantilados_de_Los_Gigantes-Tenerife_Canary_Islands.html",
+          "photos": [
+            "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1200&q=80"
+          ],
+          "tags": ["Mur de Basalte", "Dauphins & Baleines", "Bateau", "Kayak", "Coucher de Soleil"],
+          "presentation_courte": "Des murailles volcaniques verticales de 500 à 800 mètres tombant directement dans l'océan Atlantique, réputées pour leurs eaux abritant dauphins et baleines pilotes toute l'année.",
+          "synthese_avis_detaillee": {
+            "chiffres_cles": "Synthèse sur 4 600 avis vérifiés (note 4,7/5 — 79% Excellent).",
+            "points_structurants": [
+              {
+                "titre": "La vue depuis la mer est incomparable",
+                "icone": "ship",
+                "contenu": "Pour mesurer la démesure des falaises, rien ne vaut une sortie en mer depuis le port de Los Gigantes (voilier, catamaran ou kayak de mer). Les parois de basalte noir dominent l'embarcation de toute leur hauteur."
+              },
+              {
+                "titre": "Observation éco-responsable des cétacés",
+                "icone": "heart",
+                "contenu": "Le détroit entre Tenerife et La Gomera abrite une colonie sédentaire de dauphins et de globicéphales tropicaux. Choisissez les bateaux arborant le pavillon 'Barco Azul' garantissant le respect des distances et de la tranquillité des animaux."
+              },
+              {
+                "titre": "Baignade au Charco de Isla Cangrejo",
+                "icone": "waves",
+                "contenu": "Au nord de la marina, une piscine naturelle aménagée avec mur brise-lames permet de nager en toute sécurité avec une vue directe sur les falaises géantes au soleil couchant."
+              }
+            ]
+          }
+        },
+        {
+          "id": "tf-la-laguna-unesco",
+          "titre": "Centre Historique de San Cristóbal de La Laguna (Patrimoine UNESCO)",
+          "categorie": "culture",
+          "categorie_libelle": "Patrimoine & Histoire",
+          "type_element": "activite",
+          "note_globale": 4.7,
+          "note_sur_5": 5,
+          "nb_avis_total": 2900,
+          "repartition_avis": {
+            "excellent": 2240,
+            "tres_bon": 510,
+            "moyen": 115,
+            "mediocre": 25,
+            "horrible": 10
+          },
+          "cout_par_personne": 0.0,
+          "est_gratuit": true,
+          "duree_conseillee_min": 180,
+          "duree_conseillee_texte": "2h30 à 4h",
+          "adresse": "Calle San Agustín & Plaza del Adelantado, 38201 San Cristóbal de La Laguna",
+          "zone_geo": "Nord / Proche Santa Cruz",
+          "horaires_ouverture": "Centre piétonnier accessible 24/24. Musées et patios : 10:00 - 19:00.",
+          "url_tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g187479-d197609-Reviews-Historic_Center_of_La_Laguna-Tenerife_Canary_Islands.html",
+          "photos": [
+            "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80"
+          ],
+          "tags": ["UNESCO", "Patios Fleuris", "Architecture Coloniale", "Ville Universitaire", "Tapas"],
+          "presentation_courte": "L'ancienne capitale historique de Tenerife, première ville coloniale non fortifiée au monde dont le tracé en damier a servi de modèle pour La Havane et Carthagène des Indes.",
+          "synthese_avis_detaillee": {
+            "chiffres_cles": "Synthèse sur 2 900 avis voyageurs (note 4,7/5 — 77% Excellent).",
+            "points_structurants": [
+              {
+                "titre": "Flânerie dans les cours et patios intérieurs cachés",
+                "icone": "home",
+                "contenu": "Les façades colorées pastel cachent de superbes patios andalous en bois de pin canarien avec palmiers et fontaines (Palacio de Lercaro, Casa Salazar, Casa de los Capitanes). La plupart sont en accès libre gratuit en journée."
+              },
+              {
+                "titre": "Climat plus frais et humide : Prévoir une veste",
+                "icone": "thermometer",
+                "contenu": "Située sur un plateau à 550 m d'altitude, La Laguna est souvent enveloppée d'une brume rafraîchissante locale (el bajío) avec 5°C de moins que sur les plages du Sud. Un gilet est bienvenu pour les soirées tapas."
+              },
+              {
+                "titre": "Accès facile en tramway depuis Santa Cruz",
+                "icone": "train",
+                "contenu": "Si vous séjournez à Santa Cruz de Tenerife, le tramway moderne (Ligne 1) vous dépose directement au cœur de la zone piétonne en 35 minutes sans aucun souci de stationnement."
+              }
+            ]
+          }
+        },
+        {
+          "id": "tf-garachico-caleton",
+          "titre": "Piscines Naturelles de lave d'El Caletón (Garachico)",
+          "categorie": "detente",
+          "categorie_libelle": "Baignade Volcanique",
+          "type_element": "activite",
+          "note_globale": 4.7,
+          "note_sur_5": 5,
+          "nb_avis_total": 2100,
+          "repartition_avis": {
+            "excellent": 1620,
+            "tres_bon": 380,
+            "moyen": 75,
+            "mediocre": 18,
+            "horrible": 7
+          },
+          "cout_par_personne": 0.0,
+          "est_gratuit": true,
+          "duree_conseillee_min": 120,
+          "duree_conseillee_texte": "1h30 à 2h30",
+          "adresse": "Avenida Tomé Cano, 38450 Garachico, Tenerife",
+          "zone_geo": "Nord / Côte de Garachico",
+          "horaires_ouverture": "Accès libre toute l'année (surveillance estivale)",
+          "url_tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g187479-d2279266-Reviews-Piscinas_Naturales_El_Caleton-Tenerife_Canary_Islands.html",
+          "photos": [
+            "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1200&q=80"
+          ],
+          "tags": ["Lave Volcanique", "Piscine Naturelle", "Garachico", "Fort Médiéval", "Baignade"],
+          "presentation_courte": "Des bassins naturels sculptés par les coulées de lave de l'éruption de 1706 au pied du château San Miguel, offrant une baignade unique dans une eau limpide protégée de la houle.",
+          "synthese_avis_detaillee": {
+            "chiffres_cles": "Synthèse sur 2 100 avis (note 4,7/5 — 77% Excellent).",
+            "points_structurants": [
+              {
+                "titre": "Aménagements confortables et sécurisés",
+                "icone": "check",
+                "contenu": "Des passerelles et escaliers en pierre avec échelles de bain permettent d'accéder facilement aux différents bassins de profondeurs variées. Idéal pour nager en admirant le pittoresque village historique de Garachico."
+              },
+              {
+                "titre": "Vérifier le drapeau de baignade",
+                "icone": "flag",
+                "contenu": "Par mer très forte, l'accès aux bassins extérieurs peut être fermé par précaution. Privilégiez les heures de marée basse pour une eau calme et transparente propice au masque et tuba."
+              }
+            ]
+          }
+        },
+        {
+          "id": "tf-stargazing-teide",
+          "titre": "Observation des Étoiles au Teide (Stargazing Experience)",
+          "categorie": "nature",
+          "categorie_libelle": "Ciel & Astronomie",
+          "type_element": "activite",
+          "note_globale": 4.9,
+          "note_sur_5": 5,
+          "nb_avis_total": 1850,
+          "repartition_avis": {
+            "excellent": 1690,
+            "tres_bon": 120,
+            "moyen": 28,
+            "mediocre": 8,
+            "horrible": 4
+          },
+          "cout_par_personne": 45.0,
+          "est_gratuit": false,
+          "duree_conseillee_min": 180,
+          "duree_conseillee_texte": "2h30 à 3h",
+          "adresse": "Mirador de Minas de San José / Parador del Teide, 38300 La Orotava, Tenerife",
+          "zone_geo": "Centre / Plateau du Teide (2 200 m)",
+          "horaires_ouverture": "Séances nocturnes guidées (départs vers 20:30 - 22:00 selon saison)",
+          "url_tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g187479-d33366592-Reviews-Teide_Stargazing_Experience-Tenerife_Canary_Islands.html",
+          "photos": [
+            "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80"
+          ],
+          "tags": ["Voie Lactée", "Télescopes Pros", "Réserve Starlight", "Magique", "Astronomie"],
+          "presentation_courte": "Une séance d'astronomie immersive sur le plateau volcanique du Teide sous l'un des trois ciels les plus purs de la planète, avec télescopes motorisés et guides astrophysiciens.",
+          "synthese_avis_detaillee": {
+            "chiffres_cles": "Synthèse sur 1 850 avis (note 4,9/5 — 91% Excellent).",
+            "points_structurants": [
+              {
+                "titre": "Visibilité exceptionnelle de la Voie Lactée et des planètes",
+                "icone": "star",
+                "contenu": "L'altitude à 2 200 m au-dessus de la couche nuageuse élimine toute humidité et pollution lumineuse. Les visiteurs observent avec netteté les anneaux de Saturne, les bandes de Jupiter, des nébuleuses et des amas d'étoiles."
+              },
+              {
+                "titre": "Froid nocturne intense : Équipement grand froid indispensable",
+                "icone": "thermometer-snowflake",
+                "contenu": "La nuit dans la caldeira volcanique, le mercure chute régulièrement entre 0°C et 5°C (parfois négatif en automne/hiver). Doudoune épaisse de ski, bonnet, gants chauds et écharpe sont indispensables pour rester immobile devant les télescopes."
+              }
+            ]
+          }
+        },
+        {
+          "id": "tf-jardin-botanico",
+          "titre": "Jardin d'Acclimatation Botanique de Puerto de la Cruz",
+          "categorie": "culture",
+          "categorie_libelle": "Flore Tropicale & Histoire",
+          "type_element": "activite",
+          "note_globale": 4.6,
+          "note_sur_5": 5,
+          "nb_avis_total": 3400,
+          "repartition_avis": {
+            "excellent": 2420,
+            "tres_bon": 760,
+            "moyen": 170,
+            "mediocre": 35,
+            "horrible": 15
+          },
+          "cout_par_personne": 3.0,
+          "est_gratuit": false,
+          "duree_conseillee_min": 90,
+          "duree_conseillee_texte": "1h30",
+          "adresse": "Calle Retama 2, 38400 Puerto de la Cruz, Tenerife",
+          "zone_geo": "Nord / Puerto de la Cruz",
+          "horaires_ouverture": "Tous les jours : 09:00 - 18:00",
+          "url_tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g187479-d197606-Reviews-Jardin_Botanico-Tenerife_Canary_Islands.html",
+          "photos": [
+            "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80",
+            "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80"
+          ],
+          "tags": ["Ficus Géant", "Arbres Bicentenaire", "Oasis Végétale", "Ombragé", "Apaisant"],
+          "presentation_courte": "Fondé au XVIIIe siècle par le roi Charles III pour acclimater les espèces tropicales des Amériques, ce jardin historique est réputé pour son spectaculaire Ficus macrophylla bicentenaire aux racines monumentales.",
+          "synthese_avis_detaillee": {
+            "chiffres_cles": "Synthèse sur 3 400 avis voyageurs (note 4,6/5 — 71% Excellent).",
+            "points_structurants": [
+              {
+                "titre": "Le Ficus géant d'Australie : La star absolue du parc",
+                "icone": "tree",
+                "contenu": "L'arbre vedette au centre du jardin fascine les visiteurs avec son réseau monumental de racines aériennes colonnaires ressemblant à un décor fantastique."
+              },
+              {
+                "titre": "Tarif symbolique et promenade paisible à l'ombre",
+                "icone": "smile",
+                "contenu": "À 3 € l'entrée, c'est l'une des visites les plus économiques et reposantes de l'île. Les allées bordées de palmiers royaux, d'arbres à pain et de nénuphars géants offrent une fraîcheur très appréciable en milieu de journée."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
