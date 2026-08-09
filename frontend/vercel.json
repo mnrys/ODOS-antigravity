@@ -2,19 +2,19 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://VOTRE_URL_RENDER/api/:path*"
+      "destination": "https://odos-backend-j2d3.onrender.com/api/:path*"
     },
     {
       "source": "/uploads/:path*",
-      "destination": "https://VOTRE_URL_RENDER/uploads/:path*"
+      "destination": "https://odos-backend-j2d3.onrender.com/uploads/:path*"
     },
     {
       "source": "/ai/:path*",
-      "destination": "https://VOTRE_URL_RENDER/ai/:path*"
+      "destination": "https://odos-backend-j2d3.onrender.com/ai/:path*"
     },
     {
       "source": "/activities/quick-capture/:path*",
-      "destination": "https://VOTRE_URL_RENDER/activities/quick-capture/:path*"
+      "destination": "https://odos-backend-j2d3.onrender.com/activities/quick-capture/:path*"
     },
     {
       "source": "/(.*)",
