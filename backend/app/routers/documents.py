@@ -3,7 +3,6 @@ Routeur FastAPI pour la gestion des pièces jointes et de la galerie (Photos et 
 cf. PRD_ecran1_creation.md (US-12) et SCHEMA_BASE_DE_DONNEES.md, section 4.
 """
 import os
-import shutil
 import uuid
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
@@ -12,11 +11,9 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import Activity, Document
 from app.schemas import DocumentBase
+from app.services.storage import upload_file_to_supabase, delete_file_from_supabase
 
 router = APIRouter(tags=["Documents"])
-
-# Répertoire de stockage des fichiers uploadés sur le serveur
-UPLOAD_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "uploads"))
 
 
 @router.post("/api/activities/{activity_id}/documents", response_model=DocumentBase, status_code=status.HTTP_201_CREATED)
@@ -53,20 +50,17 @@ async def upload_activity_document(
         # Fichier générique accepté comme pdf/document
         type_fichier = "pdf"
 
-    # Création du sous-dossier dédié à l'activité
-    activity_folder = os.path.join(UPLOAD_DIR, "activities", str(activity_id))
-    os.makedirs(activity_folder, exist_ok=True)
-
-    # Nom de fichier sécurisé et unique pour éviter toute collision
-    unique_filename = f"{uuid.uuid4().hex[:10]}_{filename}"
-    file_path = os.path.join(activity_folder, unique_filename)
-
-    # Écriture du fichier sur le disque
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-
-    # Chemin relatif stocké en base (servi via le point d'accès /uploads)
-    relative_path = f"uploads/activities/{activity_id}/{unique_filename}"
+    # Upload vers Supabase Storage
+    try:
+        public_url = await upload_file_to_supabase(activity_id, file)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erreur lors de l'envoi de l'image: {str(e)}"
+        )
+    
+    # Chemin stocké en base (URL absolue)
+    relative_path = public_url
 
     # Vérification si c'est la première photo de l'activité (devient automatiquement principale)
     nb_photos = db.query(Document).filter(
@@ -150,9 +144,9 @@ def add_document_from_url(
 
 
 @router.delete("/api/documents/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_document(document_id: int, db: Session = Depends(get_db)):
+async def delete_document(document_id: int, db: Session = Depends(get_db)):
     """
-    Supprime un document en base et retire le fichier physique du serveur.
+    Supprime un document en base et retire le fichier de Supabase Storage.
     """
     doc = db.query(Document).filter(Document.id == document_id).first()
     if not doc:
@@ -161,13 +155,11 @@ def delete_document(document_id: int, db: Session = Depends(get_db)):
             detail=f"Document {document_id} introuvable"
         )
 
-    # Suppression du fichier physique s'il existe
-    full_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", doc.chemin_fichier))
-    if os.path.exists(full_path):
-        try:
-            os.remove(full_path)
-        except OSError:
-            pass  # Ne bloque pas la suppression en base si le fichier disque est déjà absent
+    # Suppression du fichier sur Supabase Storage
+    try:
+        await delete_file_from_supabase(doc.chemin_fichier)
+    except Exception:
+        pass  # Ne bloque pas la suppression en base si l'image est introuvable
 
     activity_id = doc.activity_id
     was_main = doc.est_principale
