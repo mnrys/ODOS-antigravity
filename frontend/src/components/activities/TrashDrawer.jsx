@@ -85,6 +85,32 @@ export default function TrashDrawer({
     }
   };
 
+  // Action : Purger toute la corbeille
+  const handlePurgeAll = async () => {
+    if (
+      !window.confirm(
+        `Vider définitivement TOUTE la corbeille ? Cette action supprimera de façon irréversible toutes les fiches actuellement présentes.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/trips/${tripId}/trash/purge-all`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        setTrashItems([]);
+        if (onRestored) onRestored();
+      }
+    } catch (err) {
+      console.error("Erreur lors de la purge totale:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
       <div className="relative w-full max-w-2xl max-h-[85vh] bg-white rounded-[28px] border border-[#E6E4DF] shadow-2xl flex flex-col overflow-hidden">
@@ -154,7 +180,9 @@ export default function TrashDrawer({
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-white text-[#55565A]">
-                        {item.source === 'scraping_auto'
+                        {item.source === 'scraping_simule'
+                          ? '⚠️ secours (virtuel)'
+                          : item.source === 'scraping_auto'
                           ? '🤖 scraping'
                           : item.source === 'claude_chrome'
                           ? '⚡ chrome'
@@ -219,15 +247,26 @@ export default function TrashDrawer({
         <div className="px-6 py-3.5 bg-[#F7F6F3] border-t border-[#E6E4DF] flex items-center justify-between">
           <div className="flex items-center gap-2 text-[12px] text-[#55565A]">
             <ShieldAlert size={14} className="text-[#B9862F]" />
-            <span>Période de grâce de 30 jours (restauration garantie)</span>
+            <span>Période de grâce de 30 jours</span>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-5 py-2 rounded-full bg-[#17181A] text-white text-[13px] font-bold hover:bg-black transition-colors"
-          >
-            Fermer
-          </button>
+          <div className="flex items-center gap-3">
+            {trashItems.length > 0 && (
+              <button
+                type="button"
+                onClick={handlePurgeAll}
+                className="px-5 py-2 rounded-full bg-white text-[#B4472F] border border-[#E6E4DF] hover:bg-[#B4472F]/10 text-[13px] font-bold transition-colors shadow-xs"
+              >
+                Vider la corbeille
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-5 py-2 rounded-full bg-[#17181A] text-white text-[13px] font-bold hover:bg-black transition-colors"
+            >
+              Fermer
+            </button>
+          </div>
         </div>
       </div>
     </div>

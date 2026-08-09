@@ -51,3 +51,19 @@ Vu chez le même designer : dossier de captures d'écran + une mini-webapp de cl
 
 *Document vivant — chaque suggestion évoquée en conversation qui dépasse le cadre d'une seule réponse
 doit être proposée pour cette liste avant d'être considérée comme "notée".*
+
+---
+
+## Idées Produit (Versions Ultérieures)
+
+*Ces idées concernent l'évolution de l'application ODOS elle-même, au-delà de la phase de planification.*
+
+### Mode "Pendant le voyage" (Live Tracking & Geotagging)
+- **Galerie Personnelle En Direct** : Si l'app est ouverte pendant que l'on réalise une activité, les photos prises vont directement s'associer à la fiche de l'activité en cours dans une "galerie personnelle".
+- **Géotagging intelligent** : ODOS lit les métadonnées GPS des photos et propose automatiquement de les classer dans la bonne activité (pratique si l'on prend les photos sans ouvrir l'app sur le moment).
+- **Flexibilité du tri** : Possibilité de trier au fil de l'eau (pendant l'activité), le soir au calme (tri de la journée), ou tout à la fin en rentrant de voyage.
+
+### Mode "Retour de voyage" (Album Souvenir Automatisé)
+- **Génération automatique d'album** : À la fin du voyage, ODOS compile un "album souvenir" prêt à l'emploi.
+- **Contenu enrichi** : L'album intègre les protagonistes, les photos personnelles classées, des petits résumés de ce qui s'est passé, et même un encart sur les imprévus ou problèmes rencontrés.
+- *Objectif : Transformer l'outil de planification en un carnet de bord et de souvenirs post-voyage.*

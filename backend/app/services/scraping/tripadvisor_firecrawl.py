@@ -328,3 +328,103 @@ def scrape_tripadvisor_destination(
     logger.info(f"TripAdvisor Firecrawl : {len(results)} activités extraites pour {destination_nom}")
     return results
 
+
+def scrape_generic_list_firecrawl(url: str, limit: int = 50) -> List[Dict[str, Any]]:
+    """
+    Extrait dynamiquement une liste d'activités depuis n'importe quelle URL (article de blog, site officiel)
+    en utilisant les capacités d'extraction LLM de Firecrawl.
+    """
+    api_key = _get_firecrawl_api_key()
+    if not api_key:
+        logger.error("FIRECRAWL_API_KEY absente dans la configuration.")
+        return []
+
+    endpoint = "https://api.firecrawl.dev/v1/scrape"
+    payload = {
+        "url": url,
+        "formats": ["extract"],
+        "extract": {
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "activities": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "titre": {"type": "string", "description": "Nom officiel de l'activité ou du lieu"},
+                                "description": {"type": "string", "description": "Description détaillée tirée de l'article"},
+                                "prix_a_partir_de": {"type": "number", "description": "Prix mentionné (en euros, null si non mentionné)"},
+                                "duree_recommandee": {"type": "string", "description": "Durée ou temps nécessaire (ex: '2h', 'demi-journée')"}
+                            },
+                            "required": ["titre", "description"]
+                        },
+                        "description": f"Extrait jusqu'à {limit} activités ou lieux touristiques mentionnés sur cette page."
+                    }
+                },
+                "required": ["activities"]
+            }
+        }
+    }
+
+    req_data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(
+        endpoint,
+        data=req_data,
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+            "User-Agent": "ODOS-TravelPlanner/1.0"
+        },
+        method="POST"
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=90) as response:
+            if response.getcode() != 200:
+                logger.error(f"Firecrawl a répondu avec le code HTTP {response.getcode()}")
+                return []
+
+            result = json.loads(response.read().decode("utf-8"))
+            data = result.get("data", {})
+            extract = data.get("extract", {})
+            activities_raw = extract.get("activities", [])
+
+            formatted_results = []
+            for item in activities_raw[:limit]:
+                if not item.get("titre"):
+                    continue
+
+                prix = float(item.get("prix_a_partir_de") or 0.0)
+                duree_str = item.get("duree_recommandee")
+
+                activity_dict = {
+                    "titre": item.get("titre"),
+                    "cout_par_personne": prix,
+                    "duree_min": _parse_duration_to_minutes(duree_str),
+                    "adresse": None,
+                    "description": item.get("description"),
+                    "horaires_ouverture": None,
+                    "url_source": url,
+                    "avis_utilisateurs": "Activité suggérée par l'article. Aucune donnée d'avis spécifique extraite.",
+                    "source": "scraping_auto",
+                    "note_interet": 3,
+                    "type_element": "activite",
+                    "statut": "non_reserve",
+                    "statut_validation": "a_valider",
+                    "photos": [],
+                    "tags": []
+                }
+                formatted_results.append(activity_dict)
+            
+            logger.info(f"Firecrawl Generic Extract : {len(formatted_results)} activités extraites de {url}")
+            return formatted_results
+
+    except urllib.error.HTTPError as e:
+        err_content = e.read().decode("utf-8", errors="ignore")
+        logger.error(f"Erreur HTTP Firecrawl {e.code} : {err_content}")
+        return []
+    except Exception as e:
+        logger.error(f"Erreur inattendue lors du scraping générique Firecrawl : {e}")
+        return []
+

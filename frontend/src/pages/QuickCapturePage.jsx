@@ -1245,7 +1245,7 @@ RÈGLES IMPORTANTES :
           <TagInput
             tripId={tripId}
             selectedTags={selectedTags}
-            onTagsChange={setSelectedTags}
+            onChange={setSelectedTags}
           />
         </div>
 

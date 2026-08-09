@@ -49,7 +49,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F1F0ED] topo-bg flex flex-col md:flex-row font-sans text-[#17181A]">
+    <div className="h-screen overflow-hidden bg-[#F1F0ED] topo-bg flex flex-col md:flex-row font-sans text-[#17181A]">
       {/* Écran de démarrage au premier lancement (Phase 10) */}
       {showSplash && <SplashScreen onFinish={handleFinishSplash} />}
 

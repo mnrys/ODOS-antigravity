@@ -67,7 +67,7 @@ def client_with_db():
             pass
 
     app.dependency_overrides[get_db] = override_get_db
-    client = TestClient(app)
+    client = TestClient(app, raise_server_exceptions=True)
 
     with patch("app.routers.scraping.scrape_getyourguide", side_effect=simulate_getyourguide_scraping):
         yield client, db, trip, dest1, dest2, cat_nat

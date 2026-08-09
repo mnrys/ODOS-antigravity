@@ -142,6 +142,7 @@ export default function TagInput({ tripId, selectedTags = [], onChange }) {
             <button
               key={sug.id}
               type="button"
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => handleAddTag(sug.nom)}
               className="w-full flex items-center justify-between px-3 py-2 text-left text-[13px] text-[#17181A] hover:bg-[#F7F6F3] rounded-[8px] transition-colors"
             >
@@ -156,6 +157,7 @@ export default function TagInput({ tripId, selectedTags = [], onChange }) {
           {inputValue.trim() && !allTripTags.some((t) => t.nom.toLowerCase() === inputValue.trim().toLowerCase()) && (
             <button
               type="button"
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => handleAddTag(inputValue)}
               className="w-full flex items-center gap-2 px-3 py-2 text-left text-[13px] font-medium text-[#17181A] bg-[#D6F84C]/20 hover:bg-[#D6F84C]/40 rounded-[8px] transition-colors mt-1"
             >

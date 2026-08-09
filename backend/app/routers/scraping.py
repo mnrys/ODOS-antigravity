@@ -24,7 +24,8 @@ class SuggestDestinationRequest(BaseModel):
     trip_id: int
     destination_id: int
     source: str = "getyourguide"  # "getyourguide" ou "tripadvisor"
-    limit: int = Field(default=50, le=50)
+    limit: int = Field(default=50, le=500)
+    target_url: Optional[str] = None
 
 
 class SuggestDestinationResponse(BaseModel):
@@ -99,20 +100,33 @@ def suggest_destination(
     ).count()
 
     # 3. Exécution du scraping selon la source demandée (cloisonnement)
-    if payload.source.lower() == "tripadvisor":
-        scraped_items = scrape_tripadvisor_destination(
-            destination_nom=destination.nom,
-            limit=payload.limit,
-            offset=count_existing
-        )
-    else:
-        scraped_items = scrape_getyourguide(
-            destination_nom=destination.nom,
-            trip_id=payload.trip_id,
-            destination_id=payload.destination_id,
-            offset=count_existing,
-            limit=payload.limit
-        )
+    try:
+        if payload.source.lower() == "tripadvisor":
+            if payload.target_url:
+                # Si une URL est fournie, on extrait une liste d'activités depuis cet article/site
+                from app.services.scraping.tripadvisor_firecrawl import scrape_generic_list_firecrawl
+                scraped_items = scrape_generic_list_firecrawl(
+                    url=payload.target_url,
+                    limit=payload.limit
+                )
+            else:
+                # Sinon on utilise l'archive locale TripAdvisor par défaut
+                scraped_items = scrape_tripadvisor_destination(
+                    destination_nom=destination.nom,
+                    limit=payload.limit,
+                    offset=count_existing
+                )
+        else:
+            scraped_items = scrape_getyourguide(
+                destination_nom=destination.nom,
+                trip_id=payload.trip_id,
+                destination_id=payload.destination_id,
+                offset=count_existing,
+                limit=payload.limit,
+                target_url=payload.target_url
+            )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
     # 4. Déduplication stricte : on vérifie toutes les fiches de la destination, y compris celles en corbeille
     all_known_activities = db.query(Activity.url_source, Activity.titre).filter(
@@ -146,7 +160,7 @@ def suggest_destination(
             url_source=item.get("url_source"),
             lien_avis_tripadvisor=item.get("lien_avis_tripadvisor"),
             avis_utilisateurs=item.get("avis_utilisateurs"),
-            source="scraping_auto",
+            source=item.get("source", "scraping_auto"),
             statut_validation="a_valider",
             note_interet=item.get("note_interet", 3),
             type_element=item.get("type_element", "activite"),

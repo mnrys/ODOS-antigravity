@@ -9,6 +9,8 @@ export default function ScrapingModal({ tripId = 1, isOpen, onClose, onScrapingC
   const [destinations, setDestinations] = useState([]);
   const [selectedDestinationId, setSelectedDestinationId] = useState('');
   const [selectedSource, setSelectedSource] = useState('getyourguide');
+  const [targetUrl, setTargetUrl] = useState('');
+  const [limit, setLimit] = useState(50);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
@@ -54,7 +56,8 @@ export default function ScrapingModal({ tripId = 1, isOpen, onClose, onScrapingC
           trip_id: tripId,
           destination_id: parseInt(selectedDestinationId, 10),
           source: selectedSource,
-          limit: 50
+          limit: parseInt(limit, 10) || 50,
+          target_url: targetUrl.trim() || null
         })
       });
 
@@ -141,12 +144,39 @@ export default function ScrapingModal({ tripId = 1, isOpen, onClose, onScrapingC
                   >
                     <Globe className="w-4 h-4 text-[#00AF87] shrink-0" />
                     <div className="text-left">
-                      <span className="font-semibold block">TripAdvisor</span>
-                      <span className="text-[10px] text-[#8E8F92] block">Avis & Gratuit (Firecrawl)</span>
+                      <span className="font-semibold block">Site Web / TripAdvisor</span>
+                      <span className="text-[10px] text-[#8E8F92] block">Avis, Blogs & Officiels</span>
                     </div>
                   </button>
                 </div>
 
+              </div>
+
+              {/* Optionnel : URL spécifique */}
+              <div>
+                <label className="block text-xs font-semibold text-[#5A5B5E] mb-1.5 uppercase tracking-wider">
+                  URL Spécifique (Optionnel)
+                </label>
+                <input
+                  type="url"
+                  placeholder="https://..."
+                  value={targetUrl}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setTargetUrl(val);
+                    if (val.trim() !== '') {
+                      if (val.toLowerCase().includes('getyourguide.')) {
+                        setSelectedSource('getyourguide');
+                      } else {
+                        setSelectedSource('tripadvisor');
+                      }
+                    }
+                  }}
+                  className="w-full px-3.5 py-2.5 bg-white border border-[#E3E1DC] rounded-xl text-sm text-[#17181A] focus:outline-none focus:ring-2 focus:ring-[#3F7A55]"
+                />
+                <p className="text-[11px] text-[#8E8F92] mt-1.5">
+                  Laissez vide pour une recherche automatique. Vous pouvez coller une page GetYourGuide spécifique ou un article de blog (ex: "Que faire à Tenerife").
+                </p>
               </div>
 
               {/* Choix de la destination */}
@@ -170,10 +200,25 @@ export default function ScrapingModal({ tripId = 1, isOpen, onClose, onScrapingC
                 </p>
               </div>
 
+              {/* Limite de fiches */}
+              <div>
+                <label className="block text-xs font-semibold text-[#5A5B5E] mb-1.5 uppercase tracking-wider">
+                  Nombre maximum de fiches à scraper
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="500"
+                  value={limit}
+                  onChange={(e) => setLimit(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-white border border-[#E3E1DC] rounded-xl text-sm text-[#17181A] focus:outline-none focus:ring-2 focus:ring-[#3F7A55]"
+                />
+              </div>
+
               {/* Règle d'or de déduplication */}
               <div className="p-3 bg-[#F1F0ED] rounded-xl text-xs text-[#5A5B5E] space-y-1">
                 <p className="font-semibold text-[#17181A]">🛡️ Déduplication stricte & Plafond :</p>
-                <p>• Plafonné à 50 activités maximum par exécution.</p>
+                <p>• Plafonné à la limite définie (max 500) par exécution.</p>
                 <p>• Les activités déjà connues ou déjà rejetées en corbeille sont automatiquement ignorées.</p>
               </div>
 
@@ -207,6 +252,16 @@ export default function ScrapingModal({ tripId = 1, isOpen, onClose, onScrapingC
             </form>
           ) : (
             <div className="space-y-4 text-center py-2">
+              {result.activities?.some(a => a.source === 'scraping_simule') && (
+                <div className="p-3 mb-4 bg-amber-50 border border-amber-200 text-amber-700 text-sm rounded-xl flex items-start gap-2 text-left">
+                  <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-bold block">Données de secours générées</span>
+                    <span>La connexion à la source externe a échoué. Des fiches virtuelles de secours ont été ajoutées pour le test.</span>
+                  </div>
+                </div>
+              )}
+
               <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto ${
                 result.nombre_ajoutees > 0
                   ? 'bg-[#E8F2EC] text-[#3F7A55]'

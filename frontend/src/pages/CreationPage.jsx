@@ -30,6 +30,7 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
   // Filtres
   const [selectedDestination, setSelectedDestination] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedTag, setSelectedTag] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Modals & Drawers
@@ -166,6 +167,10 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
     if (selectedCategory !== 'all' && act.categorie_id !== Number(selectedCategory)) {
       return false;
     }
+    // Filtre tag
+    if (selectedTag !== 'all' && !act.tags?.some((t) => t.id === Number(selectedTag))) {
+      return false;
+    }
     // Recherche textuelle
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -176,6 +181,13 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
     }
     return true;
   });
+
+  // Extraction dynamique des tags utilisés dans les fiches actuelles
+  const availableTags = Array.from(
+    new Map(
+      activities.flatMap(act => act.tags || []).map(t => [t.id, t])
+    ).values()
+  ).sort((a, b) => a.nom.localeCompare(b.nom));
 
   return (
     <div className="space-y-6">
@@ -379,6 +391,20 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
               </option>
             ))}
           </select>
+
+          {/* Filtre Tag */}
+          <select
+            value={selectedTag}
+            onChange={(e) => setSelectedTag(e.target.value)}
+            className="px-3 py-1.5 bg-brand-surface rounded-full border border-transparent text-[13px] text-brand-secondary font-medium outline-none"
+          >
+            <option value="all">Tous les tags</option>
+            {availableTags.map((t) => (
+              <option key={t.id} value={t.id.toString()}>
+                {t.nom}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -464,7 +490,7 @@ export default function CreationPage({ tripId = 1, onPendingCountChange, onNavig
 
                   {/* Badge de provenance en haut à droite */}
                   <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-white/90 text-brand-encre shadow-sm backdrop-blur-xs">
-                    {act.source === 'scraping_auto' ? '🤖 scraping' : act.source === 'claude_chrome' ? '⚡ chrome' : '✏️ manuel'}
+                    {act.source === 'scraping_simule' ? '⚠️ secours (virtuel)' : act.source === 'scraping_auto' ? '🤖 scraping' : act.source === 'claude_chrome' ? '⚡ chrome' : '✏️ manuel'}
                   </div>
 
                   {/* Pastille noire de prix total en bas à droite de l'image */}

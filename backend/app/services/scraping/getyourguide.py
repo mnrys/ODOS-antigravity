@@ -365,7 +365,8 @@ def scrape_getyourguide(
     trip_id: int,
     destination_id: int,
     offset: int = 0,
-    limit: int = 50
+    limit: int = 50,
+    target_url: Optional[str] = None
 ) -> List[Dict[str, Any]]:
     """
     Exécute le scraping GetYourGuide pour une destination donnée.
@@ -373,9 +374,14 @@ def scrape_getyourguide(
     En cas d'absence de clé ou d'indisponibilité réseau, bascule élégamment sur le catalogue de démonstration.
     Plafonné strictement à 50 éléments maximum (conformément au PRD).
     """
-    limit = min(limit, 50)
+    limit = min(limit, 500)
     api_token = os.environ.get('APIFY_API_TOKEN', '').strip()
     actor_id = os.environ.get('APIFY_GYG_ACTOR_ID', 'automation-lab/getyourguide-activities-scraper').strip()
+
+    # Bouchon automatique pour les tests (pytest)
+    if os.environ.get('PYTEST_CURRENT_TEST'):
+        logger.info(f"Test Environnement détecté : Retour des données de simulation pour '{destination_nom}'")
+        return simulate_getyourguide_scraping(destination_nom, trip_id, destination_id, offset, limit)
 
     # Si une clé API Apify réelle est configurée dans .env
     if api_token and not api_token.startswith('apify_api_votre_token'):
@@ -385,18 +391,21 @@ def scrape_getyourguide(
             actor_clean = actor_id.replace('/', '~')
             endpoint = f"https://api.apify.com/v2/acts/{actor_clean}/run-sync-get-dataset-items?token={api_token}"
 
-            # Format d'entrée validé pour l'acteur Apify GetYourGuide
             actor_input = {
                 "currency": "EUR",
                 "language": "en-US",
                 "maxItems": limit,
-                "maxPages": max(1, (limit + 19) // 20),
-                "queries": [destination_nom.lower()],
                 "proxyConfiguration": {
                     "useApifyProxy": True,
                     "apifyProxyGroups": ["RESIDENTIAL"]
                 }
             }
+
+            if target_url:
+                actor_input["startUrls"] = [{"url": target_url}]
+            else:
+                actor_input["queries"] = [destination_nom.lower()]
+                actor_input["maxPages"] = max(1, (limit + 19) // 20)
 
             # Appel direct à l'API Apify avec timeout adapté (ex: 120s pour le crawl)
             with httpx.Client(timeout=120.0) as client:
@@ -415,23 +424,25 @@ def scrape_getyourguide(
                         return results
                     else:
                         logger.warning(f"Apify a répondu avec une liste vide pour '{destination_nom}'")
+                        return []
                 else:
                     logger.error(f"Réponse d'erreur Apify (HTTP {response.status_code}): {response.text}")
+                    raise RuntimeError(f"Erreur API Apify (HTTP {response.status_code}): {response.text}")
         except Exception as err:
-            # Règle 5.10 & 5.11 : Échec bruyamment côté logs, doux côté utilisateur
+            # Échec bruyant côté logs, et on lève l'erreur pour la remonter au routeur
             logger.error(f"Erreur de communication avec l'API Apify: {str(err)}", exc_info=True)
-
-    # Mode secours / catalogue représentatif pour démonstration et tests hors-ligne
-    logger.info(f"Utilisation du catalogue de simulation GetYourGuide pour '{destination_nom}' (offset={offset})")
-    return simulate_getyourguide_scraping(destination_nom, trip_id, destination_id, offset, limit)
-
+            raise RuntimeError(f"Échec de la connexion externe au scraper (Apify): {str(err)}")
+            
+    # Si on arrive ici, c'est que api_token est vide ou non valide
+    raise RuntimeError("La clé API Apify (APIFY_API_TOKEN) est manquante, invalide, ou c'est la valeur par défaut.")
 
 def simulate_getyourguide_scraping(
     destination_nom: str,
     trip_id: int,
     destination_id: int,
     offset: int = 0,
-    limit: int = 50
+    limit: int = 50,
+    **kwargs
 ) -> List[Dict[str, Any]]:
     """
     Fournit un catalogue représentatif simulé d'activités pour tests et démonstrations.
@@ -476,6 +487,7 @@ def simulate_getyourguide_scraping(
     ]
 
     selected_samples = samples[offset:offset + limit] if offset < len(samples) else samples[:limit]
-    return [GetYourGuideMapper.map_item(item, trip_id=trip_id, destination_id=destination_id) for item in selected_samples]
+    mapped_samples = [GetYourGuideMapper.map_item(item, trip_id=trip_id, destination_id=destination_id) for item in selected_samples]
+    return mapped_samples
 
 

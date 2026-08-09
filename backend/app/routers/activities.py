@@ -493,3 +493,30 @@ def purge_activity(activity_id: int, db: Session = Depends(get_db)):
     db.commit()
     return None
 
+
+@router.delete("/api/trips/{trip_id}/trash/purge-all", status_code=status.HTTP_204_NO_CONTENT)
+def purge_all_trash(trip_id: int, db: Session = Depends(get_db)):
+    """
+    Suppression définitive de toutes les fiches d'activité dans la corbeille pour ce voyage.
+    """
+    trip = db.query(Trip).filter(Trip.id == trip_id).first()
+    if not trip:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Voyage {trip_id} introuvable"
+        )
+
+    trash_activities = db.query(Activity).filter(
+        Activity.trip_id == trip_id,
+        Activity.supprime_le.is_not(None)
+    ).all()
+
+    for act in trash_activities:
+        for doc in act.documents:
+            db.delete(doc)
+        db.delete(act)
+
+    db.commit()
+    return None
+
+

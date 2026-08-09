@@ -42,6 +42,7 @@ export default function FocusModeModal({
     duree_min: 60,
     note_interet: 3,
     description: '',
+    avis_utilisateurs: '',
     remarques: '',
     tags: []
   });
@@ -84,6 +85,7 @@ export default function FocusModeModal({
         duree_min: current.duree_min ?? 60,
         note_interet: current.note_interet ?? 3,
         description: current.description || '',
+        avis_utilisateurs: current.avis_utilisateurs || '',
         remarques: current.remarques || '',
         tags: current.tags || []
       });
@@ -459,9 +461,11 @@ export default function FocusModeModal({
               {/* Bannière supérieure compacte : Source & Complétude */}
               <div className="flex flex-wrap items-center justify-between gap-2 bg-[#F7F6F3] px-4 py-2.5 rounded-[16px] border border-[#E6E4DF]">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white text-[#17181A] shadow-xs">
-                    {currentActivity.source === 'scraping_auto'
-                      ? '🤖 Scraping auto (GetYourGuide)'
+                  <span className="px-3.5 py-1.5 rounded-full text-[13px] font-bold bg-white text-[#17181A] shadow-xs">
+                    {currentActivity.source === 'scraping_simule'
+                      ? '⚠️ Secours (virtuel)'
+                      : currentActivity.source === 'scraping_auto'
+                      ? '🤖 Scraping auto'
                       : currentActivity.source === 'claude_chrome'
                       ? '⚡ Claude for Chrome'
                       : '✏️ Création manuelle'}
@@ -471,10 +475,10 @@ export default function FocusModeModal({
                       href={currentActivity.url_source}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#EDEBE6] hover:bg-[#D6F84C] hover:text-[#17181A] text-[#17181A] transition-all group"
-                      title="Ouvrir la page GetYourGuide dans un nouvel onglet"
+                      className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[13px] font-bold bg-[#EDEBE6] hover:bg-[#D6F84C] hover:text-[#17181A] text-[#17181A] transition-all group"
+                      title="Ouvrir la page source dans un nouvel onglet"
                     >
-                      <ExternalLink size={12} className="text-[#55565A] group-hover:text-[#17181A]" />
+                      <ExternalLink size={14} className="text-[#55565A] group-hover:text-[#17181A]" />
                       <span>Ouvrir la page source ({getSourceHost(currentActivity.url_source)})</span>
                     </a>
                   )}
@@ -568,12 +572,6 @@ export default function FocusModeModal({
                             e.target.src = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80';
                           }}
                         />
-                        {currentActivity.avis_utilisateurs && (
-                          <div className="absolute bottom-2.5 left-2.5 bg-[#17181A]/85 backdrop-blur-md text-white text-[11px] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-lg">
-                            <Star size={13} className="text-[#D6F84C] fill-[#D6F84C]" />
-                            <span>{currentActivity.avis_utilisateurs}</span>
-                          </div>
-                        )}
                         {/* Badge couverture principale */}
                         {currentActivity.photo_principale === activePhotoSrc && (
                           <div className="absolute top-2.5 left-2.5 bg-[#D6F84C] text-[#17181A] text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-md">
@@ -593,7 +591,7 @@ export default function FocusModeModal({
                           Glissez vos photos ici
                         </p>
                         <p className="text-[11px] text-[#55565A]">
-                          depuis GetYourGuide ou votre ordinateur
+                          depuis votre site source ou depuis votre pc
                         </p>
                       </div>
                     )}
@@ -624,24 +622,32 @@ export default function FocusModeModal({
                                   </div>
                                 )}
                                 {/* Overlay actions au survol */}
-                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
                                   {!isMain && (
                                     <button
                                       type="button"
-                                      onClick={() => handleSetMainPhoto(photo.id, photo.chemin_fichier)}
-                                      className="p-1 rounded bg-[#D6F84C] text-[#17181A] hover:scale-110 transition-transform"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleSetMainPhoto(photo.id, photo.chemin_fichier);
+                                      }}
+                                      className="p-1.5 rounded bg-[#D6F84C] text-[#17181A] hover:scale-110 transition-transform"
                                       title="Définir comme photo principale"
                                     >
-                                      <Star size={10} className="fill-[#17181A]" />
+                                      <Star size={12} className="fill-[#17181A]" />
                                     </button>
                                   )}
                                   <button
                                     type="button"
-                                    onClick={() => handleDeletePhoto(photo.id, photo.chemin_fichier)}
-                                    className="p-1 rounded bg-[#B4472F] text-white hover:scale-110 transition-transform"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (window.confirm('Voulez-vous vraiment supprimer cette photo ?')) {
+                                        handleDeletePhoto(photo.id, photo.chemin_fichier);
+                                      }
+                                    }}
+                                    className="p-1.5 rounded bg-[#B4472F] text-white hover:scale-110 transition-transform"
                                     title="Supprimer cette photo"
                                   >
-                                    <Trash2 size={10} />
+                                    <Trash2 size={12} />
                                   </button>
                                 </div>
                               </div>
@@ -655,7 +661,7 @@ export default function FocusModeModal({
                     <div className="pt-1">
                       <div className="border border-dashed border-[#D5D3CD] rounded-[14px] p-2.5 bg-white/70 hover:bg-white transition-colors text-center">
                         <p className="text-[11px] font-bold text-[#17181A]">
-                          ⚡ Glissez-déposez n'importe quelle photo depuis l'onglet GetYourGuide
+                          ⚡ Glissez-déposez n'importe quelle photo depuis votre site source
                         </p>
                         <p className="text-[10px] text-[#8E8F92] mt-0.5">
                           Prenez une image sur la page web voisine et lâchez-la dans cette zone
@@ -676,7 +682,7 @@ export default function FocusModeModal({
                       type="text"
                       value={formData.titre}
                       onChange={(e) => setFormData({ ...formData, titre: e.target.value })}
-                      className="w-full px-3.5 py-2 bg-[#F7F6F3] rounded-[12px] border border-transparent focus:border-[#17181A] focus:bg-white text-[14px] font-bold text-[#17181A] outline-none"
+                      className="w-full px-4 py-2.5 bg-[#F7F6F3] rounded-[12px] border border-transparent focus:border-[#17181A] focus:bg-white text-[16px] font-black text-[#17181A] outline-none"
                     />
                   </div>
 
@@ -869,6 +875,20 @@ export default function FocusModeModal({
                       className="w-full px-3 py-2.5 bg-[#F7F6F3] rounded-[12px] border border-transparent focus:border-[#17181A] text-[12px] leading-relaxed text-[#17181A] outline-none resize-none font-sans"
                     />
                   </div>
+
+                  {/* Synthèse des Avis */}
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-[#55565A] mb-1">
+                      Synthèse des avis voyageurs
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={formData.avis_utilisateurs}
+                      onChange={(e) => setFormData({ ...formData, avis_utilisateurs: e.target.value })}
+                      placeholder="Résumé des retours, affluence, météo, conseils..."
+                      className="w-full px-3 py-2.5 bg-[#F7F6F3] rounded-[12px] border border-transparent focus:border-[#17181A] text-[12px] leading-relaxed text-[#17181A] outline-none resize-none font-sans"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -878,16 +898,49 @@ export default function FocusModeModal({
         {/* Footer Actions (Rejeter vs Valider) */}
         {totalCount > 0 && currentActivity && (
           <div className="px-6 py-3.5 bg-[#F7F6F3] border-t border-[#E6E4DF] flex items-center justify-between">
-            {/* Bouton Rejeter */}
-            <button
-              type="button"
-              disabled={saving}
-              onClick={handleReject}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[#B4472F] hover:bg-[#B4472F]/10 text-[13px] font-bold transition-colors disabled:opacity-50"
-            >
-              <Trash2 size={16} />
-              <span>Rejeter vers la corbeille</span>
-            </button>
+            {/* Boutons Gauche: Rejeter & Annuler */}
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                disabled={saving}
+                onClick={handleReject}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[#B4472F] hover:bg-[#B4472F]/10 text-[13px] font-bold transition-colors disabled:opacity-50"
+              >
+                <Trash2 size={16} />
+                <span className="hidden sm:inline">Rejeter vers la corbeille</span>
+                <span className="inline sm:hidden">Rejeter</span>
+              </button>
+
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => {
+                  if (window.confirm("Voulez-vous annuler toutes vos modifications sur cette fiche ?")) {
+                    setFormData({
+                      titre: currentActivity.titre || '',
+                      destination_id: currentActivity.destination_id || (destinations[0]?.id ?? ''),
+                      categorie_id: currentActivity.categorie_id || '',
+                      type_element: currentActivity.type_element || 'activite',
+                      adresse: currentActivity.adresse || '',
+                      zone_geo: currentActivity.zone_geo || '',
+                      cout_par_personne: currentActivity.cout_par_personne ?? 0,
+                      duree_min: currentActivity.duree_min ?? 60,
+                      note_interet: currentActivity.note_interet ?? 3,
+                      description: currentActivity.description || '',
+                      avis_utilisateurs: currentActivity.avis_utilisateurs || '',
+                      remarques: currentActivity.remarques || '',
+                      tags: currentActivity.tags || []
+                    });
+                    setSelectedPhotoPreview(null);
+                    showFeedback("🔄 Modifications annulées");
+                  }
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-[#55565A] hover:bg-[#E6E4DF] text-[12px] font-bold transition-colors disabled:opacity-50"
+                title="Annuler vos modifications non sauvegardées"
+              >
+                <span>Annuler les modifs</span>
+              </button>
+            </div>
 
             {/* Bouton Valider & Suivant */}
             <div className="flex items-center gap-3">
